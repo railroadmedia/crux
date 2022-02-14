@@ -13,16 +13,13 @@ Route::group(
     function () {
 
         Route::get(
-            '/foo',
+            '/account-details',
             [
-                'as' => 'members.crux.foo',
-                //'uses' => AccountDetailsController::class . '@accountDetails'
-                function(){
-                    dd('foooo!');
-                }
+                'as' => 'members.crux.account-details',
+                'uses' => AccountDetailsController::class . '@accountDetails'
             ]
         );
-
+        
 //        // cancellation pages
 //        Route::get(
 //            '/cancel/annual-offer',

@@ -2,6 +2,7 @@
 
 namespace Railroad\Crux\Http\Controllers;
 
+use App\Http\Controllers\Profiles\UserSettingsController;
 use App\Maps\ProductAccessMap;
 use App\Services\User\UserAccessService;
 use Illuminate\Routing\Controller;
@@ -24,6 +25,18 @@ class AccountDetailsController extends Controller
      * '30 days' => ['id' => 283,'sku' => 'DLM-Trial-30-Day']
      */
     public static $trialSKUs = ['DLM-Trial-1-month', 'DLM-Trial-30-Day', 'DLM-Trial-Annual-30-Day', 'DLM-Trial-Annual-7-Day'];
+
+    /**
+     * @var UserSettingsController
+     */
+    private $userSettingsController;
+
+    public function __construct(
+        UserSettingsController $userSettingsController
+    )
+    {
+        $this->userSettingsController = $userSettingsController;
+    }
 
     public function accountDetails()
     {
@@ -150,7 +163,7 @@ class AccountDetailsController extends Controller
         }
 
         return view(
-            'members.account.settings.account-details',
+            'crux::account-details',
             [
                 'hasClaimedRetentionOfferAlready' => $hasClaimedRetentionOfferAlready,
                 'subscriptionManagedElsewhere' => $subscriptionManagedElsewhere,
@@ -162,7 +175,7 @@ class AccountDetailsController extends Controller
                 'ownedNonMembershipProducts' => $ownedNonMembershipProducts ?? [],
                 'subscription' => $subscription ?? null,
                 'isLifetime' => $isLifetime,
-                'sections' => $this->settingSections(),
+                'sections' => $this->userSettingsController->settingSections(),
                 'currentUser' => current_user(),
                 'hasEdgeAccess' => $hasEdgeAccess,
                 'membershipType' => $membershipType,
