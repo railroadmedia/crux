@@ -1,7 +1,7 @@
 @extends('members.account.settings.layout')
 
 @section('meta')
-    <title>Account Details | Drumeo</title>
+    <title>Access | Drumeo</title>
 @endsection
 
 @section('styles')
@@ -59,7 +59,7 @@
 
 {{--    @endphp--}}
 
-{{--    <h1 class="heading tw-pl-8 tw-pt-8">Account Details</h1>--}}
+{{--    <h1 class="heading tw-pl-8 tw-pt-8">Access</h1>--}}
 
 {{--    --}}{{-- ----------------------------- --}}
 {{--    --}}{{-- Access Levels --}}

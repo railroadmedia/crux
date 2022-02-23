@@ -8,16 +8,6 @@ class NavigationSpecificsDeterminationService
 {
     public static function settingSections($section)
     {
-        /* * * * * * * * * * *
-        profile
-        login-credentials
-        payments
-        settings
-        access-details
-        * * * * * * * * * * */
-
-        $brand = config('railcontent.brand');
-
         $settingsSections = [
             [
                 "url" => self::getUrlForSection('profile'),
@@ -44,81 +34,77 @@ class NavigationSpecificsDeterminationService
                 "active" => (array_reverse(request()->segments())[0] ?? '') == 'settings',
             ],
             [
-                "url" => self::getUrlForSection('access.details'),
+                "url" => self::getUrlForSection('access'),
                 "icon" => "fas fa-calendar-alt",
-                "title" => "Account Details",
-                "active" => strpos(url()->current(), 'account.details'),
+                "title" => "Access",
+                "active" => strpos(url()->current(), 'access'),
             ],
         ];
-
-        if($brand == 'drumeo'){
-            // hide magazine settings for non-members
-            if (!empty(current_user()) && !UserAccessService::isMember(current_user()->getId())) {
-                unset($settingsSections[5]);
-            }
-        }
 
         return $settingsSections;
     }
 
+    /**
+     * @param $section
+     * @return string
+     * @throws \Exception
+     */
     public static function getUrlForSection($section)
     {
         $brand = config('railcontent.brand');
 
-        switch($section) {
+        switch ($section) {
             case 'profile':
-                switch($brand){
+                switch ($brand) {
                     case 'drumeo':
                         return url()->route('user.settings.profile');
                     case 'pianote':
+                    case 'singeo':
                         return url()->route('members.profile.settings');
                     case 'guitareo':
                         return url()->route('members.account.settings');
-                    case 'singeo':
-                        return url()->route('members.profile.settings');
                 }
+                break;
 
             case 'login-credentials':
-                switch($brand){
+                switch ($brand) {
                     case 'drumeo':
                         return url()->route('user.settings.login-credentials');
                     case 'pianote':
+                    case 'singeo':
                         return url()->route('members.profile.settings', ['section' => 'login-credentials']);
                     case 'guitareo':
                         return url()->route('members.account.settings.login-credentials');
-                    case 'singeo':
-                        return url()->route('members.profile.settings',['section' => 'login-credentials']);
                 }
+                break;
 
             case 'payments':
-                switch($brand){
+                switch ($brand) {
                     case 'drumeo':
                         return url()->route('user.settings.payments');
                     case 'pianote':
+                    case 'singeo':
                         return url()->route('members.profile.settings', ['section' => 'payments']);
                     case 'guitareo':
                         return url()->route('members.account.settings.payments');
-                    case 'singeo':
-                        return url()->route('members.profile.settings',['section' => 'payments']);
                 }
-
+                break;
             case 'settings':
-                switch($brand){
+                switch ($brand) {
                     case 'drumeo':
                         return url()->route('user.settings.settings');
                     case 'pianote':
-                        #return url()->route('members.profile.settings', ['section' => 'settings']);
-                        return url()->route('members.profile.settings.settings'); # does this work? If so probably use this rather than the commented-out line above
+                        return url()->route('members.profile.settings.settings');
                     case 'guitareo':
                         return url()->route('members.account.settings.settings');
                     case 'singeo':
-                        return url()->route('members.profile.settings',['section' => 'settings']);
-                        #return url()->route('members.profile.settings.settings'); # does this work? If so probably use this rather than the commented-out line above
+                        return url()->route('members.profile.settings', ['section' => 'settings']);
                 }
-
+                break;
             case 'access':
                 return url()->route('members.crux.access.details');
         }
 
+        throw new \Exception('unexpected $section value "' . $section . '" not found for brand ' . $brand);
     }
 }
