@@ -2,13 +2,18 @@
 
 namespace Railroad\Crux\Http\Controllers;
 
-use App\Http\Controllers\Profiles\UserSettingsController;
+// todo: make this brand agnostic
+//use App\Http\Controllers\Profiles\UserSettingsController;
 use App\Maps\ProductAccessMap;
-use App\Services\User\UserAccessService;
+// todo: make this brand agnostic
+//use App\Services\User\UserAccessService;
 use Illuminate\Routing\Controller;
+use Railroad\Crux\Factories\UserPermutationFactory;
 use Railroad\Ecommerce\Entities\Product;
 use Railroad\Ecommerce\Entities\Subscription;
 use Railroad\Ecommerce\Services\UserProductService;
+use Railroad\Usora\Entities\User;
+use Railroad\Crux\Services\NavigationSpecificsDeterminationService as NavHelper;
 
 class AccountDetailsController extends Controller
 {
@@ -26,161 +31,90 @@ class AccountDetailsController extends Controller
      */
     public static $trialSKUs = ['DLM-Trial-1-month', 'DLM-Trial-30-Day', 'DLM-Trial-Annual-30-Day', 'DLM-Trial-Annual-7-Day'];
 
+    // todo: make this brand agnostic
+//    /**
+//     * @var UserSettingsController
+//     */
+//    private $userSettingsController;
+    /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+     * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+     * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+     * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+        
+        return [
+            [
+                'url' => $this->getUrlForSection($section),
+                'icon' => 'fas fa-edit',
+                'title' => 'Profile',
+                'active' => $section === 'profile',
+            ],
+            [
+                'url' => $this->getUrlForSection($section),
+                'icon' => 'fas fa-lock',
+                'title' => 'Login Credentials',
+                'active' => $section === 'login-credentials',
+            ],
+            [
+                'url' => $this->getUrlForSection($section),
+                'icon' => 'far fa-credit-card',
+                'title' => 'Payments',
+                'active' => $section === 'payments',
+            ],
+            [
+                'url' => $this->getUrlForSection($section),
+                'icon' => 'fas fa-bell',
+                'title' => 'Settings',
+                'active' => $section === 'settings',
+            ],
+            [
+                'url' => $this->getUrlForSection($section),
+                'icon' => 'fas fa-calendar-alt',
+                'title' => 'Access',
+                'active' => $section === 'access-details',
+            ],
+        ];
+    
+     * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+     * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+     * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+     * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
     /**
-     * @var UserSettingsController
+     * @var UserPermutationFactory
      */
-    private $userSettingsController;
+    private $permutationFactory;
 
     public function __construct(
-        UserSettingsController $userSettingsController
+        // todo: make this brand agnostic
+        //UserSettingsController $userSettingsController
+        UserPermutationFactory $permutationFactory
     )
     {
-        $this->userSettingsController = $userSettingsController;
+        // todo: make this brand agnostic
+        //$this->userSettingsController = $userSettingsController;
+        $this->permutationFactory = $permutationFactory;
     }
 
     public function accountDetails()
     {
-        $edgeAccessIsFromTrial = false;
-        $edgeExpirationDate = null;
-        $edgeIsExpired = null;
-        $userId = current_user()->getId();
-        $userProductService = app(UserProductService::class);
-        $subscription = UserAccessService::getEdgeSubscription($userId);
-        $isLifetime = UserAccessService::isLifetime($userId);
-        $userProducts = $userProductService->getAllUsersProducts($userId);
+        //dd('\Railroad\Crux\Http\Controllers\AccountDetailsController::accountDetails');
 
-        foreach ($userProducts as $userProduct) {
-            /** @var Product $product */
-            $product = $userProduct->getProduct();
+        /** @var User $user */
+        $user = current_user();
 
-            $isMembershipProduct = in_array($product->getId(), ProductAccessMap::membershipProductIds());
+        try{
+            $permutation = $this->permutationFactory->getPermutation($user);
+        } catch (\Exception $e) {
+            error_log($e);
 
-            if ($isMembershipProduct) {
-                $membershipUserProducts[] = $userProduct;
-            }
-
-            if ($product->getBrand() == 'drumeo' && !$isMembershipProduct) {
-                $ownedNonMembershipProducts[] = $product;
-            }
-        }
-
-        $userProduct = UserAccessService::getEdgeUserProduct();
-
-        if($userProduct){
-            if ($userProduct->getExpirationDate()) {
-                $edgeExpirationDate = $userProduct->getExpirationDate();
-            }
-
-            $sku = $userProduct->getProduct()->getSku();
-
-            if($subscription && $subscription->getIsActive()){
-                // if they get access via a subscription, the product might be different
-                $sku = $subscription->getProduct()->getSku();
-            }
-
-            if (in_array($sku, self::$trialSKUs)) {
-                $edgeAccessIsFromTrial = true;
-            }
-        }
-
-        $hasEdgeAccess = UserAccessService::isEdge($userId);
-
-        if (!empty($membershipUserProducts)) {
-            $edgeIsExpired = UserAccessService::isEdgeExpired($userId);
-        }
-
-        // Determine sub-view
-        if ($edgeIsExpired) {
-            // todo: check that this is what marketing wants
-            $membershipDetailsSubView = self::$membershipDetailsSubViews['renew-offer-for-expired'];
-        } elseif ($subscription) {
-
-            if ($subscription->getCanceledOn()) {
-                // User type ONE - subscription that has been cancelled... and whether or not they currently have access is irrelevant...?
-                $membershipDetailsSubView = self::$membershipDetailsSubViews['renew-offer'];
-            } else {
-                // User type TWO - active subscription
-                $membershipDetailsSubView = self::$membershipDetailsSubViews['membership-details'];
-                $showCancelMembershipButton = true;
-            }
-        } else {
-            if ($hasEdgeAccess) {
-                $membershipDetailsSubView = self::$membershipDetailsSubViews['membership-details'];
-            } else {
-                $membershipDetailsSubView = self::$membershipDetailsSubViews['trial-offer'];
-            }
-        }
-
-        if (!$subscription && ($edgeAccessIsFromTrial ?? false) && $hasEdgeAccess) {
-            $showCancelMembershipButton = true;
-        }
-
-        $linkToSalesPage = 'https://drumeo.com/laravel/public/members/support';
-
-        // trial, 1-month, 2-month, 3-month, 6-month, 1-year, lifetime, null
-        $membershipType = null;
-
-        // active, expired, cancelled, lifetime, null
-        // null means pack only owner or has access to nothing
-        $membershipStatus = UserAccessService::getMembershipSubscriptionState($userId);
-
-        if (empty($subscription) && !empty($userProduct)) {
-            $membershipStatus = 'non-recurring';
-            $membershipType = 'trial';
-            $edgeExpirationDate = $userProduct->getExpirationDate();
-        }
-
-        if (!empty($subscription)) {
-            if ($edgeAccessIsFromTrial) {
-                $membershipType = 'trial';
-            } else {
-                $membershipType = $subscription->getIntervalCount() . '-' . $subscription->getIntervalType();
-            }
-        }
-
-        if ($isLifetime) $membershipType = 'lifetime';
-
-        if(UserAccessService::getMembershipStartDateIfPaused($userProduct)) $membershipStatus = 'paused';
-
-        $hasClaimedRetentionOfferAlready = UserAccessService::hasClaimedRetentionOfferWithin(6);
-
-        if (!empty($subscription)) {
-            $subscriptionManagedElsewhere = ($subscription->getType() == Subscription::TYPE_APPLE_SUBSCRIPTION ||
-                $subscription->getType() == Subscription::TYPE_GOOGLE_SUBSCRIPTION ||
-                $subscription->getType() == Subscription::TYPE_PAYPAL_SUBSCRIPTION);
-        } else {
-            $subscriptionManagedElsewhere = false;
-        }
-
-        if($membershipStatus == 'paused' && $membershipType != 'lifetime' && !isset($userProduct)){
-            error_log('User product not set when one should be.');
-            return redirect()->back()->with(
-                [
-                    'error-message' => 'We\'re sorry, but there\'s been a technical problem loading that page. Please ' .
-                        'try again, and contact Support if the problem persists.'
-                ]
-            );
+            // todo: return view with error?
         }
 
         return view(
             'crux::account-details',
             [
-                'hasClaimedRetentionOfferAlready' => $hasClaimedRetentionOfferAlready,
-                'subscriptionManagedElsewhere' => $subscriptionManagedElsewhere,
-                'linkToSalesPage' => $linkToSalesPage,
-                'showCancelMembershipButton' => $showCancelMembershipButton ?? null,
-                'edgeAccessIsFromTrial' => $edgeAccessIsFromTrial ?? null,
-                'edgeExpirationDate' => $edgeExpirationDate ?? null,
-                'membershipDetailsSubView' => $membershipDetailsSubView ?? null,
-                'ownedNonMembershipProducts' => $ownedNonMembershipProducts ?? [],
-                'subscription' => $subscription ?? null,
-                'isLifetime' => $isLifetime,
-                'sections' => $this->userSettingsController->settingSections(),
-                'currentUser' => current_user(),
-                'hasEdgeAccess' => $hasEdgeAccess,
-                'membershipType' => $membershipType,
-                'membershipStatus' => $membershipStatus,
-                'userProduct' => $userProduct,
+                'brand' => config('railcontent.brand'),
+                'sections' => NavHelper::settingSections('account.details')
             ]
         );
     }

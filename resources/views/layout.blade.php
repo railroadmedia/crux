@@ -6,7 +6,11 @@
 @extends('members.layout')
 
 @section('content')
-    @include('members.partials._drumeo-sidebar')
+    @if($brand == 'drumeo')
+        @include('members.partials._drumeo-sidebar')
+    @else
+        @include('members.partials._content-sidebar')
+    @endif
 
     @include('bladesora::members.partials._account-header', [
         "backgroundImage" => 'https://dmmior4id2ysr.cloudfront.net/assets/images/drumeo-members-header-background-image.jpg',

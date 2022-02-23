@@ -7,15 +7,15 @@ use Railroad\Crux\Http\Controllers\AccountDetailsController;
 
 Route::group(
     [
-        'middleware' => ['web', 'auth'],
-        'prefix' => '/members/crux'
+        'middleware' => config('crux.middleware'),
+        'prefix' => '/members/access'
     ],
     function () {
 
         Route::get(
-            '/account-details',
+            '/details',
             [
-                'as' => 'members.crux.account-details',
+                'as' => 'members.crux.access.details',
                 'uses' => AccountDetailsController::class . '@accountDetails'
             ]
         );
