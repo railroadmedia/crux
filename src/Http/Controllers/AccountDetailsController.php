@@ -100,9 +100,10 @@ class AccountDetailsController extends Controller
     {
         /** @var User $user */
         $user = current_user();
+        $brand = config('railcontent.brand');
 
         try{
-            $permutation = $this->permutationFactory->getPermutation($user);
+            $permutation = $this->permutationFactory->getPermutation($user, $brand);
         } catch (\Exception $e) {
             error_log($e);
             if(app('env') == 'development'){
@@ -115,7 +116,7 @@ class AccountDetailsController extends Controller
         }
 
         $params = [
-            'brand' => config('railcontent.brand'),
+            'brand' => $brand,
             'sections' => NavHelper::settingSections('account.details'),
             'permutation' => $permutation,
             'ownedNonMembershipProducts' => $permutation->ownedNonMembershipProducts() ?? [],

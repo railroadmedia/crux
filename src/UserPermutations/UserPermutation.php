@@ -7,15 +7,23 @@ use App\Services\User\UserAccessService;
 use Carbon\Carbon;
 use Railroad\Ecommerce\Entities\Product;
 use Railroad\Ecommerce\Services\UserProductService;
+use Railroad\Usora\Entities\User;
 
 class UserPermutation
 {
-
+    /** @var User $user */
     private $user;
 
-    public function __construct($user)
+    /** @var string $brand */
+    private $brand;
+
+    public function __construct(
+        User $user,
+        string $brand
+    )
     {
         $this->user = $user;
+        $this->brand = $brand;
     }
 
     // top section =====================================================================================================
@@ -152,7 +160,7 @@ class UserPermutation
 //                $membershipUserProducts[] = $userProduct;
 //            }
 
-            if ($product->getBrand() == 'drumeo' && !$isMembershipProduct) {
+            if ($product->getBrand() == $this->brand && !$isMembershipProduct) {
                 $ownedNonMembershipProducts[] = $product;
             }
         }

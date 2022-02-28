@@ -81,14 +81,14 @@ class UserPermutationFactory
      * @param User $user
      * @return UserPermutation
      */
-    public function getPermutation(User $user): UserPermutation
+    public function getPermutation(User $user, string $brand): UserPermutation
     {
         //$brand = config('railcontent.brand');
         $userId = $user->getId();
         $subscription = UserAccessService::getMembershipSubscription($userId);
 
         if (!UserAccessService::isMember($userId)) {
-            return new StudentWithoutMembershipAccess($user);
+            return new StudentWithoutMembershipAccess($user, $brand);
         }
 
         $membershipUserProduct = UserAccessService::getMembershipUserProduct();
@@ -100,38 +100,38 @@ class UserPermutationFactory
         $membershipProduct = $membershipUserProduct->getProduct();
 
         if (UserAccessService::isLifetime($userId)) {
-            return new MemberLifetime($user);
+            return new MemberLifetime($user, $brand);
         }
 
         $nonRenewing = $membershipProduct->getType() == 'digital one time';
         $accessFromTrial = in_array($membershipProduct->getId(), ProductAccessMap::trialMembershipProductIds());
 
         if ($nonRenewing && $accessFromTrial) {
-            return new MemberTrialWithOutRenewal($user);
+            return new MemberTrialWithOutRenewal($user, $brand);
         }
 
         if (!$subscription) {
-            return new MemberWithAnomalousNonRenewingAccess($user);
+            return new MemberWithAnomalousNonRenewingAccess($user, $brand);
         } else {
 
             $subscriptionQualifiesMemberAsNew = $this->subscriptionQualifiesMemberAsNew($subscription);
 
             if ($subscription->getCanceledOn()) {
-                return new CancelledMemberWithAccessRemaining($user);
+                return new CancelledMemberWithAccessRemaining($user, $brand);
             }
 
             if ($subscription->getIntervalType() == 'year' || $subscription->getIntervalType() == 'yearly') {
                 if($subscriptionQualifiesMemberAsNew){
-                    return new MemberAnnualNew($user);
+                    return new MemberAnnualNew($user, $brand);
                 }
-                return new MemberAnnual($user);
+                return new MemberAnnual($user, $brand);
             }
 
             if ($subscription->getIntervalType() == 'month' || $subscription->getIntervalType() == 'monthly') {
                 if($subscriptionQualifiesMemberAsNew){
-                    return new MemberMonthlyNew($user);
+                    return new MemberMonthlyNew($user, $brand);
                 }
-                return new MemberMonthly($user);
+                return new MemberMonthly($user, $brand);
             }
         }
 
