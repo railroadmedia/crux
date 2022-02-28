@@ -7,6 +7,7 @@ namespace Railroad\Crux\Http\Controllers;
 use App\Maps\ProductAccessMap;
 // todo: make this brand agnostic
 //use App\Services\User\UserAccessService;
+use App\Services\User\UserAccessService;
 use Illuminate\Routing\Controller;
 use Railroad\Crux\Factories\UserPermutationFactory;
 use Railroad\Ecommerce\Entities\Product;
@@ -97,8 +98,6 @@ class AccountDetailsController extends Controller
 
     public function accountDetails()
     {
-        //dd('\Railroad\Crux\Http\Controllers\AccountDetailsController::accountDetails');
-
         /** @var User $user */
         $user = current_user();
 
@@ -106,16 +105,25 @@ class AccountDetailsController extends Controller
             $permutation = $this->permutationFactory->getPermutation($user);
         } catch (\Exception $e) {
             error_log($e);
-
-            // todo: return view with error?
+            if(app('env') == 'development'){
+                dd($e->getMessage());
+            }
+            return redirect()
+                ->back()
+                ->with(['error-message' => 'We\'re sorry but there\'s been an error, please try again. If the problem ' .
+                    'persists please let us know!']);
         }
 
+        $params = [
+            'brand' => config('railcontent.brand'),
+            'sections' => NavHelper::settingSections('account.details'),
+            'permutation' => $permutation,
+            'ownedNonMembershipProducts' => $permutation->ownedNonMembershipProducts() ?? [],
+        ];
+
         return view(
-            'crux::account-details',
-            [
-                'brand' => config('railcontent.brand'),
-                'sections' => NavHelper::settingSections('account.details')
-            ]
+            'crux::access-details',
+            $params
         );
     }
 }

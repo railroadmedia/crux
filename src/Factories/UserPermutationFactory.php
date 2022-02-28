@@ -13,6 +13,7 @@ use Railroad\Crux\UserPermutations\MemberMonthly;
 use Railroad\Crux\UserPermutations\MemberMonthlyNew;
 use Railroad\Crux\UserPermutations\MemberTrialWithOutRenewal;
 use Railroad\Crux\UserPermutations\MemberTrialWithRenewal;
+use Railroad\Crux\UserPermutations\MemberWithAnomalousNonRenewingAccess;
 use Railroad\Crux\UserPermutations\StudentWithoutMembershipAccess;
 use Railroad\Crux\UserPermutations\UserPermutation;
 use Railroad\Ecommerce\Entities\Product;
@@ -38,12 +39,21 @@ class UserPermutationFactory
         'NotYetMember',
     ];
 
+    private $userAccessService;
+
     private static $membershipDetailsSubViews = [
         'membership-details' => 'membership-details',
         'renew-offer' => 'renew-offer',
         'renew-offer-for-expired' => 'renew-offer-for-expired',
         'trial-offer' => 'trial-offer'
     ];
+
+    public function __constructor(
+        UserAccessService $userAccessService
+    )
+    {
+        $this->userAccessService = $userAccessService;
+    }
 
     private function accessFromTrial($subscription)
     {
@@ -73,12 +83,12 @@ class UserPermutationFactory
      */
     public function getPermutation(User $user): UserPermutation
     {
-        $brand = config('railcontent.brand');
+        //$brand = config('railcontent.brand');
         $userId = $user->getId();
         $subscription = UserAccessService::getMembershipSubscription($userId);
 
         if (!UserAccessService::isMember($userId)) {
-            return new StudentWithoutMembershipAccess();
+            return new StudentWithoutMembershipAccess($user);
         }
 
         $membershipUserProduct = UserAccessService::getMembershipUserProduct();
@@ -90,43 +100,41 @@ class UserPermutationFactory
         $membershipProduct = $membershipUserProduct->getProduct();
 
         if (UserAccessService::isLifetime($userId)) {
-            return new MemberLifetime();
+            return new MemberLifetime($user);
         }
 
         $nonRenewing = $membershipProduct->getType() == 'digital one time';
         $accessFromTrial = in_array($membershipProduct->getId(), ProductAccessMap::trialMembershipProductIds());
 
-        if ($nonRenewing) {
-            if ($accessFromTrial) {
-                return new MemberTrialWithOutRenewal();
-            } else {
-                throw new \Exception('Unexpected permutation for user ' . $userId);
-            }
+        if ($nonRenewing && $accessFromTrial) {
+            return new MemberTrialWithOutRenewal($user);
         }
 
-        if ($subscription) {
+        if (!$subscription) {
+            return new MemberWithAnomalousNonRenewingAccess($user);
+        } else {
 
             $subscriptionQualifiesMemberAsNew = $this->subscriptionQualifiesMemberAsNew($subscription);
 
             if ($subscription->getCanceledOn()) {
-                return new CancelledMemberWithAccessRemaining();
+                return new CancelledMemberWithAccessRemaining($user);
             }
 
-            if ($subscription->getIntervalType() == 'annual') {
+            if ($subscription->getIntervalType() == 'year' || $subscription->getIntervalType() == 'yearly') {
                 if($subscriptionQualifiesMemberAsNew){
-                    return new MemberAnnualNew();
+                    return new MemberAnnualNew($user);
                 }
-                return new MemberAnnual();
+                return new MemberAnnual($user);
             }
 
-            if ($subscription->getIntervalType() == 'monthly') {
+            if ($subscription->getIntervalType() == 'month' || $subscription->getIntervalType() == 'monthly') {
                 if($subscriptionQualifiesMemberAsNew){
-                    return new MemberMonthlyNew();
+                    return new MemberMonthlyNew($user);
                 }
-                return new MemberMonthly();
+                return new MemberMonthly($user);
             }
         }
 
-        throw new \Exception('No UserPermutation resolved for used ' . $userId);
+        throw new \Exception('No UserPermutation fits user ' . $userId);
     }
 }
