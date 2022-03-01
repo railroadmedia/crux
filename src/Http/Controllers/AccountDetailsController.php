@@ -119,7 +119,7 @@ class AccountDetailsController extends Controller
             'brand' => $brand,
             'sections' => NavHelper::settingSections('account.details'),
             'permutation' => $permutation,
-            'ownedNonMembershipProducts' => $permutation->ownedNonMembershipProducts() ?? [],
+            'accessExpiryDate' => UserAccessService::membershipExpiryDateRegardlessOfCurrentUserState($user->getId())
         ];
 
         return view(
