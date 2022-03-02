@@ -145,6 +145,12 @@ class UserPermutation
         return true;
     }
 
+    /*
+     * These methods might not be well suited to here. This might risk turning into a god object.
+     * These methods might not be well suited to here. This might risk turning into a god object.
+     * These methods might not be well suited to here. This might risk turning into a god object.
+     */
+
     public function ownedNonMembershipProducts()
     {
         $userProductService = app(UserProductService::class);
@@ -166,6 +172,75 @@ class UserPermutation
         }
 
         return $ownedNonMembershipProducts ?? [];
+    }
+
+    public function membershipType()
+    {
+        if(UserAccessService::isLifetime($this->user->getId())) {
+            $membershipType = 'lifetime';
+        }
+
+        $subscription = UserAccessService::getMembershipSubscription($this->user->getId());
+
+        if (!empty($subscription)) {
+            if (get_class($this) == MemberTrialWithOutRenewal::class) {
+                $membershipType = 'trial';
+            } else {
+                $membershipType = $subscription->getIntervalCount() . '-' . $subscription->getIntervalType();
+            }
+        }
+
+        $knownPossibilities = [
+            'trial',
+            '1-month',
+            '2-month',
+            '3-month',
+            '6-month',
+            '1-year',
+            'lifetime',
+        ];
+
+        if (!in_array($membershipType, $knownPossibilities)) {
+            if (UserAccessService::isMember($this->user->getId())) {
+                if (!empty($subscription)) {
+                    $type = ucwords($subscription->getIntervalType());
+                    $membershipType = $subscription->getIntervalCount() . ' ' . $type . ' Member';
+                } else {
+                    $membershipType = 'Member';
+                }
+            }
+        }
+
+        return $membershipType ?? '';
+    }
+
+    public function membershipStatus()
+    {
+        $membershipStatus = UserAccessService::getMembershipSubscriptionState($this->user->getId());
+
+        $userProduct = UserAccessService::getMembershipUserProduct();
+
+        if (empty($subscription) && !empty($userProduct)) {
+            $membershipStatus = 'non-recurring';
+        }
+
+        if (UserAccessService::getMembershipStartDateIfPaused($userProduct)) {
+            $membershipStatus = 'paused';
+        }
+
+        return $membershipStatus;
+    }
+
+    public function ifPausedReturnUserProductStartDate()
+    {
+        if($this->membershipStatus() == 'paused' && $this->membershipType() != 'lifetime'){
+
+            $membershipProduct = UserAccessService::getMembershipUserProduct();
+
+            return $membershipProduct->getStartDate()->format('F j, Y');
+        }
+
+        return null;
     }
 
     // =================================================================================================================
