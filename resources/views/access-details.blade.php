@@ -67,13 +67,13 @@
 
     <?php $ownedNonMembershipProducts = $permutation->ownedNonMembershipProducts(); ?>
 
-    @if(!empty($ownedNonMembershipProducts) || $permutation->hasMembership())
+    @if(!empty($ownedNonMembershipProducts) || $permutation->hasMembershipAccess())
         <div class="tw-flex tw-flex-col tw-p-8 body">
             <h2 class="subheading">Your Access Levels</h2>
 
             <p class="tw-mt-3">Your {{ ucfirst($brand) }} Account includes:</p>
             <ul class="tw-mt-3 tw-space-y-1">
-                @if($permutation->hasMembership())
+                @if($permutation->hasMembershipAccess())
                     <li>Membership</li>
                 @endif
 
@@ -109,9 +109,8 @@
     @endif
 
     {{-- ---------------------------------------------------------------------------------------------------------- --}}
+    {{-- Member --------------------------------------------------------------------------------------------------- --}}
     {{-- ---------------------------------------------------------------------------------------------------------- --}}
-    {{-- ---------------------------------------------------------------------------------------------------------- --}}
-    {{-- Member --}}
 
     <?php
         /** @var \Railroad\Crux\UserPermutations\UserPermutation $permutation */
@@ -119,7 +118,7 @@
         $membershipStatus = $permutation->membershipStatus();
     ?>
 
-    @if(!empty($membershipType))
+    @if($permutation->hasMembershipAccess())
         <div class="tw-flex tw-flex-wrap tw-border-0 tw-border-t tw-border-b tw-border-gray-300 tw-border-solid">
             <div class="tw-flex tw-flex-col tw-w-full md:tw-w-1/2 tw-p-8 body tw-items-center tw-justify-center tw-border-0 tw-border-r tw-border-gray-300 tw-border-solid tw-text-center">
                 <img src="{{ imgix(\Railroad\Crux\Services\BrandSpecificResourceService::logoUrl($brand), ["auto" => "format"]) }}"
@@ -199,14 +198,29 @@
                 @endif
             </div>
         </div>
+
+    @else {{-- does NOT have membership access--}}
+
+        <div class="tw-flex tw-flex-wrap tw-border-0 tw-border-t tw-border-b tw-border-gray-300 tw-border-solid">
+            <div class="tw-flex tw-flex-col tw-w-full md:tw-w-1/2 tw-p-8 body tw-items-center tw-justify-center tw-border-0 tw-border-r tw-border-gray-300 tw-border-solid">
+                <img src="{{ imgix(\Railroad\Crux\Services\BrandSpecificResourceService::logoUrl($brand), ["auto" => "format"]) }}"
+                     alt="Drumeo logo"
+                     class="tw-w-80">
+            </div>
+            <div class="tw-flex tw-flex-col tw-w-full md:tw-w-1/2 body tw-p-8">
+                <p class="tw-font-bold">You’re eligible for a free 7-day trial to get:</p>
+
+                <ul class="tw-mt-3 tw-text-gray-600 tw-space-y-1">
+                    <li>Drumeo Method step-by-step curriculum.</li>
+                    <li>200+ courses from legendary teachers.</li>
+                    <li>Entertaining shows and documentaries.</li>
+                    <li>Song breakdowns & Play-Alongs.</li>
+                    <li>Weekly live lessons and personal support.</li>
+                </ul>
+            </div>
+        </div>
+
     @endif
-
-
-    {{-- ---------------------------------------------------------------------------------------------------------- --}}
-    {{-- ---------------------------------------------------------------------------------------------------------- --}}
-    {{-- ---------------------------------------------------------------------------------------------------------- --}}
-
-
 
     {{-- ---------------------------------------------------------------------------------------------------------- --}}
     {{-- ---------------------------------------------------------------------------------------------------------- --}}

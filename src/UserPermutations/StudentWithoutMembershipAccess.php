@@ -4,7 +4,7 @@ namespace Railroad\Crux\UserPermutations;
 
 class StudentWithoutMembershipAccess extends UserPermutation
 {
-    public function hasMembership()
+    public function hasMembershipAccess()
     {
         return false;
     }

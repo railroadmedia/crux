@@ -140,7 +140,7 @@ class UserPermutation
 
     // =================================================================================================================
 
-    public function hasMembership()
+    public function hasMembershipAccess()
     {
         return true;
     }
@@ -200,7 +200,7 @@ class UserPermutation
             'lifetime',
         ];
 
-        if (!in_array($membershipType, $knownPossibilities)) {
+        if (!empty($membershipType) && !in_array($membershipType, $knownPossibilities)) {
             if (UserAccessService::isMember($this->user->getId())) {
                 if (!empty($subscription)) {
                     $type = ucwords($subscription->getIntervalType());
