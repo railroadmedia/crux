@@ -39,8 +39,6 @@ class UserPermutationFactory
         'NotYetMember',
     ];
 
-    private $userAccessService;
-
     private static $membershipDetailsSubViews = [
         'membership-details' => 'membership-details',
         'renew-offer' => 'renew-offer',
@@ -48,12 +46,12 @@ class UserPermutationFactory
         'trial-offer' => 'trial-offer'
     ];
 
-    public function __constructor(
-        UserAccessService $userAccessService
-    )
-    {
-        $this->userAccessService = $userAccessService;
-    }
+//    public function __constructor(
+//
+//    )
+//    {
+//
+//    }
 
     private function accessFromTrial($subscription)
     {
@@ -107,11 +105,16 @@ class UserPermutationFactory
         $accessFromTrial = in_array($membershipProduct->getId(), ProductAccessMap::trialMembershipProductIds());
 
         if ($nonRenewing && $accessFromTrial) {
-            return new MemberTrialWithOutRenewal($user, $brand);
+            return new MemberTrialWithOutRenewal($user, $brand); // todo: WHICH ONE...?
         }
 
         if (!$subscription) {
-            return new MemberWithAnomalousNonRenewingAccess($user, $brand);
+
+            if($accessFromTrial){
+                return new MemberTrialWithOutRenewal($user, $brand); // todo: WHICH ONE...?
+            }else{
+                return new MemberWithAnomalousNonRenewingAccess($user, $brand);
+            }
         } else {
 
             $subscriptionQualifiesMemberAsNew = $this->subscriptionQualifiesMemberAsNew($subscription);

@@ -143,7 +143,7 @@
                     @elseif($membershipType == 'lifetime')
                         Lifetime Member
                     @else
-                        $membershipType
+                        {{ $membershipType }}
                     @endif
                 </h2>
 
@@ -223,16 +223,106 @@
     @endif
 
     {{-- ---------------------------------------------------------------------------------------------------------- --}}
-    {{-- ---------------------------------------------------------------------------------------------------------- --}}
-    {{-- ---------------------------------------------------------------------------------------------------------- --}}
-
-
-
-    {{-- ---------------------------------------------------------------------------------------------------------- --}}
-    {{-- ---------------------------------------------------------------------------------------------------------- --}}
+    {{-- Buttons -------------------------------------------------------------------------------------------------- --}}
     {{-- ---------------------------------------------------------------------------------------------------------- --}}
 
+    <div class="body tw-p-8 tw-pt-10">
+        @if($permutation->subscriptionManagedElsewhere())
+            <div class="tw-flex tw-flex-col">
+                <p class="tw-mb-2">To edit your membership please use the following guides:</p>
+                <a href="https://support.apple.com/en-us/HT202039" class="body tw-mb-2" target="_blank">
+                    For Apple users</a>
+                <a href="https://support.google.com/googleplay/answer/7018481?co=GENIE.Platform%3DAndroid&hl=en"
+                   class="body tw-mb-1" target="_blank">
+                    For Google users
+                </a>
+            </div>
+        @else
+            @if(($membershipStatus == 'active' && $membershipType != 'lifetime' && $membershipType != '1-year') ||
+                ($membershipStatus == 'non-recurring' && $membershipType != 'lifetime'))
+                <a href="#"
+                   class="mu-modal-open tw-uppercase tw-font-bold tw-no-underline bg-drumeo hover:tw-bg-blue-600 tw-p-3 tw-pl-16 tw-pr-16 tw-text-white tw-rounded-full"
+                   id="modal-upgrade-to-annual">
+                    Upgrade Membership
+                </a>
+            @endif
+            @if($membershipStatus == 'canceled' || $membershipStatus == 'expired')
+                <a href="/"
+                   class="tw-uppercase tw-font-bold tw-no-underline bg-drumeo hover:tw-bg-blue-600 tw-p-3 tw-pl-16 tw-pr-16 tw-text-white tw-rounded-full">
+                    Renew Your Membership
+                </a>
+            @endif
+            @if($membershipStatus == 'paused')
+                <a href="/"
+                   class="tw-uppercase tw-font-bold tw-no-underline bg-drumeo hover:tw-bg-blue-600 tw-p-3 tw-pl-16 tw-pr-16 tw-text-white tw-rounded-full">
+                    Continue Your Membership
+                </a>
+            @endif
 
+            @if($membershipStatus == 'active' && ($membershipType != 'lifetime') && !$permutation->hasClaimedRetentionOfferAlready())
+                @php
+                    if (in_array($subscription->getProduct()->getId(), \App\Maps\ProductAccessMap::trialMembershipProductIds()) && count($subscription->getPayments()) == 0) {
+                        $modalId = 'modal-extend-trial-14-days';
+                    } else {
+                        if ($subscription->getStartDate() > \Carbon\Carbon::now()->subDays(90)) {
+                            $modalId = 'modal-free-30-days';
+                        } else {
+                            $modalId = 'modal-post-90-day-cancel-letter';
+                        }
+                    }
+                @endphp
+
+                <a href="#" id="{{ $modalId }}"
+                   class="mu-modal-open tw-uppercase tw-font-bold tw-no-underline tw-p-3 tw-pl-16 tw-pr-16">
+                    Cancel Membership
+                </a>
+            @endif
+
+            @if($membershipStatus == 'active' && ($membershipType != 'lifetime') && $permutation->hasClaimedRetentionOfferAlready())
+                <a href="{{ url()->route('user.settings.cancel.cancel-reason-form') }}"
+                   class="tw-uppercase tw-font-bold tw-no-underline tw-p-3 tw-pl-16 tw-pr-16">
+                    Cancel Membership
+                </a>
+            @endif
+
+            @if(empty($membershipType) && !$permutation->hasMembershipAccess())
+                <a href="/laravel/public/shopping-cart/api/query?products[DLM-Trial]=1,month,1&locked=true"
+                   class="tw-uppercase tw-font-bold tw-no-underline bg-drumeo hover:tw-bg-blue-600 tw-p-3 tw-pl-16 tw-pr-16 tw-text-white tw-rounded-full">
+                    Start Free Trial
+                </a>
+            @endif
+        @endif
+    </div>
+
+    {{-- ---------------------------------------------------------------------------------------------------------- --}}
+    {{-- Message -------------------------------------------------------------------------------------------------- --}}
+    {{-- ---------------------------------------------------------------------------------------------------------- --}}
+
+    @if(!$permutation->subscriptionManagedElsewhere() && $membershipType != 'lifetime')
+        <div class="body tw-p-8 tw-pt-2">
+            @if($membershipStatus == 'active' && $membershipType != 'lifetime' && $membershipType != '1-year')
+                <p class="tw-text-gray-600 tw-italic">
+                    Save {{ $savings }}% with an annual plan.
+                </p>
+            @elseif($membershipStatus == 'canceled' || $membershipStatus == 'expired' || $membershipStatus == 'paused')
+                <p class="tw-text-gray-600 tw-italic">
+                    This link will take you to reorder on <a href="/">www.drumeo.com</a>.
+                    Any purchased access will be added to your existing
+                    time. If you’d prefer, you can <a href="{{ url()->route('members.support') }}">click here</a> to
+                    contact
+                    Drumeo Support to restart your membership.
+                </p>
+            @elseif($membershipStatus == 'non-recurring')
+                <p class="tw-text-gray-600 tw-italic">
+                    Extend your membership beyond a trial at <a href="/">www.drumeo.com</a>
+                </p>
+            @elseif(empty($membershipType))
+                <p class="tw-text-gray-600 tw-italic">
+                    One time offer: 7 days free, no payment plan, starts immediately.
+                </p>
+            @endif
+        </div>
+    @endif
 
     {{-- ---------------------------------------------------------------------------------------------------------- --}}
     {{-- ---------------------------------------------------------------------------------------------------------- --}}

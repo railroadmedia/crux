@@ -115,11 +115,45 @@ class AccountDetailsController extends Controller
                     'persists please let us know!']);
         }
 
+
+        $repo = app(\Railroad\Ecommerce\Repositories\ProductRepository::class);
+
+        // todo: move to "helper" static class
+        switch($brand){
+            case 'drumeo':
+                $priceStandardCentsAnnual = ((int) $repo->findProduct(125)->getPrice()) * 100; // 125, DLM-1-year // 240 as of 220301
+                $priceStandardCentsMonthly = ((int) $repo->findProduct(124)->getPrice()) * 100; // 124, DLM-1-month // 29 as of 220301
+                break;
+            case 'pianote':
+                $priceStandardCentsAnnual = ((int) $repo->findProduct(6)->getPrice()) * 100; // 6, PIANOTE-MEMBERSHIP-1-YEAR // 197 as of 220301
+                $priceStandardCentsMonthly = ((int) $repo->findProduct(5)->getPrice()) * 100; // 5, PIANOTE-MEMBERSHIP-1-MONTH // 29 as of 220301
+                break;
+            case 'guitareo':
+                $priceStandardCentsAnnual = ((int) $repo->findProduct(18)->getPrice()) * 100; // 18, GUITAREO-1-YEAR-MEMBERSHIP // 127 as of 220301
+                $priceStandardCentsMonthly = ((int) $repo->findProduct(17)->getPrice()) * 100; // 17, GUITAREO-1-MONTH-MEMBERSHIP // 15 as of 220301
+                break;
+            case 'singeo':
+                $priceStandardCentsAnnual = ((int) $repo->findProduct(125)->getPrice()) * 100; // 125, singeo-annual-recurring-membership // 127 as of 220301
+                $priceStandardCentsMonthly = ((int) $repo->findProduct(409)->getPrice()) * 100; // 409, singeo-monthly-recurring-membership // 15 as of 220301
+                break;
+        }
+
+        // todo: move to "helper" static class
+        $savings = round(100 - (100 * ($priceStandardCentsAnnual / ($priceStandardCentsMonthly * 12))));
+        if($savings < 0){
+            $savings = $savings * -1;
+        }
+
         $params = [
             'brand' => $brand,
             'sections' => NavHelper::settingSections('account.details'),
             'permutation' => $permutation,
-            'accessExpiryDate' => UserAccessService::membershipExpiryDateRegardlessOfCurrentUserState($user->getId())
+            'accessExpiryDate' => UserAccessService::membershipExpiryDateRegardlessOfCurrentUserState($user->getId()),
+            'user' => $user,
+            'subscription' => UserAccessService::getMembershipSubscription($user->getId()),
+            'priceStandardCentsAnnual' => $priceStandardCentsAnnual,    // todo: move to "helper" static class
+            'priceStandardCentsMonthly' => $priceStandardCentsMonthly,  // todo: move to "helper" static class
+            'savings' => $savings,                                      // todo: move to "helper" static class
         ];
 
         return view(

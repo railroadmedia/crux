@@ -6,6 +6,7 @@ use App\Maps\ProductAccessMap;
 use App\Services\User\UserAccessService;
 use Carbon\Carbon;
 use Railroad\Ecommerce\Entities\Product;
+use Railroad\Ecommerce\Entities\Subscription;
 use Railroad\Ecommerce\Services\UserProductService;
 use Railroad\Usora\Entities\User;
 
@@ -218,6 +219,10 @@ class UserPermutation
     {
         $membershipStatus = UserAccessService::getMembershipSubscriptionState($this->user->getId());
 
+        if($membershipStatus){
+            return $membershipStatus;
+        }
+
         $userProduct = UserAccessService::getMembershipUserProduct();
 
         if (empty($subscription) && !empty($userProduct)) {
@@ -241,6 +246,26 @@ class UserPermutation
         }
 
         return null;
+    }
+
+    public function hasClaimedRetentionOfferAlready()
+    {
+        return UserAccessService::hasClaimedRetentionOfferWithin(6);
+    }
+
+    public function subscriptionManagedElsewhere()
+    {
+        $subscription = UserAccessService::getMembershipSubscription($this->user->getId());
+
+        if (!empty($subscription)) {
+            $subscriptionManagedElsewhere = (
+                $subscription->getType() == Subscription::TYPE_APPLE_SUBSCRIPTION ||
+                $subscription->getType() == Subscription::TYPE_GOOGLE_SUBSCRIPTION ||
+                $subscription->getType() == Subscription::TYPE_PAYPAL_SUBSCRIPTION
+            );
+        }
+
+        return $subscriptionManagedElsewhere ?? false;
     }
 
     // =================================================================================================================
