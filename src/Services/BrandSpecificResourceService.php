@@ -10,9 +10,19 @@ class BrandSpecificResourceService
      */
     public static function logoUrl($brand)
     {
+        /*
+         * Other images used elsewhere noted here in case we need them later:
+         * -------------------------------------------------------------------
+         *
+         * used for Drumeo account-details page but no longer because image has "Edge" and iifc we're no longer using that
+         * https://drumeo-assets.s3.amazonaws.com/logos/edge-logo_small.png
+         *
+         * used for Drumeo email feedback-from-cancellation-workflow and other similar emails:
+         * https://s3.amazonaws.com/drumeoblog/blog/wp-content/uploads/2016/07/drumeo-logo-verysmall.png
+         */
+
         switch(strtolower($brand)){
             case 'drumeo':
-                //return 'https://drumeo-assets.s3.amazonaws.com/logos/edge-logo_small.png';
                 return 'https://dpwjbsxqtam5n.cloudfront.net/logos/logo-blue.png';
             case 'pianote':
                 return 'https://pianote.s3.amazonaws.com/logo/pianote-logo-red.png';
