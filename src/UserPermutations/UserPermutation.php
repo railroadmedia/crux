@@ -205,9 +205,9 @@ class UserPermutation
             if (UserAccessService::isMember($this->user->getId())) {
                 if (!empty($subscription)) {
                     $type = ucwords($subscription->getIntervalType());
-                    $membershipType = $subscription->getIntervalCount() . ' ' . $type . ' Member';
+                    $membershipType = $subscription->getIntervalCount() . ' ' . $type . ' member';
                 } else {
-                    $membershipType = 'Member';
+                    $membershipType = 'member';
                 }
             }
         }

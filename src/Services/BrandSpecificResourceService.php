@@ -4,7 +4,6 @@ namespace Railroad\Crux\Services;
 
 class BrandSpecificResourceService
 {
-
     /**
      * @param $brand
      * @return string|void
@@ -13,7 +12,8 @@ class BrandSpecificResourceService
     {
         switch(strtolower($brand)){
             case 'drumeo':
-                return 'https://drumeo-assets.s3.amazonaws.com/logos/edge-logo_small.png';
+                //return 'https://drumeo-assets.s3.amazonaws.com/logos/edge-logo_small.png';
+                return 'https://dpwjbsxqtam5n.cloudfront.net/logos/logo-blue.png';
             case 'pianote':
                 return 'https://pianote.s3.amazonaws.com/logo/pianote-logo-red.png';
             case 'guitareo':
@@ -49,5 +49,7 @@ class BrandSpecificResourceService
             case 'singeo':
                 return $default; // todo
         }
+
+        return $default;
     }
 }

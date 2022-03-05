@@ -102,7 +102,7 @@ class NavigationSpecificsDeterminationService
                 }
                 break;
             case 'access':
-                return url()->route('members.crux.access.details');
+                return url()->route('crux.access-details');
         }
 
         throw new \Exception('unexpected $section value "' . $section . '" not found for brand ' . $brand);

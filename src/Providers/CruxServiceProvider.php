@@ -9,5 +9,7 @@ class CruxServiceProvider extends \Illuminate\Support\ServiceProvider
         $this->loadRoutesFrom(__DIR__ . '/../../routes/crux.php');
 
         $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'crux');
+
+        $this->mergeConfigFrom(__DIR__.'/../../config/crux.php', 'crux');
     }
 }

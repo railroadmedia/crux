@@ -10,13 +10,14 @@ use App\Maps\ProductAccessMap;
 use App\Services\User\UserAccessService;
 use Illuminate\Routing\Controller;
 use Railroad\Crux\Factories\UserPermutationFactory;
+use Railroad\Crux\Services\BrandSpecificResourceService;
 use Railroad\Ecommerce\Entities\Product;
 use Railroad\Ecommerce\Entities\Subscription;
 use Railroad\Ecommerce\Services\UserProductService;
 use Railroad\Usora\Entities\User;
 use Railroad\Crux\Services\NavigationSpecificsDeterminationService as NavHelper;
 
-class AccountDetailsController extends Controller
+class ViewController extends Controller
 {
 
     public static $membershipDetailsSubViews = [
@@ -96,7 +97,7 @@ class AccountDetailsController extends Controller
         $this->permutationFactory = $permutationFactory;
     }
 
-    public function accountDetails()
+    public function accessDetails()
     {
         /** @var User $user */
         $user = current_user();
@@ -151,14 +152,33 @@ class AccountDetailsController extends Controller
             'accessExpiryDate' => UserAccessService::membershipExpiryDateRegardlessOfCurrentUserState($user->getId()),
             'user' => $user,
             'subscription' => UserAccessService::getMembershipSubscription($user->getId()),
-            'priceStandardCentsAnnual' => $priceStandardCentsAnnual,    // todo: move to "helper" static class
-            'priceStandardCentsMonthly' => $priceStandardCentsMonthly,  // todo: move to "helper" static class
-            'savings' => $savings,                                      // todo: move to "helper" static class
+
+            'ownedNonMembershipProducts' => $permutation->ownedNonMembershipProducts(),
+            'membershipType' => $permutation->membershipType(),
+            'membershipStatus' => $permutation->membershipStatus(),
+
+            // todo: move these to "helper" static class
+            'savings' => $savings,
+            'featuresList' => BrandSpecificResourceService::featureList($brand),
         ];
 
         return view(
             'crux::access-details',
             $params
+        );
+    }
+
+    public function viewCancelReasonForm()
+    {
+        return view(
+            'crux::cancel-reason-form',
+            [
+                'brand' => config('railcontent.brand'),
+                'subscription' => UserAccessService::getEdgeSubscription(
+                    current_user()->getId()
+                ),
+                'hasClaimedRetentionOfferAlready' => UserAccessService::hasClaimedRetentionOfferWithin(6),
+            ]
         );
     }
 }

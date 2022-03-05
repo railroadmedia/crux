@@ -43,29 +43,9 @@
 
     <h1 class="heading tw-pl-8 tw-pt-8">Access Details</h1>
 
-    <!-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-    showCancelledNotice
-    showRemindOffer
-    showMembershipType
-    showNextRenewalAmount
-    showStudentSinceDate
-    showAccessEndingDate
-    showTrialBenefitsList
-    showUpgradeButton
-    showStartTrialButton
-    showUpgradeFromTrialText
-    showStartTrialDescriptionText
-    showSavePercentageWithAnnualSubscription
-    showCancelButton
-    -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -->
-
-    <?php $permutation = $permutation ?? null; /* just to get rid of the damn error-notification in the IDE */ ?>
-
     {{-- ---------------------------------------------------------------------------------------------------------- --}}
     {{-- Access Levels and owned products ------------------------------------------------------------------------- --}}
     {{-- ---------------------------------------------------------------------------------------------------------- --}}
-
-    <?php $ownedNonMembershipProducts = $permutation->ownedNonMembershipProducts(); ?>
 
     @if(!empty($ownedNonMembershipProducts) || $permutation->hasMembershipAccess())
         <div class="tw-flex tw-flex-col tw-p-8 body">
@@ -112,12 +92,6 @@
     {{-- Member --------------------------------------------------------------------------------------------------- --}}
     {{-- ---------------------------------------------------------------------------------------------------------- --}}
 
-    <?php
-        /** @var \Railroad\Crux\UserPermutations\UserPermutation $permutation */
-        $membershipType = $permutation->membershipType();
-        $membershipStatus = $permutation->membershipStatus();
-    ?>
-
     @if($permutation->hasMembershipAccess())
         <div class="tw-flex tw-flex-wrap tw-border-0 tw-border-t tw-border-b tw-border-gray-300 tw-border-solid">
             <div class="tw-flex tw-flex-col tw-w-full md:tw-w-1/2 tw-p-8 body tw-items-center tw-justify-center tw-border-0 tw-border-r tw-border-gray-300 tw-border-solid tw-text-center">
@@ -142,8 +116,6 @@
                         Annual Member
                     @elseif($membershipType == 'lifetime')
                         Lifetime Member
-                    @else
-                        {{ $membershipType }}
                     @endif
                 </h2>
 
@@ -164,8 +136,7 @@
                         @if($accessExpiryDate < \Carbon\Carbon::now())
                             Your access ended on {{ $accessExpiryDate->format('F j, Y') }}.
                         @else
-                            Your access is ending
-                            on {{ $accessExpiryDate->format('F j, Y') }}.
+                            Your access is ending on {{ $accessExpiryDate->format('F j, Y') }}.
                         @endif
                     </p>
                 @endif
@@ -179,10 +150,6 @@
             </div>
             <div class="tw-flex tw-flex-col tw-w-full md:tw-w-1/2 body tw-p-8">
                 <p class="tw-font-bold">{{ ucfirst($brand) }} gives you access to:</p>
-
-                <?php
-                    $featuresList = \Railroad\Crux\Services\BrandSpecificResourceService::featureList($brand);
-                ?>
 
                 <ul class="tw-mt-3 tw-text-gray-600 tw-space-y-1">
                     @foreach($featuresList as $featureItem)
@@ -279,7 +246,7 @@
             @endif
 
             @if($membershipStatus == 'active' && ($membershipType != 'lifetime') && $permutation->hasClaimedRetentionOfferAlready())
-                <a href="{{ url()->route('user.settings.cancel.cancel-reason-form') }}"
+                <a href="{{ url()->route('crux.cancel-reason-form') }}"
                    class="tw-uppercase tw-font-bold tw-no-underline tw-p-3 tw-pl-16 tw-pr-16">
                     Cancel Membership
                 </a>
@@ -324,14 +291,358 @@
         </div>
     @endif
 
-    {{-- ---------------------------------------------------------------------------------------------------------- --}}
-    {{-- ---------------------------------------------------------------------------------------------------------- --}}
-    {{-- ---------------------------------------------------------------------------------------------------------- --}}
+@endsection
+
+@section('body-top')
+    {{-- Buttons for testing purposes only. --}}
+
+            <button class="mu-modal-open tw-bg-transparent tw-border tw-border-gray-500 hover:tw-border-indigo-500 tw-text-gray-500 hover:tw-text-indigo-500 tw-font-bold tw-py-2 tw-px-4 tw-rounded-full"
+                    id="modal-extend-trial-14-days">
+                Open Trial 14 Days
+            </button>
+
+            <button class="mu-modal-open tw-bg-transparent tw-border tw-border-gray-500 hover:tw-border-indigo-500 tw-text-gray-500 hover:tw-text-indigo-500 tw-font-bold tw-py-2 tw-px-4 tw-rounded-full"
+                    id="modal-free-30-days">
+                Open Free 30 Days
+            </button>
+
+            <button class="mu-modal-open tw-bg-transparent tw-border tw-border-gray-500 hover:tw-border-indigo-500 tw-text-gray-500 hover:tw-text-indigo-500 tw-font-bold tw-py-2 tw-px-4 tw-rounded-full"
+                    id="modal-how-can-we-help">
+                Open How Can We Help
+            </button>
+
+            <button class="mu-modal-open tw-bg-transparent tw-border tw-border-gray-500 hover:tw-border-indigo-500 tw-text-gray-500 hover:tw-text-indigo-500 tw-font-bold tw-py-2 tw-px-4 tw-rounded-full"
+                    id="modal-how-can-we-make-next-30-days-better">
+                Open How Can We Make The Next 30 Days Better
+            </button>
+
+            <button class="mu-modal-open tw-bg-transparent tw-border tw-border-gray-500 hover:tw-border-indigo-500 tw-text-gray-500 hover:tw-text-indigo-500 tw-font-bold tw-py-2 tw-px-4 tw-rounded-full"
+                    id="modal-upgrade-to-annual">
+                Open Upgrade To Annual
+            </button>
+
+            <button class="mu-modal-open tw-bg-transparent tw-border tw-border-gray-500 hover:tw-border-indigo-500 tw-text-gray-500 hover:tw-text-indigo-500 tw-font-bold tw-py-2 tw-px-4 tw-rounded-full"
+                    id="modal-post-90-day-cancel-letter">
+                Open 90 Day Cancel Letter
+            </button>
+
+    {{-- Modals --}}
+    {{-- Extend Trial 14 Days  --}}
+    @component('crux::partials._modal', ['modalId' => 'modal-extend-trial-14-days'])
+        @slot('contentSlot')
+            <h1 class="heading tw-text-center">Need more time?</h1>
+
+            <p class="body tw-text-center tw-mt-6">
+                Everyone gets busy and you may not have had enough time to watch lessons and practice.
+                <strong>Extend your trial an additional 14 days</strong> on us to keep access to the best drum lessons
+                in the
+                world.
+            </p>
+
+            <form method="post"
+                  action="{{ url()->route('crux.submit.accept-trial-extension-offer') }}">
+
+                <a href="#"
+                   onclick="this.parentNode.submit(); return false;"
+                   class="tw-block tw-uppercase tw-font-bold tw-no-underline bg-drumeo hover:tw-bg-blue-600 tw-p-3 tw-pl-16 tw-pr-16 tw-text-white tw-rounded-full tw-mt-8">
+                    Yes, Extend My Trial
+                </a>
+            </form>
+
+            <a href="{{ url()->route('crux.cancel-reason-form')}}"
+               class="tw-uppercase tw-font-bold tw-no-underline tw-mt-6">
+                No Thanks, Cancel Membership
+            </a>
+
+        @endslot
+    @endcomponent
+
+    {{-- 30 Days Free  --}}
+    @component('crux::partials._modal', ['modalId' => 'modal-free-30-days'])
+        @slot('contentSlot')
+            <h1 class="heading tw-text-center">Uh oh! It looks like you<br> didn’t love your lessons?</h1>
+
+            <p class="body tw-text-center tw-mt-6">
+                That’s not okay -- and we’d like a 2nd chance. Just click the “FREE MONTH” button below to keep your
+                membership for one more month, totally free. Your renewal date will simply be delayed by 30 days.
+            </p>
+
+            <p class="body tw-text-center tw-mt-6">
+                There’s only one catch… we’ll also quickly ask you what we can improve to hopefully give you a
+                better experience in the next 30 days.
+            </p>
+
+            {{-- todo: this should immediately extend their renewal date 30 days and access and go back to the account details page with a message --}}
+
+            <form method="post"
+                  action="{{ url()->route('crux.submit.accept-month-extension-offer') }}">
+                <a href="#"
+                   class="tw-uppercase tw-block tw-font-bold tw-no-underline bg-drumeo hover:tw-bg-blue-600 tw-p-3 tw-pl-16 tw-pr-16 tw-text-white tw-rounded-full tw-mt-8"
+                   onclick="this.parentNode.submit(); return false;">
+                    Free Month
+                </a>
+            </form>
 
 
+            @if(!empty($subscription))
+                <a href="{{ url()->route('crux.cancel-reason-form')}}"
+                   class="tw-uppercase tw-font-bold tw-no-underline tw-mt-6">
+                    No Thanks, Cancel Membership
+                </a>
+            @endif
+        @endslot
+    @endcomponent
 
-    {{-- ---------------------------------------------------------------------------------------------------------- --}}
-    {{-- ---------------------------------------------------------------------------------------------------------- --}}
-    {{-- ---------------------------------------------------------------------------------------------------------- --}}
+    {{-- How Can We Help?  --}}
+    @component('crux::partials._modal', ['modalId' => 'modal-how-can-we-help'])
+        @slot('contentSlot')
 
+            {{-- todo: this should submit the normal cancel help email that goes to the person is does now and return back to the account details page with a success message --}}
+            <form method="post" action="{{ url()->route('crux.submit.send-help-email') }}"
+                  class="tw-flex tw-flex-col tw-items-center tw-justify-center tw-relative">
+                <h1 class="heading tw-text-center">How can we help?</h1>
+
+                <div class="tw-text-left">
+                    <p class="body tw-mt-6">
+                        Select any of the issues you’d like help with:
+                    </p>
+                    {{--<div class="tw-ml-3">--}}
+                    <ul class="tw-ml-3">
+                        {{-- <p class="body"> --}}
+                        <li>
+                            <input type="radio" name="help-issue" id="direction" value="direction"
+                                   class="tw-mr-3 tw-mt-6">
+                            <label for="direction">I need more direction</label>
+                        </li>
+                        {{-- </p> --}}
+
+
+                        {{-- <p class="body"> --}}
+                        <li>
+                            <input type="radio" name="help-issue" id="time" value="time" class="tw-mr-3">
+                            <label for="time">I don’t have enough time</label>
+                        </li>
+                        {{-- </p> --}}
+
+
+                        {{-- <p class="body"> --}}
+                        <li>
+                            <input type="radio" name="help-issue" id="watch" value="watch" class="tw-mr-3">
+                            <label for="watch">I don’t know what lesson to watch</label>
+                        </li>
+                        {{-- </p> --}}
+
+
+                        {{-- <p class="body"> --}}
+                        <li>
+                            <input type="radio" name="help-issue" id="easy" value="easy" class="tw-mr-3">
+                            <label for="easy">The lessons are too easy</label>
+                        </li>
+                        {{-- </p> --}}
+
+
+                        {{-- <p class="body"> --}}
+                        <li>
+                            <input type="radio" name="help-issue" id="difficult" value="difficult" class="tw-mr-3">
+                            <label for="difficult">The lessons are too difficult</label>
+                        </li>
+                        {{-- </p> --}}
+
+
+                        {{-- <p class="body"> --}}
+                        <li>
+                            <input type="radio" name="help-issue" id="website" value="website" class="tw-mr-3">
+                            <label for="website">I don’t know how to use the website/app.</label>
+                        </li>
+                        {{-- </p> --}}
+
+
+                        {{-- <p class="body"> --}}
+                        <li>
+                            <input type="radio" name="help-issue" id="other" value="other" class="tw-mr-3">
+                            <label for="other">Other</label>
+                        </li>
+                        {{-- </p> --}}
+
+
+                    </ul>
+
+                    <textarea placeholder="Send your questions to a Drumeo teacher..."
+                              class="tw-mt-6 tw-rounded-lg" name="text-input"></textarea>
+
+                    {{--<label for="email-input" class="tw-py-1 tw-mt-6 tw-block">We'll get back to you at "{{ current_user()->getEmail() }}". If you prefer a different address, please enter it here (optional):</label>--}}
+                    {{--<input type="text" name="email" id="email-input" class="tw-mt-1 tw-pt-0 tw-rounded-lg"--}}
+                    {{--placeholder="Email address">--}}
+                </div>
+
+                <button
+                        class="tw-uppercase tw-font-bold tw-no-underline bg-drumeo hover:tw-bg-blue-600 tw-p-3 tw-pl-16 tw-pr-16 tw-text-white tw-rounded-full tw-mt-8 tw-border-0">
+                    Send Message
+                </button>
+            </form>
+        @endslot
+    @endcomponent
+
+    {{-- How Can We Make The Next 30 Days Better?  --}}
+    @component('crux::partials._modal', ['modalId' => 'modal-how-can-we-make-next-30-days-better'])
+        @slot('contentSlot')
+
+            <form method="post" action="{{ url()->route('crux.submit.feedback') }}" class="tw-flex tw-flex-col tw-items-center tw-justify-center tw-relative">
+
+                <input type="hidden" name="accepted-month-extension-offer" value="true">
+
+                @if(session()->has('renewal-date'))
+                    <input type="hidden" name="renewal-date" value="{{ session()->get('renewal-date') }}">
+                @endif
+
+                <p>We’ve added 30 days to your account!</p>
+
+                <h1 class="heading tw-text-center tw-mt-4">How can we make the next 30 days better?</h1>
+
+                <textarea placeholder="Type your feedback here..."
+                          name="user-feedback"
+                          class="tw-mt-6 tw-rounded-lg tw-w-full"></textarea>
+
+                <button
+                        type="submit"
+                        class="tw-uppercase tw-font-bold tw-no-underline bg-drumeo hover:tw-bg-blue-600 tw-p-3 tw-pl-16 tw-pr-16 tw-text-white tw-rounded-full tw-mt-8 tw-border-0">
+                    Send Feedback >>
+                </button>
+            </form>
+        @endslot
+    @endcomponent
+
+    {{-- How Can We Make Your Drumeo Experience Better?  --}}
+    @component('crux::partials._modal', ['modalId' => 'modal-how-can-we-make-your-drumeo-edge-experience-better'])
+        @slot('contentSlot')
+
+            <form method="post" action="{{ url()->route('crux.submit.feedback') }}"
+                  class="tw-flex tw-flex-col tw-items-center tw-justify-center tw-relative">
+
+                <h1 class="heading tw-text-center tw-mt-4">How can we make your Drumeo experience better?</h1>
+
+                <textarea placeholder="Type your feedback here..."
+                          name="user-feedback"
+                          class="tw-mt-6 tw-rounded-lg tw-w-full"></textarea>
+
+                <button
+                        type="submit"
+                        class="tw-uppercase tw-font-bold tw-no-underline bg-drumeo hover:tw-bg-blue-600 tw-p-3 tw-pl-16 tw-pr-16 tw-text-white tw-rounded-full tw-mt-8 tw-border-0">
+                    Send Feedback >>
+                </button>
+            </form>
+        @endslot
+    @endcomponent
+
+    {{-- Upgrade To Annual  --}}
+    @component('crux::partials._modal', ['modalId' => 'modal-upgrade-to-annual'])
+        @slot('contentSlot')
+            <h1 class="heading tw-text-center">Save {{ $savings }}% with an annual plan.</h1>
+
+            <div class="tw-flex md:tw-flex-row tw-flex-col tw-mt-10 tw-w-full">
+                <div class="tw-flex tw-flex-col md:tw-w-1/2 tw-w-full tw-mr-3 tw-items-center tw-text-center tw-rounded-lg tw-bg-gray-200 tw-p-0 tw-py-8">
+                    <h1 class="tw-uppercase tw-font-bold">Your <br>Plan</h1>
+                    @if(!empty($subscription))
+                        <p class="tw-mt-4 tw-leading-6">${{ $subscription->getTotalPrice() }} per month<br> =
+                            ${{ $subscription->getTotalPrice() * 12 }} per year.</p>
+                        <a href="#"
+                           class="tw-uppercase tw-font-bold tw-no-underline tw-bg-black hover:tw-bg-gray-900 tw-p-3 tw-pl-8 tw-pr-8 tw-text-white tw-rounded-full tw-mt-8 tw-text-sm mu-modal-close">
+                            Keep This Plan
+                        </a>
+                    @elseif(!empty($edgeExpirationDate))
+                        <p class="tw-mt-4 tw-leading-6">Temporary access until
+                            <br>{{ $edgeExpirationDate->format('F j, Y') }}.</p>
+                        <a href="#"
+                           class="tw-uppercase tw-font-bold tw-no-underline tw-bg-black hover:tw-bg-gray-900 tw-p-3 tw-pl-8 tw-pr-8 tw-text-white tw-rounded-full tw-mt-8 tw-text-sm mu-modal-close">
+                            Keep This Plan
+                        </a>
+                    @else
+                        <p class="tw-mt-4 tw-leading-6">Temporary access.</p>
+                        <a href="#"
+                           class="tw-uppercase tw-font-bold tw-no-underline tw-bg-black hover:tw-bg-gray-900 tw-p-3 tw-pl-8 tw-pr-8 tw-text-white tw-rounded-full tw-mt-8 tw-text-sm mu-modal-close">
+                            Keep This Plan
+                        </a>
+                    @endif
+                </div>
+                <div class="tw-flex tw-flex-col md:tw-w-1/2 tw-w-full tw-ml-3 tw-items-center tw-text-center tw-rounded-lg tw-border-blue-500 tw-border-2 tw-border-solid tw-p-3 tw-py-8">
+                    <h1 class="tw-uppercase">Annual <br>Plan</h1>
+                    <p class="tw-mt-4 tw-leading-6">Save {{ $savings }}%<br>+ get limited time
+                        bonuses.
+                    </p>
+                    <a href="/#customize-anchor"
+                       class="tw-uppercase tw-font-bold tw-no-underline bg-drumeo hover:tw-bg-blue-600 tw-p-3 tw-pl-16 tw-pr-16 tw-text-white tw-rounded-full tw-mt-8 tw-text-sm">
+                        See Offer
+                    </a>
+                </div>
+            </div>
+
+            <p class="body tw-text-center tw-mt-10">
+                By completing the checkout process on the next page, your monthly billing will be stopped and replaced
+                by an annual billing plan at the posted rate.
+            </p>
+        @endslot
+    @endcomponent
+
+    {{-- Post 90 Days Cancel Letter --}}
+    @component('crux::partials._modal', ['modalId' => 'modal-post-90-day-cancel-letter'])
+        @slot('contentSlot')
+            <h1 class="heading tw-text-center">Uh oh! We’re here to help.</h1>
+
+            <div class="tw-text-left tw-leading-6">
+                <p class="mt-4">
+                    When you joined Drumeo, you made a decision to improve your skills. You were likely excited and
+                    gained a new sense of energy and inspiration. Take a moment to reflect on what happened since then.
+                </p>
+
+                <p class="mt-2">
+                    Are you practicing less? Do you feel like you’ve hit a wall? Are you not sure what to practice next?
+                </p>
+
+                <p class="mt-2">
+                    We’re committed to helping drummers reach their goals, so before you cancel your membership
+                    I wanted to see if there’s any way we can help.
+                </p>
+
+                <p class="mt-2">
+                    My advice: Don’t give up.</p>
+
+                <p class="mt-2">
+                    The biggest difference between successful and unsuccessful drummers is the quality and quantity of
+                    action they take. By asking us for help, we’ll do our best to get you back on track towards your
+                    biggest and smallest drumming goals. Just click the button to reach out.
+                </p>
+
+                <p class="mt-2">
+                    To Your Drumming Success,
+                </p>
+
+                <div class="tw-flex tw-flex-row tw-mt-6">
+
+                    <img
+                            src="{{ imgix("https://d1923uyy6spedc.cloudfront.net/jared.png", ["q" => 80, "w" => 100, "h" => 100, "fit" => "fill", "auto" => "format"]) }}"
+                            alt="Jared Falk Portrait">
+
+                    <img
+                            src="{{ imgix("https://d1923uyy6spedc.cloudfront.net/jared-sig.jpg", ["q" => 80, "w" => 100, "h" => 80, "fit" => "fill", "auto" => "format"]) }}"
+                            alt="Jared Falk Portrait"
+                            class="tw-ml-6 tw-mt-4 tw-h-16">
+
+                    <p class="tw-mt-10 tw-ml-6"> - Jared Falk</p>
+                </div>
+            </div>
+
+            {{-- this needs to close the current modal, then open the how can we help one --}}
+            <a href="#"
+               class="mu-close-modal-then-open-how-can-we-help tw-uppercase tw-font-bold tw-no-underline bg-drumeo hover:tw-bg-blue-600 tw-p-3 tw-pl-16 tw-pr-16 tw-text-white tw-rounded-full tw-mt-8 tw-text-sm">
+                Yes, Please Help
+            </a>
+
+            @if(!empty($subscription))
+                <a href="{{ url()->route('crux.cancel-reason-form')}}"
+                   class="tw-uppercase tw-font-bold tw-no-underline tw-mt-6">
+                    No Thanks, Cancel Membership
+                </a>
+            @endif
+        @endslot
+    @endcomponent
 @endsection

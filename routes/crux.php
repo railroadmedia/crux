@@ -1,9 +1,8 @@
 <?php
 
-use App\Http\Controllers\Profiles\CancellationController;
-use App\Http\Controllers\Profiles\RetentionOfferController;
 use Illuminate\Support\Facades\Route;
-use Railroad\Crux\Http\Controllers\AccountDetailsController;
+use Railroad\Crux\Http\Controllers\ViewController;
+use Railroad\Crux\Http\Controllers\ActionController;
 
 Route::group(
     [
@@ -15,8 +14,8 @@ Route::group(
         Route::get(
             '/details',
             [
-                'as' => 'members.crux.access.details',
-                'uses' => AccountDetailsController::class . '@accountDetails'
+                'as' => 'crux.access-details',
+                'uses' => ViewController::class . '@accessDetails'
             ]
         );
         
@@ -45,13 +44,13 @@ Route::group(
 //            ]
 //        );
 //
-//        Route::get(
-//            '/cancel/cancel-reason-form',
-//            [
-//                'as' => 'user.settings.cancel.cancel-reason-form',
-//                'uses' => CancellationController::class . '@viewCancelReasonForm'
-//            ]
-//        );
+        Route::get(
+            '/cancel-reason-form',
+            [
+                'as' => 'crux.cancel-reason-form',
+                'uses' => ViewController::class . '@viewCancelReasonForm'
+            ]
+        );
 //
 //        // retention email offer
 //
@@ -84,38 +83,38 @@ Route::group(
 ////                'uses' => CancellationController::class . '@packOwnerTrialOffer'
 ////            ]
 ////        );
-//
-//        Route::post(
-//            '/cancel/submit/feedback',
-//            [
-//                'as' => 'user.settings.cancel.submit.feedback',
-//                'uses' => CancellationController::class . '@submitFeedback'
-//            ]
-//        );
-//
-//        Route::post(
-//            '/cancel/submit/accept-trial-extension-offer',
-//            [
-//                'as' => 'user.settings.cancel.submit.accept-trial-extension-offer',
-//                'uses' => CancellationController::class . '@acceptTrialExtensionOffer'
-//            ]
-//        );
-//
-//        Route::post(
-//            '/cancel/submit/submit-cancel-reason',
-//            [
-//                'as' => 'user.settings.cancel.submit.submit-cancel-reason',
-//                'uses' => CancellationController::class . '@submitCancelReason'
-//            ]
-//        );
-//
-//        Route::post(
-//            '/cancel/submit/accept-month-extension-offer',
-//            [
-//                'as' => 'user.settings.cancel.submit.accept-month-extension-offer',
-//                'uses' => CancellationController::class . '@acceptMonthExtensionOffer'
-//            ]
-//        );
+
+        Route::post(
+            '/submit/feedback',
+            [
+                'as' => 'crux.submit.feedback',
+                'uses' => ActionController::class . '@submitFeedback'
+            ]
+        );
+
+        Route::post(
+            '/submit/accept-trial-extension-offer',
+            [
+                'as' => 'crux.submit.accept-trial-extension-offer',
+                'uses' => ActionController::class . '@acceptTrialExtensionOffer'
+            ]
+        );
+
+        Route::post(
+            '/submit/cancel-reason',
+            [
+                'as' => 'crux.submit.cancel-reason',
+                'uses' => ActionController::class . '@submitCancelReason'
+            ]
+        );
+
+        Route::post(
+            '/submit/accept-month-extension-offer',
+            [
+                'as' => 'crux.submit.accept-month-extension-offer',
+                'uses' => ActionController::class . '@acceptMonthExtensionOffer'
+            ]
+        );
 //
 //        // "Part 4 - Cancellation Page" from Cancellation Project notes at following link:
 //        // https://docs.google.com/document/d/143SWRqh0rUhj8fUuJCVrgpjQXefw2BOTiBToMscKzYE/edit#heading=h.8hnhdvh85zm7
@@ -152,12 +151,12 @@ Route::group(
 //            ]
 //        );
 //
-//        Route::post(
-//            '/cancel/submit/send-help-email',
-//            [
-//                'as' => 'user.settings.cancel.submit.send-help-email',
-//                'uses' => CancellationController::class . '@sendHelpEmail'
-//            ]
-//        );
+        Route::post(
+            '/submit/send-help-email',
+            [
+                'as' => 'crux.submit.send-help-email',
+                'uses' => ActionController::class . '@sendHelpEmail'
+            ]
+        );
     }
 );
