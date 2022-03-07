@@ -1,4 +1,5 @@
-@extends('members.account.settings.layout')
+{{--@extends('members.account.settings.layout')--}}
+@extends('crux::layout')
 
 @section('meta')
     <title>Access | {{ ucfirst($brand) }}</title>
