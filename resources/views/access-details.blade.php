@@ -343,6 +343,8 @@
             <form method="post"
                   action="{{ url()->route('crux.submit.accept-trial-extension-offer') }}">
 
+                {{ csrf_field() }}
+
                 <a href="#"
                    onclick="this.parentNode.submit(); return false;"
                    class="tw-block tw-uppercase tw-font-bold tw-no-underline bg-drumeo hover:tw-bg-blue-600 tw-p-3 tw-pl-16 tw-pr-16 tw-text-white tw-rounded-full tw-mt-8">
@@ -377,6 +379,9 @@
 
             <form method="post"
                   action="{{ url()->route('crux.submit.accept-month-extension-offer') }}">
+
+                {{ csrf_field() }}
+
                 <a href="#"
                    class="tw-uppercase tw-block tw-font-bold tw-no-underline bg-drumeo hover:tw-bg-blue-600 tw-p-3 tw-pl-16 tw-pr-16 tw-text-white tw-rounded-full tw-mt-8"
                    onclick="this.parentNode.submit(); return false;">
@@ -401,6 +406,9 @@
             {{-- todo: this should submit the normal cancel help email that goes to the person is does now and return back to the account details page with a success message --}}
             <form method="post" action="{{ url()->route('crux.submit.send-help-email') }}"
                   class="tw-flex tw-flex-col tw-items-center tw-justify-center tw-relative">
+
+                {{ csrf_field() }}
+
                 <h1 class="heading tw-text-center">How can we help?</h1>
 
                 <div class="tw-text-left">
@@ -490,6 +498,8 @@
 
             <form method="post" action="{{ url()->route('crux.submit.feedback') }}" class="tw-flex tw-flex-col tw-items-center tw-justify-center tw-relative">
 
+                {{ csrf_field() }}
+
                 <input type="hidden" name="accepted-month-extension-offer" value="true">
 
                 @if(session()->has('renewal-date'))
@@ -519,6 +529,8 @@
 
             <form method="post" action="{{ url()->route('crux.submit.feedback') }}"
                   class="tw-flex tw-flex-col tw-items-center tw-justify-center tw-relative">
+
+                {{ csrf_field() }}
 
                 <h1 class="heading tw-text-center tw-mt-4">How can we make your Drumeo experience better?</h1>
 
