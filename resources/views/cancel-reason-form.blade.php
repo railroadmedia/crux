@@ -10,7 +10,17 @@
 
 @section('scripts')
 
-    <script src="{{ _mix('js/profile.js') }}"></script>
+    @if($brand == 'drumeo')
+        <script src="{{ _mix('js/profile.js') }}"></script>
+    @elseif($brand == 'pianote')
+        <script src="{{ mix('assets/members/js/profile.js') }}"></script>
+    @elseif($brand == 'guitareo')
+        <script src="{{ mix('assets/members/js/profile.js') }}"></script>
+    @elseif($brand == 'singeo')
+        <script src="{{ mix('assets/members/js/profile.js') }}"></script>
+    @else
+        <script src="{{ _mix('js/profile.js') }}"></script>
+    @endif
 
     <script type="text/javascript">
         const form = document.getElementById("cancel-reason-form");
