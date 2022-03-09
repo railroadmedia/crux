@@ -116,7 +116,6 @@ class ViewController extends Controller
                     'persists please let us know!']);
         }
 
-
         $repo = app(\Railroad\Ecommerce\Repositories\ProductRepository::class);
 
         // todo: move to "helper" static class
@@ -174,9 +173,7 @@ class ViewController extends Controller
             'crux::cancel-reason-form',
             [
                 'brand' => config('railcontent.brand'),
-                'subscription' => UserAccessService::getEdgeSubscription(
-                    current_user()->getId()
-                ),
+                'subscription' => UserAccessService::getMembershipSubscription(current_user()->getId()),
                 'hasClaimedRetentionOfferAlready' => UserAccessService::hasClaimedRetentionOfferWithin(6),
             ]
         );
