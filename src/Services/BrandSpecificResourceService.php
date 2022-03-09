@@ -11,25 +11,44 @@ class BrandSpecificResourceService
     public static function logoUrl($brand)
     {
         /*
-         * Other images used elsewhere noted here in case we need them later:
-         * -------------------------------------------------------------------
+         * available files (in musora-ui.s3.amazonaws.com/logos/, as of March 9th 2022)
          *
-         * used for Drumeo account-details page but no longer because image has "Edge" and iifc we're no longer using that
-         * https://drumeo-assets.s3.amazonaws.com/logos/edge-logo_small.png
+         *      drumeo-black.svg
+         *      drumeo-edge-white.svg
+         *      drumeo-white.svg
+         *      drumeo.svg
          *
-         * used for Drumeo email feedback-from-cancellation-workflow and other similar emails:
-         * https://s3.amazonaws.com/drumeoblog/blog/wp-content/uploads/2016/07/drumeo-logo-verysmall.png
+         *      guitareo_method_logo.svg
+         *      guitareo-black.svg
+         *      guitareo-white.svg
+         *      guitareo.svg
+         *
+         *      musora-black.svg
+         *      musora-white.svg
+         *
+         *      pianote-black.svg
+         *      pianote-white.svg
+         *      pianote.svg
+         *
+         *      recordeo-black.svg
+         *      recordeo-white.svg
+         *      recordeo.svg
+         *
+         *      singeo-black.svg
+         *      singeo-method.svg
+         *      singeo-white.svg
+         *      singeo.svg
          */
 
         switch(strtolower($brand)){
             case 'drumeo':
-                return 'https://dpwjbsxqtam5n.cloudfront.net/logos/logo-blue.png';
+                return 'https://musora-ui.s3.amazonaws.com/logos/drumeo.svg';
             case 'pianote':
-                return 'https://pianote.s3.amazonaws.com/logo/pianote-logo-red.png';
+                return 'https://musora-ui.s3.amazonaws.com/logos/pianote.svg';
             case 'guitareo':
                 return 'https://musora-ui.s3.amazonaws.com/logos/guitareo.svg';
             case 'singeo':
-                return 'https://singeo.s3.amazonaws.com/sales/2021/singeo-logo.png';
+                return 'https://musora-ui.s3.amazonaws.com/logos/singeo.svg';
         }
     }
 
@@ -52,14 +71,46 @@ class BrandSpecificResourceService
                     'Song breakdowns & Play-Alongs.',
                     'Weekly live lessons and personal support.',
                 ];
-            case 'pianote':
-                return $default; // todo
-            case 'guitareo':
-                return $default; // todo
-            case 'singeo':
-                return $default; // todo
+//            case 'pianote':
+//                return $default; // todo
+//            case 'guitareo':
+//                return $default; // todo
+//            case 'singeo':
+//                return $default; // todo
         }
 
         return $default;
+    }
+
+    public static function brandColour($brand)
+    {
+        switch(strtolower($brand)){
+            case 'drumeo':
+                return '0b76db';
+            case 'pianote':
+                return 'f61a30';
+            case 'guitareo':
+                return '00C9AC';
+            case 'singeo':
+                return '8300E9';
+        }
+
+        return '0b76db';
+    }
+
+    public static function styleHoverClass($brand)
+    {
+        switch(strtolower($brand)){
+            case 'drumeo':
+                return 'tw-bg-blue-600';
+            case 'pianote':
+                return 'tw-bg-red-600';
+            case 'guitareo':
+                return 'tw-bg-green-600';
+            case 'singeo':
+                return 'tw-bg-purple-600';
+        }
+
+        return 'tw-bg-blue-600';
     }
 }
