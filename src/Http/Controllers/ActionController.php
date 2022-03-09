@@ -191,6 +191,8 @@ class ActionController
             'singeo' => [],
         ];
 
+        $membershipProductIds = ProductAccessMap::membershipProductIds();
+
         // these are the yearly, monthly, and trial-with-renewal edge subscription product ids
         $subscription = $this->updateSubscriptionPaidUntilDate(
             $targetProductIdsByBrand[$this->brand],
@@ -214,7 +216,7 @@ class ActionController
         // save membership action
         $membershipAction = new MembershipAction(); /** @var $membershipAction MembershipAction|NotableEntity */
         $membershipAction->setUser(new User(current_user()->getId(), current_user()->getEmail()));
-        $membershipAction->setBrand(config('ecommerce.brand'));
+        $membershipAction->setBrand($this->brand);
         $membershipAction->setAction(MembershipAction::ACTION_EXTEND_FOR_AMOUNT_OF_DAYS);
         $membershipAction->setActionAmount(30);
         $membershipAction->setSubscription($subscription);
@@ -312,7 +314,7 @@ class ActionController
             }
         }else{
             $view = 'crux::email.feedback-from-cancellation-workflow';
-            $subject = 'User feedback to improve their Drumeo Experience, from ' . current_user()->getEmail();
+            $subject = 'User feedback to improve their ' . ucfirst($this->brand) . ' Experience, from ' . current_user()->getEmail();
         }
 
         try {
@@ -374,8 +376,8 @@ class ActionController
         $isTrial = in_array($subscription->getProduct()->getId(), ProductAccessMap::trialMembershipProductIds());
 
         // store in session
-        session()->put('drumeo-cancel-reason', $reason);
-        session()->put('drumeo-cancel-reason-text', $textReason);
+        session()->put($this->brand . '-cancel-reason', $reason);
+        session()->put($this->brand . '-cancel-reason-text', $textReason);
 
         if (UserAccessService::hasClaimedRetentionOfferWithin(6) || $isTrial) {
             return $this->cancel($request);
@@ -523,8 +525,8 @@ class ActionController
             );
         }
 
-        $cancelReason = session('drumeo-cancel-reason');
-        $cancelReasonText = session('drumeo-cancel-reason-text');
+        $cancelReason = session($this->brand . '-cancel-reason');
+        $cancelReasonText = session($this->brand . '-cancel-reason-text');
 
         $subscription->setCanceledOn(Carbon::now());
         $subscription->setIsActive(false);
@@ -640,8 +642,8 @@ class ActionController
             return $this->returnRedirect(false);
         }
 
-        session()->remove('drumeo-cancel-reason');
-        session()->remove('drumeo-cancel-reason-text');
+        session()->remove($this->brand . '-cancel-reason');
+        session()->remove($this->brand . '-cancel-reason-text');
 
         // respond
         return redirect()->route('crux.access-details')
