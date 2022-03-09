@@ -21,6 +21,22 @@
             overflow-x: hidden;
             overflow-y: visible !important;
         }
+
+        .text-drumeo{
+            color: #0b76db;
+        }
+
+        .text-pianote {
+            color: #f61a30;
+        }
+
+        .text-guitareo {
+            color: #00C9AC;
+        }
+
+        .text-singeo {
+            color: #8300E9;
+        }
     </style>
 @endsection
 
@@ -159,8 +175,8 @@
                 </ul>
 
                 @if($membershipStatus == 'active' || $membershipType == 'lifetime')
-                    <a href="#" class="tw-mt-3">
-                        <p class="mu-modal-open" id="modal-how-can-we-help">Click here if you’d like help getting the
+                    <a href="#" class="tw-mt-3 tw-no-underline">
+                        <p class="mu-modal-open text-{{ $brand }}" id="modal-how-can-we-help">Click here if you’d like help getting the
                             most out of your account.</p>
                     </a>
                 @endif
@@ -209,20 +225,20 @@
             @if(($membershipStatus == 'active' && $membershipType != 'lifetime' && $membershipType != '1-year') ||
                 ($membershipStatus == 'non-recurring' && $membershipType != 'lifetime'))
                 <a href="#"
-                   class="mu-modal-open tw-uppercase tw-font-bold tw-no-underline bg-drumeo hover:tw-bg-blue-600 tw-p-3 tw-pl-16 tw-pr-16 tw-text-white tw-rounded-full"
+                   class="mu-modal-open tw-uppercase tw-font-bold tw-no-underline bg-{{ $brand }} hover:{{ \Railroad\Crux\Services\BrandSpecificResourceService::styleHoverClass($brand) }} tw-p-3 tw-pl-16 tw-pr-16 tw-text-white tw-rounded-full"
                    id="modal-upgrade-to-annual">
                     Upgrade Membership
                 </a>
             @endif
             @if($membershipStatus == 'canceled' || $membershipStatus == 'expired')
                 <a href="/"
-                   class="tw-uppercase tw-font-bold tw-no-underline bg-drumeo hover:tw-bg-blue-600 tw-p-3 tw-pl-16 tw-pr-16 tw-text-white tw-rounded-full">
+                   class="tw-uppercase tw-font-bold tw-no-underline bg-{{ $brand }} hover:{{ \Railroad\Crux\Services\BrandSpecificResourceService::styleHoverClass($brand) }} tw-p-3 tw-pl-16 tw-pr-16 tw-text-white tw-rounded-full">
                     Renew Your Membership
                 </a>
             @endif
             @if($membershipStatus == 'paused')
                 <a href="/"
-                   class="tw-uppercase tw-font-bold tw-no-underline bg-drumeo hover:tw-bg-blue-600 tw-p-3 tw-pl-16 tw-pr-16 tw-text-white tw-rounded-full">
+                   class="tw-uppercase tw-font-bold tw-no-underline bg-{{ $brand }} hover:{{ \Railroad\Crux\Services\BrandSpecificResourceService::styleHoverClass($brand) }} tw-p-3 tw-pl-16 tw-pr-16 tw-text-white tw-rounded-full">
                     Continue Your Membership
                 </a>
             @endif
@@ -241,7 +257,7 @@
                 @endphp
 
                 <a href="#" id="{{ $modalId }}"
-                   class="mu-modal-open tw-uppercase tw-font-bold tw-no-underline tw-p-3 tw-pl-16 tw-pr-16">
+                   class="mu-modal-open tw-uppercase tw-font-bold tw-no-underline tw-p-3 tw-pl-16 tw-pr-16 text-{{ $brand }}">
                     Cancel Membership
                 </a>
             @endif
@@ -255,7 +271,7 @@
 
             @if(empty($membershipType) && !$permutation->hasMembershipAccess())
                 <a href="/laravel/public/shopping-cart/api/query?products[DLM-Trial]=1,month,1&locked=true"
-                   class="tw-uppercase tw-font-bold tw-no-underline bg-drumeo hover:tw-bg-blue-600 tw-p-3 tw-pl-16 tw-pr-16 tw-text-white tw-rounded-full">
+                   class="tw-uppercase tw-font-bold tw-no-underline bg-{{ $brand }} hover:{{ \Railroad\Crux\Services\BrandSpecificResourceService::styleHoverClass($brand) }} tw-p-3 tw-pl-16 tw-pr-16 tw-text-white tw-rounded-full">
                     Start Free Trial
                 </a>
             @endif
@@ -347,13 +363,13 @@
 
                 <a href="#"
                    onclick="this.parentNode.submit(); return false;"
-                   class="tw-block tw-uppercase tw-font-bold tw-no-underline bg-drumeo hover:tw-bg-blue-600 tw-p-3 tw-pl-16 tw-pr-16 tw-text-white tw-rounded-full tw-mt-8">
+                   class="tw-block tw-uppercase tw-font-bold tw-no-underline bg-{{ $brand }} hover:{{ \Railroad\Crux\Services\BrandSpecificResourceService::styleHoverClass($brand) }} tw-p-3 tw-pl-16 tw-pr-16 tw-text-white tw-rounded-full tw-mt-8">
                     Yes, Extend My Trial
                 </a>
             </form>
 
             <a href="{{ url()->route('crux.cancel-reason-form')}}"
-               class="tw-uppercase tw-font-bold tw-no-underline tw-mt-6">
+               class="tw-uppercase tw-font-bold tw-no-underline tw-mt-6 text-{{ $brand }}">
                 No Thanks, Cancel Membership
             </a>
 
@@ -383,7 +399,7 @@
                 {{ csrf_field() }}
 
                 <a href="#"
-                   class="tw-uppercase tw-block tw-font-bold tw-no-underline bg-drumeo hover:tw-bg-blue-600 tw-p-3 tw-pl-16 tw-pr-16 tw-text-white tw-rounded-full tw-mt-8"
+                   class="tw-uppercase tw-block tw-font-bold tw-no-underline bg-{{ $brand }} hover:{{ \Railroad\Crux\Services\BrandSpecificResourceService::styleHoverClass($brand) }} tw-p-3 tw-pl-16 tw-pr-16 tw-text-white tw-rounded-full tw-mt-8"
                    onclick="this.parentNode.submit(); return false;">
                     Free Month
                 </a>
@@ -392,7 +408,7 @@
 
             @if(!empty($subscription))
                 <a href="{{ url()->route('crux.cancel-reason-form')}}"
-                   class="tw-uppercase tw-font-bold tw-no-underline tw-mt-6">
+                   class="tw-uppercase tw-font-bold tw-no-underline tw-mt-6 text-{{ $brand }}">
                     No Thanks, Cancel Membership
                 </a>
             @endif
@@ -476,7 +492,7 @@
 
                     </ul>
 
-                    <textarea placeholder="Send your questions to a Drumeo teacher..."
+                    <textarea placeholder="Send your questions to a {{ ucfirst($brand) }} teacher..."
                               class="tw-mt-6 tw-rounded-lg" name="text-input"></textarea>
 
                     {{--<label for="email-input" class="tw-py-1 tw-mt-6 tw-block">We'll get back to you at "{{ current_user()->getEmail() }}". If you prefer a different address, please enter it here (optional):</label>--}}
@@ -485,7 +501,7 @@
                 </div>
 
                 <button
-                        class="tw-uppercase tw-font-bold tw-no-underline bg-drumeo hover:tw-bg-blue-600 tw-p-3 tw-pl-16 tw-pr-16 tw-text-white tw-rounded-full tw-mt-8 tw-border-0">
+                        class="tw-uppercase tw-font-bold tw-no-underline bg-{{ $brand }} hover:{{ \Railroad\Crux\Services\BrandSpecificResourceService::styleHoverClass($brand) }} tw-p-3 tw-pl-16 tw-pr-16 tw-text-white tw-rounded-full tw-mt-8 tw-border-0">
                     Send Message
                 </button>
             </form>
@@ -516,7 +532,7 @@
 
                 <button
                         type="submit"
-                        class="tw-uppercase tw-font-bold tw-no-underline bg-drumeo hover:tw-bg-blue-600 tw-p-3 tw-pl-16 tw-pr-16 tw-text-white tw-rounded-full tw-mt-8 tw-border-0">
+                        class="tw-uppercase tw-font-bold tw-no-underline bg-{{ $brand }} hover:{{ \Railroad\Crux\Services\BrandSpecificResourceService::styleHoverClass($brand) }} tw-p-3 tw-pl-16 tw-pr-16 tw-text-white tw-rounded-full tw-mt-8 tw-border-0">
                     Send Feedback >>
                 </button>
             </form>
@@ -540,7 +556,7 @@
 
                 <button
                         type="submit"
-                        class="tw-uppercase tw-font-bold tw-no-underline bg-drumeo hover:tw-bg-blue-600 tw-p-3 tw-pl-16 tw-pr-16 tw-text-white tw-rounded-full tw-mt-8 tw-border-0">
+                        class="tw-uppercase tw-font-bold tw-no-underline bg-{{ $brand }} hover:{{ \Railroad\Crux\Services\BrandSpecificResourceService::styleHoverClass($brand) }} tw-p-3 tw-pl-16 tw-pr-16 tw-text-white tw-rounded-full tw-mt-8 tw-border-0">
                     Send Feedback >>
                 </button>
             </form>
@@ -583,7 +599,7 @@
                         bonuses.
                     </p>
                     <a href="/#customize-anchor"
-                       class="tw-uppercase tw-font-bold tw-no-underline bg-drumeo hover:tw-bg-blue-600 tw-p-3 tw-pl-16 tw-pr-16 tw-text-white tw-rounded-full tw-mt-8 tw-text-sm">
+                       class="tw-uppercase tw-font-bold tw-no-underline bg-{{ $brand }} hover:{{ \Railroad\Crux\Services\BrandSpecificResourceService::styleHoverClass($brand) }} tw-p-3 tw-pl-16 tw-pr-16 tw-text-white tw-rounded-full tw-mt-8 tw-text-sm">
                         See Offer
                     </a>
                 </div>
@@ -603,7 +619,7 @@
 
             <div class="tw-text-left tw-leading-6">
                 <p class="mt-4">
-                    When you joined Drumeo, you made a decision to improve your skills. You were likely excited and
+                    When you joined {{ ucfirst($brand) }}, you made a decision to improve your skills. You were likely excited and
                     gained a new sense of energy and inspiration. Take a moment to reflect on what happened since then.
                 </p>
 
@@ -611,48 +627,100 @@
                     Are you practicing less? Do you feel like you’ve hit a wall? Are you not sure what to practice next?
                 </p>
 
-                <p class="mt-2">
-                    We’re committed to helping drummers reach their goals, so before you cancel your membership
-                    I wanted to see if there’s any way we can help.
-                </p>
+                @if($brand == 'drumeo')
 
-                <p class="mt-2">
-                    My advice: Don’t give up.</p>
+                    <p class="mt-2">
+                        We’re committed to helping drummers reach their goals, so before you cancel your membership
+                        I wanted to see if there’s any way we can help.
+                    </p>
 
-                <p class="mt-2">
-                    The biggest difference between successful and unsuccessful drummers is the quality and quantity of
-                    action they take. By asking us for help, we’ll do our best to get you back on track towards your
-                    biggest and smallest drumming goals. Just click the button to reach out.
-                </p>
+                    <p class="mt-2">
+                        My advice: Don’t give up.</p>
 
-                <p class="mt-2">
-                    To Your Drumming Success,
-                </p>
+                    <p class="mt-2">
+                        The biggest difference between successful and unsuccessful drummers is the quality and quantity of
+                        action they take. By asking us for help, we’ll do our best to get you back on track towards your
+                        biggest and smallest drumming goals. Just click the button to reach out.
+                    </p>
+
+                    <p class="mt-2">
+                        To Your Drumming Success,
+                    </p>
+
+                @else
+
+                    <p class="mt-2">
+                        We’re committed to helping musicians reach their goals, so before you cancel your membership
+                        I wanted to see if there’s any way we can help.
+                    </p>
+
+                    <p class="mt-2">
+                        My advice: Don’t give up.</p>
+
+                    <p class="mt-2">
+                        The biggest difference between successful and unsuccessful musicians is the quality and quantity of
+                        action they take. By asking us for help, we’ll do our best to get you back on track towards your
+                        biggest and smallest musical goals. Just click the button to reach out.
+                    </p>
+
+                    <p class="mt-2">
+                        To Your Musical Success,
+                    </p>
+
+                @endif
 
                 <div class="tw-flex tw-flex-row tw-mt-6">
 
-                    <img
-                            src="{{ imgix("https://d1923uyy6spedc.cloudfront.net/jared.png", ["q" => 80, "w" => 100, "h" => 100, "fit" => "fill", "auto" => "format"]) }}"
-                            alt="Jared Falk Portrait">
+                    @if($brand == 'pianote')
+                        <img
+                                src="{{ imgix("https://d1923uyy6spedc.cloudfront.net/jared.png", ["q" => 80, "w" => 100, "h" => 100, "fit" => "fill", "auto" => "format"]) }}"
+                                alt="Lisa Witt portrait">
+                        <img
+                                src="{{ imgix("https://d1923uyy6spedc.cloudfront.net/jared-sig.jpg", ["q" => 80, "w" => 100, "h" => 80, "fit" => "fill", "auto" => "format"]) }}"
+                                alt="Lisa Witt signature"
+                                class="tw-ml-6 tw-mt-4 tw-h-16">
+                        <p class="tw-mt-10 tw-ml-6"> - Lisa Witt</p>
+                    @elseif($brand == 'guitareo')
+                        <img
+                                src="{{ imgix("https://d1923uyy6spedc.cloudfront.net/jared.png", ["q" => 80, "w" => 100, "h" => 100, "fit" => "fill", "auto" => "format"]) }}"
+                                alt="Ayla Tesler-Mabe portrait">
+                        <img
+                                src="{{ imgix("https://d1923uyy6spedc.cloudfront.net/jared-sig.jpg", ["q" => 80, "w" => 100, "h" => 80, "fit" => "fill", "auto" => "format"]) }}"
+                                alt="Ayla Tesler-Mabe signature"
+                                class="tw-ml-6 tw-mt-4 tw-h-16">
+                        <p class="tw-mt-10 tw-ml-6"> - Ayla Tesler-Mabe</p>
+                    @elseif($brand == 'singeo')
+                        <img
+                                src="{{ imgix("https://d1923uyy6spedc.cloudfront.net/jared.png", ["q" => 80, "w" => 100, "h" => 100, "fit" => "fill", "auto" => "format"]) }}"
+                                alt="Lisa Witt portrait">
+                        <img
+                                src="{{ imgix("https://d1923uyy6spedc.cloudfront.net/jared-sig.jpg", ["q" => 80, "w" => 100, "h" => 80, "fit" => "fill", "auto" => "format"]) }}"
+                                alt="Lisa Witt signature"
+                                class="tw-ml-6 tw-mt-4 tw-h-16">
+                        <p class="tw-mt-10 tw-ml-6"> - Lisa Witt</p>
+                    @else
+                        <img
+                                src="{{ imgix("https://d1923uyy6spedc.cloudfront.net/jared.png", ["q" => 80, "w" => 100, "h" => 100, "fit" => "fill", "auto" => "format"]) }}"
+                                alt="Jared Falk portrait">
+                        <img
+                                src="{{ imgix("https://d1923uyy6spedc.cloudfront.net/jared-sig.jpg", ["q" => 80, "w" => 100, "h" => 80, "fit" => "fill", "auto" => "format"]) }}"
+                                alt="Jared Falk signature"
+                                class="tw-ml-6 tw-mt-4 tw-h-16">
+                        <p class="tw-mt-10 tw-ml-6"> - Jared Falk</p>
+                    @endif
 
-                    <img
-                            src="{{ imgix("https://d1923uyy6spedc.cloudfront.net/jared-sig.jpg", ["q" => 80, "w" => 100, "h" => 80, "fit" => "fill", "auto" => "format"]) }}"
-                            alt="Jared Falk Portrait"
-                            class="tw-ml-6 tw-mt-4 tw-h-16">
-
-                    <p class="tw-mt-10 tw-ml-6"> - Jared Falk</p>
                 </div>
             </div>
 
             {{-- this needs to close the current modal, then open the how can we help one --}}
             <a href="#"
-               class="mu-close-modal-then-open-how-can-we-help tw-uppercase tw-font-bold tw-no-underline bg-drumeo hover:tw-bg-blue-600 tw-p-3 tw-pl-16 tw-pr-16 tw-text-white tw-rounded-full tw-mt-8 tw-text-sm">
+               class="mu-close-modal-then-open-how-can-we-help tw-uppercase tw-font-bold tw-no-underline bg-{{ $brand }} hover:{{ \Railroad\Crux\Services\BrandSpecificResourceService::styleHoverClass($brand) }} tw-p-3 tw-pl-16 tw-pr-16 tw-text-white tw-rounded-full tw-mt-8 tw-text-sm">
                 Yes, Please Help
             </a>
 
             @if(!empty($subscription))
                 <a href="{{ url()->route('crux.cancel-reason-form')}}"
-                   class="tw-uppercase tw-font-bold tw-no-underline tw-mt-6">
+                   class="tw-uppercase tw-font-bold tw-no-underline tw-mt-6 text-{{ $brand }}">
                     No Thanks, Cancel Membership
                 </a>
             @endif
