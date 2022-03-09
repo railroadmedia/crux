@@ -60,8 +60,8 @@
                 <div class="flex flex-row bb-grey-1-1">
                     @foreach($sections as $index => $section)
                         <a href="{{ $section['url'] }}" class="flex flex-row tw-justify-start align-center body pb-2 ph-1 mr-2 no-decoration text-black
-                           {{ $section['active'] ? 'bb-drumeo-3 font-bold' : '' }}">
-                            <i class="{{ $section['icon'] }} {{ $section['active'] ? 'text-drumeo' : '' }}"></i>
+                           {{ $section['active'] ? 'bb-' . $brand . '-3 font-bold' : '' }}">
+                            <i class="{{ $section['icon'] }} {{ $section['active'] ? ('text-' . $brand) : '' }}"></i>
                             <span class="hide-xs-only">&nbsp; {{ $section['title'] }}</span>
                         </a>
                     @endforeach
