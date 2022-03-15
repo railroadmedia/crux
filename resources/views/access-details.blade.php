@@ -6,7 +6,6 @@
 @endsection
 
 @section('styles')
-    <link rel="stylesheet" href="/laravel/public/tailwindcss/tailwind.css">
 
     <style>
         .renew-link:hover .btn span.bg-success {
@@ -20,22 +19,6 @@
         body.mu-modal-active {
             overflow-x: hidden;
             overflow-y: visible !important;
-        }
-
-        .text-drumeo{
-            color: #0b76db;
-        }
-
-        .text-pianote {
-            color: #f61a30;
-        }
-
-        .text-guitareo {
-            color: #00C9AC;
-        }
-
-        .text-singeo {
-            color: #8300E9;
         }
     </style>
 @endsection
@@ -249,7 +232,7 @@
                         $modalId = 'modal-extend-trial-14-days';
                     } else {
                         if ($subscription->getStartDate() > \Carbon\Carbon::now()->subDays(90)) {
-                            $modalId = 'modal-free-30-days';
+                            $modalId = 'modal-free-month';
                         } else {
                             $modalId = 'modal-post-90-day-cancel-letter';
                         }
@@ -264,7 +247,7 @@
 
             @if($membershipStatus == 'active' && ($membershipType != 'lifetime') && $permutation->hasClaimedRetentionOfferAlready())
                 <a href="{{ url()->route('crux.cancel-reason-form') }}"
-                   class="tw-uppercase tw-font-bold tw-no-underline tw-p-3 tw-pl-16 tw-pr-16">
+                   class="tw-uppercase tw-font-bold tw-no-underline tw-p-3 tw-pl-16 tw-pr-16 text-{{ $brand }}">
                     Cancel Membership
                 </a>
             @endif
@@ -313,35 +296,35 @@
 @section('body-top')
     {{-- Buttons for testing purposes only. --}}
 
-            <button class="mu-modal-open tw-bg-transparent tw-border tw-border-gray-500 hover:tw-border-indigo-500 tw-text-gray-500 hover:tw-text-indigo-500 tw-font-bold tw-py-2 tw-px-4 tw-rounded-full"
-                    id="modal-extend-trial-14-days">
-                Open Trial 14 Days
-            </button>
+{{--            <button class="mu-modal-open tw-bg-transparent tw-border tw-border-gray-500 hover:tw-border-indigo-500 tw-text-gray-500 hover:tw-text-indigo-500 tw-font-bold tw-py-2 tw-px-4 tw-rounded-full"--}}
+{{--                    id="modal-extend-trial-14-days">--}}
+{{--                Open Trial 14 Days--}}
+{{--            </button>--}}
 
-            <button class="mu-modal-open tw-bg-transparent tw-border tw-border-gray-500 hover:tw-border-indigo-500 tw-text-gray-500 hover:tw-text-indigo-500 tw-font-bold tw-py-2 tw-px-4 tw-rounded-full"
-                    id="modal-free-30-days">
-                Open Free 30 Days
-            </button>
+{{--            <button class="mu-modal-open tw-bg-transparent tw-border tw-border-gray-500 hover:tw-border-indigo-500 tw-text-gray-500 hover:tw-text-indigo-500 tw-font-bold tw-py-2 tw-px-4 tw-rounded-full"--}}
+{{--                    id="modal-free-month">--}}
+{{--                Open Free 30 Days--}}
+{{--            </button>--}}
 
-            <button class="mu-modal-open tw-bg-transparent tw-border tw-border-gray-500 hover:tw-border-indigo-500 tw-text-gray-500 hover:tw-text-indigo-500 tw-font-bold tw-py-2 tw-px-4 tw-rounded-full"
-                    id="modal-how-can-we-help">
-                Open How Can We Help
-            </button>
+{{--            <button class="mu-modal-open tw-bg-transparent tw-border tw-border-gray-500 hover:tw-border-indigo-500 tw-text-gray-500 hover:tw-text-indigo-500 tw-font-bold tw-py-2 tw-px-4 tw-rounded-full"--}}
+{{--                    id="modal-how-can-we-help">--}}
+{{--                Open How Can We Help--}}
+{{--            </button>--}}
 
-            <button class="mu-modal-open tw-bg-transparent tw-border tw-border-gray-500 hover:tw-border-indigo-500 tw-text-gray-500 hover:tw-text-indigo-500 tw-font-bold tw-py-2 tw-px-4 tw-rounded-full"
-                    id="modal-how-can-we-make-next-30-days-better">
-                Open How Can We Make The Next 30 Days Better
-            </button>
+{{--            <button class="mu-modal-open tw-bg-transparent tw-border tw-border-gray-500 hover:tw-border-indigo-500 tw-text-gray-500 hover:tw-text-indigo-500 tw-font-bold tw-py-2 tw-px-4 tw-rounded-full"--}}
+{{--                    id="modal-how-can-we-make-next-month-better">--}}
+{{--                Open How Can We Make The Next 30 Days Better--}}
+{{--            </button>--}}
 
-            <button class="mu-modal-open tw-bg-transparent tw-border tw-border-gray-500 hover:tw-border-indigo-500 tw-text-gray-500 hover:tw-text-indigo-500 tw-font-bold tw-py-2 tw-px-4 tw-rounded-full"
-                    id="modal-upgrade-to-annual">
-                Open Upgrade To Annual
-            </button>
+{{--            <button class="mu-modal-open tw-bg-transparent tw-border tw-border-gray-500 hover:tw-border-indigo-500 tw-text-gray-500 hover:tw-text-indigo-500 tw-font-bold tw-py-2 tw-px-4 tw-rounded-full"--}}
+{{--                    id="modal-upgrade-to-annual">--}}
+{{--                Open Upgrade To Annual--}}
+{{--            </button>--}}
 
-            <button class="mu-modal-open tw-bg-transparent tw-border tw-border-gray-500 hover:tw-border-indigo-500 tw-text-gray-500 hover:tw-text-indigo-500 tw-font-bold tw-py-2 tw-px-4 tw-rounded-full"
-                    id="modal-post-90-day-cancel-letter">
-                Open 90 Day Cancel Letter
-            </button>
+{{--            <button class="mu-modal-open tw-bg-transparent tw-border tw-border-gray-500 hover:tw-border-indigo-500 tw-text-gray-500 hover:tw-text-indigo-500 tw-font-bold tw-py-2 tw-px-4 tw-rounded-full"--}}
+{{--                    id="modal-post-90-day-cancel-letter">--}}
+{{--                Open 90 Day Cancel Letter--}}
+{{--            </button>--}}
 
     {{-- Modals --}}
     {{-- Extend Trial 14 Days  --}}
@@ -357,7 +340,7 @@
             </p>
 
             <form method="post"
-                  action="{{ url()->route('crux.submit.accept-trial-extension-offer') }}">
+                  action="{{ url()->route('crux.submit.accept-extension-offer', ['two_weeks' => true]) }}">
 
                 {{ csrf_field() }}
 
@@ -377,24 +360,34 @@
     @endcomponent
 
     {{-- 30 Days Free  --}}
-    @component('crux::partials._modal', ['modalId' => 'modal-free-30-days'])
+    @component('crux::partials._modal', ['modalId' => 'modal-free-month'])
         @slot('contentSlot')
             <h1 class="heading tw-text-center">Uh oh! It looks like you<br> didn’t love your lessons?</h1>
 
             <p class="body tw-text-center tw-mt-6">
                 That’s not okay -- and we’d like a 2nd chance. Just click the “FREE MONTH” button below to keep your
-                membership for one more month, totally free. Your renewal date will simply be delayed by 30 days.
+                membership for one more month, totally free. Your renewal date will simply be delayed by one month.
             </p>
 
             <p class="body tw-text-center tw-mt-6">
                 There’s only one catch… we’ll also quickly ask you what we can improve to hopefully give you a
-                better experience in the next 30 days.
+                better experience in the next month.
             </p>
+
+            {{-- would this be better maybe though? --}}
+
+{{--            <p class="body tw-text-center tw-mt-6">--}}
+{{--                That’s not okay—we’d like another chance! Click “FREE MONTH” below for one month, totally free.--}}
+{{--            </p>--}}
+
+{{--            <p class="body tw-text-center tw-mt-6">--}}
+{{--                One catch—tell us what we can do better.--}}
+{{--            </p>--}}
 
             {{-- todo: this should immediately extend their renewal date 30 days and access and go back to the account details page with a message --}}
 
             <form method="post"
-                  action="{{ url()->route('crux.submit.accept-month-extension-offer') }}">
+                  action="{{ url()->route('crux.submit.accept-extension-offer') }}">
 
                 {{ csrf_field() }}
 
@@ -509,7 +502,7 @@
     @endcomponent
 
     {{-- How Can We Make The Next 30 Days Better?  --}}
-    @component('crux::partials._modal', ['modalId' => 'modal-how-can-we-make-next-30-days-better'])
+    @component('crux::partials._modal', ['modalId' => 'modal-how-can-we-make-next-month-better'])
         @slot('contentSlot')
 
             <form method="post" action="{{ url()->route('crux.submit.feedback') }}" class="tw-flex tw-flex-col tw-items-center tw-justify-center tw-relative">
@@ -522,9 +515,9 @@
                     <input type="hidden" name="renewal-date" value="{{ session()->get('renewal-date') }}">
                 @endif
 
-                <p>We’ve added 30 days to your account!</p>
+                <p>We’ve added an extra month to your account!</p>
 
-                <h1 class="heading tw-text-center tw-mt-4">How can we make the next 30 days better?</h1>
+                <h1 class="heading tw-text-center tw-mt-4">How can we make the next month better?</h1>
 
                 <textarea placeholder="Type your feedback here..."
                           name="user-feedback"
@@ -593,7 +586,7 @@
                         </a>
                     @endif
                 </div>
-                <div class="tw-flex tw-flex-col md:tw-w-1/2 tw-w-full tw-ml-3 tw-items-center tw-text-center tw-rounded-lg tw-border-blue-500 tw-border-2 tw-border-solid tw-p-3 tw-py-8">
+                <div class="tw-flex tw-flex-col md:tw-w-1/2 tw-w-full tw-ml-3 tw-items-center tw-text-center tw-rounded-lg {{ \Railroad\Crux\Services\BrandSpecificResourceService::styleBorderClass($brand) }} tw-border-2 tw-border-solid tw-p-3 tw-py-8">
                     <h1 class="tw-uppercase">Annual <br>Plan</h1>
                     <p class="tw-mt-4 tw-leading-6">Save {{ $savings }}%<br>+ get limited time
                         bonuses.

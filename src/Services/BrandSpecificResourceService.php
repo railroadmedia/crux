@@ -113,4 +113,78 @@ class BrandSpecificResourceService
 
         return 'tw-bg-blue-600';
     }
+
+    public static function styleBorderClass($brand)
+    {
+        switch(strtolower($brand)){
+            case 'drumeo':
+                return 'tw-border-blue-500';
+            case 'pianote':
+                return 'tw-border-red-500';
+            case 'guitareo':
+                return 'tw-border-green-500';
+            case 'singeo':
+                return 'tw-border-purple-500';
+        }
+
+        return 'tw-border-blue-500';
+    }
+
+    public static function pricesStandardCents($brand)
+    {
+        $repo = app(\Railroad\Ecommerce\Repositories\ProductRepository::class);
+
+        switch($brand){
+            case 'drumeo':
+                $priceStandardCentsAnnual = ((int) $repo->findProduct(125)->getPrice()) * 100; // 125, DLM-1-year // 240 as of 220301
+                $priceStandardCentsMonthly = ((int) $repo->findProduct(124)->getPrice()) * 100; // 124, DLM-1-month // 29 as of 220301
+                break;
+            case 'pianote':
+                $priceStandardCentsAnnual = ((int) $repo->findProduct(6)->getPrice()) * 100; // 6, PIANOTE-MEMBERSHIP-1-YEAR // 197 as of 220301
+                $priceStandardCentsMonthly = ((int) $repo->findProduct(5)->getPrice()) * 100; // 5, PIANOTE-MEMBERSHIP-1-MONTH // 29 as of 220301
+                break;
+            case 'guitareo':
+                $priceStandardCentsAnnual = ((int) $repo->findProduct(18)->getPrice()) * 100; // 18, GUITAREO-1-YEAR-MEMBERSHIP // 127 as of 220301
+                $priceStandardCentsMonthly = ((int) $repo->findProduct(17)->getPrice()) * 100; // 17, GUITAREO-1-MONTH-MEMBERSHIP // 15 as of 220301
+                break;
+            case 'singeo':
+                $priceStandardCentsAnnual = ((int) $repo->findProduct(125)->getPrice()) * 100; // 125, singeo-annual-recurring-membership // 127 as of 220301
+                $priceStandardCentsMonthly = ((int) $repo->findProduct(409)->getPrice()) * 100; // 409, singeo-monthly-recurring-membership // 15 as of 220301
+                break;
+        }
+
+        return ['annual' => $priceStandardCentsAnnual, 'monthly' => $priceStandardCentsMonthly];
+    }
+
+    public static function pricesOfferCents($brand)
+    {
+        switch($brand){
+            case 'drumeo':
+                return ['annual' => 19700, 'monthly' => 1900];
+            case 'pianote':
+                return ['annual' => 19700, 'monthly' => 1900];
+            case 'guitareo':
+                return ['annual' => 12700, 'monthly' => 1449];
+            case 'singeo':
+                return ['annual' => 12700, 'monthly' => 1449];
+        }
+
+        return false;
+    }
+
+    public static function discountedMonthlyRateByBrand($brand)
+    {
+        switch(strtolower($brand)){
+            case 'drumeo':
+                return 19;
+            case 'pianote':
+                return 19;
+            case 'guitareo':
+                return 19;
+            case 'singeo':
+                return 19;
+        }
+
+        return false;
+    }
 }

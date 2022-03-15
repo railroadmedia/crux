@@ -7,12 +7,12 @@ use Railroad\Crux\Http\Controllers\ActionController;
 Route::group(
     [
         'middleware' => config('crux.middleware'),
-        'prefix' => '/members/access'
+        'prefix' => '/members/settings/access'
     ],
     function () {
 
         Route::get(
-            '/details',
+            '/',
             [
                 'as' => 'crux.access-details',
                 'uses' => ViewController::class . '@accessDetails'
@@ -20,30 +20,30 @@ Route::group(
         );
         
 //        // cancellation pages
-//        Route::get(
-//            '/cancel/annual-offer',
-//            [
-//                'as' => 'user.settings.cancel.annual-offer',
-//                'uses' => CancellationController::class . '@viewAnnualOffer'
-//            ]
-//        );
-//
-//        Route::get(
-//            '/cancel/monthly-offer',
-//            [
-//                'as' => 'user.settings.cancel.monthly-offer',
-//                'uses' => CancellationController::class . '@viewMonthlyOffer'
-//            ]
-//        );
-//
-//        Route::get(
-//            '/cancel/student-care',
-//            [
-//                'as' => 'user.settings.cancel.student-care',
-//                'uses' => CancellationController::class . '@viewStudentCare'
-//            ]
-//        );
-//
+        Route::get(
+            '/annual-offer',
+            [
+                'as' => 'crux.win-back.annual-offer',
+                'uses' => ViewController::class . '@viewAnnualOffer'
+            ]
+        );
+
+        Route::get(
+            '/monthly-offer',
+            [
+                'as' => 'crux.win-back.monthly-offer',
+                'uses' => ViewController::class . '@viewMonthlyOffer'
+            ]
+        );
+
+        Route::get(
+            '/student-care',
+            [
+                'as' => 'crux.win-back.student-care',
+                'uses' => ViewController::class . '@viewStudentCare'
+            ]
+        );
+
         Route::get(
             '/cancel-reason-form',
             [
@@ -93,14 +93,6 @@ Route::group(
         );
 
         Route::post(
-            '/submit/accept-trial-extension-offer',
-            [
-                'as' => 'crux.submit.accept-trial-extension-offer',
-                'uses' => ActionController::class . '@acceptTrialExtensionOffer'
-            ]
-        );
-
-        Route::post(
             '/submit/cancel-reason',
             [
                 'as' => 'crux.submit.cancel-reason',
@@ -109,48 +101,55 @@ Route::group(
         );
 
         Route::post(
-            '/submit/accept-month-extension-offer',
+            '/submit/accept-extension-offer',
             [
-                'as' => 'crux.submit.accept-month-extension-offer',
-                'uses' => ActionController::class . '@acceptMonthExtensionOffer'
+                'as' => 'crux.submit.accept-extension-offer',
+                'uses' => ActionController::class . '@acceptExtensionOffer'
             ]
         );
-//
-//        // "Part 4 - Cancellation Page" from Cancellation Project notes at following link:
-//        // https://docs.google.com/document/d/143SWRqh0rUhj8fUuJCVrgpjQXefw2BOTiBToMscKzYE/edit#heading=h.8hnhdvh85zm7
-//
-//        Route::post(
-//            '/cancel/submit/cancel',
-//            [
-//                'as' => 'user.settings.cancel.submit.cancel',
-//                'uses' => CancellationController::class . '@cancel'
-//            ]
-//        );
-//
-//        Route::post(
-//            '/cancel/submit/accept-monthly-discount-rate-offer',
-//            [
-//                'as' => 'user.settings.cancel.submit.accept-monthly-discount-rate-offer',
-//                'uses' => CancellationController::class . '@acceptMonthlyDiscountRateOffer'
-//            ]
-//        );
-//
-//        Route::post(
-//            '/cancel/submit/accept-downgrade-to-monthly-billing-offer',
-//            [
-//                'as' => 'user.settings.cancel.submit.accept-downgrade-to-monthly-billing-offer',
-//                'uses' => CancellationController::class . '@acceptMonthlyDiscountRateOffer'
-//            ]
-//        );
-//
-//        Route::post(
-//            '/cancel/submit/pause',
-//            [
-//                'as' => 'user.settings.cancel.submit.pause',
-//                'uses' => CancellationController::class . '@pause'
-//            ]
-//        );
-//
+
+        Route::post(
+            '/submit/accept-extension-offer/{two_weeks?}',
+            [
+                'as' => 'crux.submit.accept-extension-offer',
+                'uses' => ActionController::class . '@acceptExtensionOffer'
+            ]
+        );
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        Route::post(
+            '/cancel/submit/cancel',
+            [
+                'as' => 'crux.submit.cancel',
+                'uses' => ActionController::class . '@cancel'
+            ]
+        );
+
+        Route::post(
+            '/cancel/submit/accept-monthly-discount-rate-offer',
+            [
+                'as' => 'crux.submit.accept-monthly-discount-rate-offer',
+                'uses' => ActionController::class . '@acceptMonthlyDiscountRateOffer'
+            ]
+        );
+
+        Route::post(
+            '/cancel/submit/accept-downgrade-to-monthly-billing-offer',
+            [
+                'as' => 'crux.submit.accept-downgrade-to-monthly-billing-offer',
+                'uses' => ActionController::class . '@acceptMonthlyDiscountRateOffer'
+            ]
+        );
+
+        Route::post(
+            '/cancel/submit/pause',
+            [
+                'as' => 'crux.submit.pause',
+                'uses' => ActionController::class . '@pause'
+            ]
+        );
+
         Route::post(
             '/submit/send-help-email',
             [

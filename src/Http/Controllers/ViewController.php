@@ -116,30 +116,10 @@ class ViewController extends Controller
                     'persists please let us know!']);
         }
 
-        $repo = app(\Railroad\Ecommerce\Repositories\ProductRepository::class);
+        $pricesStandardCents = BrandSpecificResourceService::pricesStandardCents($brand);
 
         // todo: move to "helper" static class
-        switch($brand){
-            case 'drumeo':
-                $priceStandardCentsAnnual = ((int) $repo->findProduct(125)->getPrice()) * 100; // 125, DLM-1-year // 240 as of 220301
-                $priceStandardCentsMonthly = ((int) $repo->findProduct(124)->getPrice()) * 100; // 124, DLM-1-month // 29 as of 220301
-                break;
-            case 'pianote':
-                $priceStandardCentsAnnual = ((int) $repo->findProduct(6)->getPrice()) * 100; // 6, PIANOTE-MEMBERSHIP-1-YEAR // 197 as of 220301
-                $priceStandardCentsMonthly = ((int) $repo->findProduct(5)->getPrice()) * 100; // 5, PIANOTE-MEMBERSHIP-1-MONTH // 29 as of 220301
-                break;
-            case 'guitareo':
-                $priceStandardCentsAnnual = ((int) $repo->findProduct(18)->getPrice()) * 100; // 18, GUITAREO-1-YEAR-MEMBERSHIP // 127 as of 220301
-                $priceStandardCentsMonthly = ((int) $repo->findProduct(17)->getPrice()) * 100; // 17, GUITAREO-1-MONTH-MEMBERSHIP // 15 as of 220301
-                break;
-            case 'singeo':
-                $priceStandardCentsAnnual = ((int) $repo->findProduct(125)->getPrice()) * 100; // 125, singeo-annual-recurring-membership // 127 as of 220301
-                $priceStandardCentsMonthly = ((int) $repo->findProduct(409)->getPrice()) * 100; // 409, singeo-monthly-recurring-membership // 15 as of 220301
-                break;
-        }
-
-        // todo: move to "helper" static class
-        $savings = round(100 - (100 * ($priceStandardCentsAnnual / ($priceStandardCentsMonthly * 12))));
+        $savings = round(100 - (100 * ($pricesStandardCents['annual'] / ($pricesStandardCents['monthly'] * 12))));
         if($savings < 0){
             $savings = $savings * -1;
         }
@@ -174,7 +154,55 @@ class ViewController extends Controller
             [
                 'brand' => config('railcontent.brand'),
                 'subscription' => UserAccessService::getMembershipSubscription(current_user()->getId()),
-                'hasClaimedRetentionOfferAlready' => UserAccessService::hasClaimedRetentionOfferWithin(6),
+                'hasClaimedRetentionOfferAlready' => UserAccessService::hasClaimedRetentionOfferWithin(
+                    config('railcontent.brand')
+                ),
+            ]
+        );
+    }
+
+    /**
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function viewAnnualOffer()
+    {
+        // todo: if offer is insufficiently advantageous compared to current price then don't display this page
+
+        return view(
+            'crux::win-back.annual-offer',
+            [
+                'subscription' => UserAccessService::getMembershipSubscription( current_user()->getId() ),
+                'brand' => config('railcontent.brand'),
+            ]
+        );
+    }
+
+    /**
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function viewMonthlyOffer()
+    {
+        // todo: if offer is insufficiently advantageous compared to current price then don't display this page
+
+        return view(
+            'crux::win-back.monthly-offer',
+            [
+                'subscription' => UserAccessService::getMembershipSubscription( current_user()->getId() ),
+                'brand' => config('railcontent.brand'),
+            ]
+        );
+    }
+
+    /**
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function viewStudentCare()
+    {
+        return view(
+            'crux::win-back.student-care',
+            [
+                'subscription' => UserAccessService::getMembershipSubscription( current_user()->getId() ),
+                'brand' => config('railcontent.brand'),
             ]
         );
     }

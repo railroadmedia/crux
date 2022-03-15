@@ -4,10 +4,6 @@
     <title>Cancel | Drumeo</title>
 @endsection
 
-@section('styles')
-    <link rel="stylesheet" href="/laravel/public/tailwindcss/tailwind.css">
-@endsection
-
 @section('scripts')
 
     @if($brand == 'drumeo')
@@ -63,6 +59,8 @@
                       id="cancel-reason-form"
                       class="tw-flex tw-flex-col tw-flex-grow">
 
+                    {{ csrf_field() }}
+
                     <div class="tw-flex tw-flex-col tw-flex-row tw-justify-between md:tw-ml-24 md:tw-px-10 md:tw-px-3">
 
                         @foreach((config('crux.reason-maps-by-brand')[$brand] ?? []) as $key => $wording)
@@ -85,12 +83,12 @@
                         </p>
                         <button
                                 type="submit"
-                                class="tw-uppercase tw-font-bold tw-no-underline tw-border-0 tw-text-white tw-bg-drumeo tw-p-4 tw-px-12 tw-rounded-full tw-mt-2 tw-w-full md:tw-w-1/2 tw-text-center">
+                                class="tw-uppercase tw-font-bold tw-no-underline tw-border-0 tw-text-white tw-bg-{{ $brand }} tw-p-4 tw-px-12 tw-rounded-full tw-mt-2 tw-w-full md:tw-w-1/2 tw-text-center">
                             Cancel Membership
                         </button>
 
                         <a href="{{ url()->route('crux.access-details') }}"
-                           class="tw-uppercase tw-font-bold tw-no-underline tw-mt-6">
+                           class="tw-uppercase tw-font-bold tw-no-underline tw-mt-6 text-{{ $brand }}">
                             Go Back
                         </a>
                     </div>

@@ -2,6 +2,8 @@
 
 namespace Railroad\Crux\Http\Controllers;
 
+use App\Http\Controllers\User\CancellationController;
+use App\Http\Controllers\User\RetentionOfferController;
 use App\Maps\ProductAccessMap;
 use App\Services\User\UserAccessService;
 use Carbon\Carbon;
@@ -12,20 +14,20 @@ use Illuminate\Mail\Message;
 use Illuminate\Support\Facades\Mail;
 use Railroad\Crux\Mail\Agnostic;
 use Railroad\Crux\Services\BrandSpecificResourceService;
+use Railroad\CustomerIo\Services\CustomerIoService;
 use Railroad\Ecommerce\Entities\MembershipAction;
 use Railroad\Ecommerce\Entities\Order;
+use Railroad\Ecommerce\Entities\Product;
 use Railroad\Ecommerce\Entities\Subscription;
 use Railroad\Ecommerce\Entities\Traits\NotableEntity;
 use Railroad\Ecommerce\Entities\User;
 use Railroad\Ecommerce\Entities\UserProduct;
 use Railroad\Ecommerce\Events\Subscriptions\SubscriptionUpdated;
 use Railroad\Ecommerce\Managers\EcommerceEntityManager;
-use Railroad\Ecommerce\Repositories\MembershipActionRepository;
 use Railroad\Ecommerce\Repositories\OrderRepository;
 use Railroad\Ecommerce\Repositories\ProductRepository;
 use Railroad\Ecommerce\Repositories\SubscriptionRepository;
 use Railroad\Ecommerce\Services\UserProductService;
-use Railroad\Mailora\Services\MailService;
 
 class ActionController
 {
@@ -52,20 +54,14 @@ class ActionController
     private $productRepository;
 
     /**
-     * @var MailService
-     */
-    private $mailService;
-
-    /**
-     * @var MembershipActionRepository
-     */
-    private $membershipActionRepository;
-
-    /**
      * @var OrderRepository
      */
     private $orderRepository;
 
+    /**
+     * @var CustomerIoService
+     */
+    private $customerIoService;
 
     public static $internalEmailRecipientsByBrand = [
         'drumeo' => ['support@drumeo.com'],
@@ -76,7 +72,6 @@ class ActionController
 
     public static $generalSuccessMessageToUser = 'Your account has been updated.';
 
-    // todo: use this? Ask marketing|UX|Owner for alternate phrasing?
     public static $generalErrorMessageToUser = 'We\'re sorry, but there\'s been an error. Please reload the page and try ' .
     'again. If that doesn\'t work email or use the chat at the bottom right of your screen to get things sorted out ' .
     'right away.';
@@ -87,8 +82,6 @@ class ActionController
      * @param EcommerceEntityManager $ecommerceEntityManager
      * @param UserProductService $userProductService
      * @param ProductRepository $productRepository
-     * @param MailService $mailService
-     * @param MembershipActionRepository $membershipActionRepository
      * @param OrderRepository $orderRepository
      */
     public function __construct(
@@ -96,149 +89,22 @@ class ActionController
         EcommerceEntityManager $ecommerceEntityManager,
         UserProductService $userProductService,
         ProductRepository $productRepository,
-        MailService $mailService,
-        MembershipActionRepository $membershipActionRepository,
-        OrderRepository $orderRepository
-    )
-    {
+        OrderRepository $orderRepository,
+        CustomerIoService $customerIoService
+    ) {
         $this->ecommerceEntityManager = $ecommerceEntityManager;
         $this->subscriptionRepository = $subscriptionRepository;
         $this->userProductService = $userProductService;
         $this->productRepository = $productRepository;
-        $this->mailService = $mailService;
-        $this->membershipActionRepository = $membershipActionRepository;
         $this->orderRepository = $orderRepository;
 
         $this->brand = config('railcontent.brand');
+        $this->customerIoService = $customerIoService;
     }
 
-    /**
-     * @param bool $success
-     * @param null $msg
-     * @param string $route
-     * @return RedirectResponse
-     */
-    private function returnRedirect($success = true, $msg = null, $route = 'crux.access-details')
-    {
-        $type = $success ? 'success-message' : 'error-message';
-
-        $msg = $msg ?? $success ? self::$generalSuccessMessageToUser : self::$generalErrorMessageToUser;
-
-        return redirect()->route($route)->with([$type => $msg]);
-    }
-
-    public function acceptTrialExtensionOffer()
-    {
-        $targetProductIdsByBrand = [
-            'drumeo' => [126, 238],
-            'pianote' => [],
-            'guitareo' => [],
-            'singeo' => [],
-        ];
-
-        // these are the 7 day and 30 day trial product ids
-        $subscription = $this->updateSubscriptionPaidUntilDate($targetProductIdsByBrand[$this->brand], 'addDays', 14);
-
-        if (!$subscription) {
-            return redirect()->route('crux.access-details')
-                ->with(
-                    [
-                        'error-message' => 'Whoops, something went wrong when we tried to extend your trial. Please try again or contact our support team.'
-                    ]
-                );
-        }
-
-        $oldSubscription = clone $subscription;
-        event(new SubscriptionUpdated($oldSubscription, $subscription));
-
-        // save membership action
-        $membershipAction = new MembershipAction(); /** @var $membershipAction MembershipAction|NotableEntity */
-        $membershipAction->setUser(new User(current_user()->getId(), current_user()->getEmail()));
-        $membershipAction->setBrand(config('ecommerce.brand'));
-        $membershipAction->setAction(MembershipAction::ACTION_EXTEND_FOR_AMOUNT_OF_DAYS);
-        $membershipAction->setActionAmount(14);
-        $membershipAction->setSubscription($subscription);
-        $membershipAction->setNote('trial was extended by 14 days');
-
-        try {
-            $this->ecommerceEntityManager->persist($membershipAction);
-            $this->ecommerceEntityManager->flush();
-        } catch (ORMException $e) {
-            error_log($e);
-            return $this->returnRedirect(false);
-        }
-
-        return redirect()->route('crux.access-details')
-            ->with(
-                [
-                    'success-message' => 'Your trial has successfully been extended 14 days. Your new renewal date is: ' .
-                        $subscription->getPaidUntil()->format('F j, Y')
-                ]
-            );
-    }
-
-    /**
-     * This extends the users active subscription and access by 30 days.
-     *
-     * @return RedirectResponse
-     */
-    public function acceptMonthExtensionOffer()
-    {
-        $targetProductIdsByBrand = [
-            'drumeo' => [124, 125, 126],
-            'pianote' => [],
-            'guitareo' => [],
-            'singeo' => [],
-        ];
-
-        $membershipProductIds = ProductAccessMap::membershipProductIds();
-
-        // these are the yearly, monthly, and trial-with-renewal edge subscription product ids
-        $subscription = $this->updateSubscriptionPaidUntilDate(
-            $targetProductIdsByBrand[$this->brand],
-            'addDays',
-            30
-        );
-
-        if (!$subscription) {
-            return redirect()->route('crux.access-details')
-                ->with(
-                    [
-                        'error-message' => 'Whoops, something went wrong when we tried to extend your membership. ' .
-                            'Please try again or contact our support team.'
-                    ]
-                );
-        }
-
-        $oldSubscription = clone $subscription;
-        event(new SubscriptionUpdated($oldSubscription, $subscription));
-
-        // save membership action
-        $membershipAction = new MembershipAction(); /** @var $membershipAction MembershipAction|NotableEntity */
-        $membershipAction->setUser(new User(current_user()->getId(), current_user()->getEmail()));
-        $membershipAction->setBrand($this->brand);
-        $membershipAction->setAction(MembershipAction::ACTION_EXTEND_FOR_AMOUNT_OF_DAYS);
-        $membershipAction->setActionAmount(30);
-        $membershipAction->setSubscription($subscription);
-        $membershipAction->setNote('membership was extended by 30 days');
-
-        try {
-            $this->ecommerceEntityManager->persist($membershipAction);
-            $this->ecommerceEntityManager->flush();
-        } catch (ORMException $e) {
-            error_log($e);
-            return $this->returnRedirect(false);
-        }
-
-        return redirect()->route('crux.access-details', ['open-modal-id' => 'modal-how-can-we-make-next-30-days-better'])
-            ->with(
-                [
-                    'success-message' => 'Your membership has been extended by 30 days successfully! Your new ' .
-                        'renewal date is: ' . $subscription->getPaidUntil()->format('F j, Y'),
-                    'renewal-date' => $subscription->getPaidUntil()->format('F j, Y')
-                ]
-            );
-    }
+    // -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=-
+    // -=- -=- -=- -=- Public methods  -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=-
+    // -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=-
 
     /**
      * @param Request $request
@@ -296,21 +162,22 @@ class ActionController
         return $this->returnRedirect($success, "Your request has sent. Expect a reply soon!");
     }
 
+    /**
+     * @param Request $request
+     * @return RedirectResponse
+     */
     public function submitFeedback(Request $request)
     {
         $userFeedback = $request->get('user-feedback');
 
         $acceptedMonthExtensionOffer = $request->get('accepted-month-extension-offer') ?? false;
         if($acceptedMonthExtensionOffer){
-            $view = 'crux::email.feedback-with-cancellation-extension-offer';
-            $subject = 'User feedback to make the next 30 days better, from ' . current_user()->getEmail();
+            $view = 'crux::email.feedback-from-cancellation-workflow';
+            $subject = 'User feedback to make the next month better, from ' . current_user()->getEmail();
             $renewalDate = $request->get('renewal-date');
-            if($renewalDate){
-                $successMessage = 'Your feedback has been submitted, and your membership has been extended by 30 ' .
-                    'days! Your new renewal date is: ' . $renewalDate;
-            }else{
-                $successMessage = 'Your feedback has been submitted, and your membership has been extended by 30 ' .
-                    'days!';
+            $successMessage = 'Your feedback has been submitted, and your membership has been extended by a month!';
+            if(!empty($renewalDate)){
+                $successMessage = $successMessage . ' Your new renewal date is: ' . $renewalDate;
             }
         }else{
             $view = 'crux::email.feedback-from-cancellation-workflow';
@@ -379,15 +246,17 @@ class ActionController
         session()->put($this->brand . '-cancel-reason', $reason);
         session()->put($this->brand . '-cancel-reason-text', $textReason);
 
-        if (UserAccessService::hasClaimedRetentionOfferWithin(6) || $isTrial) {
+        if (UserAccessService::hasClaimedRetentionOfferWithin($this->brand) || $isTrial) {
             return $this->cancel($request);
         }
 
+        $reasons = config('crux.reasons-by-brand')[$this->brand];
+
         $criteria = [
-            config('crux.reasonsByBrand')[$this->brand]['no-time'],
-            config('crux.reasonsByBrand')[$this->brand]['too-expensive'],
-            config('crux.reasonsByBrand')[$this->brand]['dont-use-enough'],
-            config('crux.reasonsByBrand')[$this->brand]['other-drum-lessons'],
+            $reasons['no-time'] ?? null,
+            $reasons['too-expensive'] ?? null,
+            $reasons['dont-use-enough'] ?? null,
+            $reasons['other-drum-lessons'] ?? null,
         ];
 
         $match = in_array($reason, $criteria);
@@ -395,116 +264,29 @@ class ActionController
         // send to final offer screen depending on use case
         if ($match) {
             if ($subscription->getIntervalType() == config('ecommerce.interval_type_monthly')) {
-                return redirect()->route('user.settings.cancel.monthly-offer');
+                return redirect()->route('crux.win-back.monthly-offer');
             } else {
-                return redirect()->route('user.settings.cancel.annual-offer');
+                return redirect()->route('crux.win-back.annual-offer');
             }
         }
 
         $criteria = [
-            config('crux.reasonsByBrand')[$this->brand]['couldnt-find-lessons'],
-            config('crux.reasonsByBrand')[$this->brand]['too-easy'],
-            config('crux.reasonsByBrand')[$this->brand]['too-difficult'],
-            config('crux.reasonsByBrand')[$this->brand]['lesson-quality'],
-            config('crux.reasonsByBrand')[$this->brand]['dont-like-website'],
-            config('crux.reasonsByBrand')[$this->brand]['technical-problems'],
+            $reasons['couldnt-find-lessons'] ?? null,
+            $reasons['too-easy'] ?? null,
+            $reasons['too-difficult'] ?? null,
+            $reasons['lesson-quality'] ?? null,
+            $reasons['dont-like-website'] ?? null,
+            $reasons['technical-problems'] ?? null,
         ];
 
         $match = in_array($reason, $criteria);
 
         if ($match) {
-            return redirect()->route('user.settings.cancel.student-care');
+            return redirect()->route('crux.win-back.student-care');
         }
 
         // other reason
         return $this->cancel($request);
-    }
-
-    /**
-     * @param $targetProductIds []
-     * @param string $carbonMethodName
-     * @param string|int $carbonMethodParamValue
-     * @return Subscription|boolean
-     */
-    private function updateSubscriptionPaidUntilDate($targetProductIds, $carbonMethodName, $carbonMethodParamValue)
-    {
-        $user = current_user();
-        $userId = $user->getId();
-
-        try {
-            /** @var UserProduct[] $userProducts */
-            $userSubscriptions = $this->subscriptionRepository->getSubscriptionsForUsers([$userId]);
-        } catch (\Exception $e) {
-            error_log($e);
-            return false;
-        }
-
-        foreach ($userSubscriptions as $subscription) {
-            $product = $subscription->getProduct();
-            if (in_array($product->getId(), $targetProductIds)) {
-                /** @var Carbon $paidUntil */
-                $paidUntil = $subscription->getPaidUntil();
-                $isExpired = $paidUntil->lt(Carbon::now());
-                if ($isExpired) {
-                    continue;
-                }
-                if (isset($subscriptionToUpdate)) {
-                    error_log(
-                        'user has multiple subscriptions that qualify for updating in \App\Http\Controllers\Profiles\\' .
-                        'CancellationController::updateSubscriptionPaidUntilDate. This is may not be desired. Consider ' .
-                        'reviewing subscriptions belonging to user ' . $userId . ' to see if there might be an error ' .
-                        'somewhere that uses this method.'
-                    );
-                }
-                $subscriptionToUpdate = $subscription;
-            }
-        }
-
-        if (empty($subscriptionToUpdate)) {
-            error_log(
-                'No subscriptions attached that matches expectations for this function (user id: ' . $userId . ')'
-            );
-            return false;
-        }
-
-        // you're getting the carbon object that is set as an attribute on the entity, not a copy of the carbon object
-        $paidUntil = $subscriptionToUpdate->getPaidUntil();
-
-        try {
-            /** @var Carbon $extendedPaidUntil */
-            $extendedPaidUntil = $paidUntil->$carbonMethodName($carbonMethodParamValue);
-        } catch (\Exception $e) {
-            error_log($e);
-            return false;
-        }
-
-        try {
-            $oldSubscriptionToUpdate = clone($subscriptionToUpdate);
-
-            /*
-             * NOTE: "copy()" to get new obj else Doctrine won't detect change in Subscription entity (Doctrine doesn't
-             * parse obj details, only evaluates whether object is same object of whole different instance)
-             */
-            $subscriptionToUpdate->setPaidUntil($extendedPaidUntil->copy());
-
-            $this->ecommerceEntityManager->persist($subscriptionToUpdate);
-            $this->ecommerceEntityManager->flush();
-
-            event(new SubscriptionUpdated($oldSubscriptionToUpdate, $subscriptionToUpdate));
-
-        } catch (\Throwable $e) {
-            error_log($e);
-            return false;
-        }
-
-        try {
-            $this->userProductService->updateSubscriptionProducts($subscriptionToUpdate);
-        } catch (\Throwable $e) {
-            error_log($e);
-            return false;
-        }
-
-        return $subscriptionToUpdate;
     }
 
     /**
@@ -652,6 +434,322 @@ class ActionController
                     'error-message' => $cancellationSuccessMessage
                 ]
             );
+    }
+
+    /**
+     * @param Request $request
+     * @return void
+     */
+    public function pause(Request $request)
+    {
+
+    }
+
+    /**
+     * @param Request $request
+     * @return RedirectResponse
+     */
+    public function acceptMonthlyDiscountRateOffer(Request $request)
+    {
+        $oldSubscription = UserAccessService::getMembershipSubscription(
+            current_user()->getId()
+        );
+
+        if (!$oldSubscription) {
+            return $this->returnRedirect(
+                false,
+                'Whoops, something went wrong when we tried to change your membership ' .
+                'price. Please try again or contact our support team.'
+            );
+        }
+
+        try {
+            /** @var Product $monthlyProduct */
+            $monthlyProduct = $this->productRepository->findOneBy(['sku' => 'PIANOTE-MEMBERSHIP-1-MONTH']);
+
+            $discountedRate = \Railroad\Crux\Services\BrandSpecificResourceService::pricesOfferCents($this->brand)['monthly']/100;
+
+            // cancel the old sub
+            $oldSubscription->setCanceledOn(Carbon::now());
+            $oldSubscription->setIsActive(false);
+            $oldSubscription->setCancellationReason('downgraded to $' . $discountedRate . ' per month billing');
+
+            // create a new one with the proper product and rate
+            $newSubscription = new Subscription();
+
+            $newSubscription->setBrand($oldSubscription->getBrand());
+            $newSubscription->setType($oldSubscription->getType());
+            $newSubscription->setIsActive(true);
+            $newSubscription->setStopped(false);
+            $newSubscription->setStartDate(Carbon::now());
+            $newSubscription->setPaidUntil($oldSubscription->getPaidUntil());
+            $newSubscription->setCanceledOn(null);
+            $newSubscription->setTotalPrice($discountedRate);
+
+            if($oldSubscription->getTax()){
+                $priceBeforeTax = $oldSubscription->getTotalPrice() - $oldSubscription->getTax();
+                $taxRate = ($oldSubscription->getTotalPrice() - $priceBeforeTax) - 1;
+                $newTaxAmount = (($discountedRate/100) * $taxRate) * 100;
+                $newSubscription->setTax($newTaxAmount);
+            } else {
+                $newSubscription->setTax(0);
+            }
+
+            $newSubscription->setCurrency($oldSubscription->getCurrency());
+            $newSubscription->setIntervalType(config('ecommerce.interval_type_monthly', 'month'));
+            $newSubscription->setIntervalCount(1);
+            $newSubscription->setTotalCyclesDue($oldSubscription->getTotalCyclesDue());
+            $newSubscription->setTotalCyclesPaid(0);
+            $newSubscription->setRenewalAttempt(0);
+            $newSubscription->setPaymentMethod($oldSubscription->getPaymentMethod());
+            $newSubscription->setUser($oldSubscription->getUser());
+            $newSubscription->setCustomer($oldSubscription->getCustomer());
+            $newSubscription->setProduct($monthlyProduct);
+
+            $this->ecommerceEntityManager->persist($oldSubscription);
+            $this->ecommerceEntityManager->persist($newSubscription);
+
+            $this->userProductService->updateSubscriptionProducts($oldSubscription);
+            $this->userProductService->updateSubscriptionProducts($newSubscription);
+
+            event(new SubscriptionUpdated($newSubscription, $newSubscription));
+
+            // save membership actions
+            if ($oldSubscription->getIntervalType() != config('ecommerce.interval_type_monthly', 'month')) {
+                $switchToMonthlyMembershipAction = new MembershipAction();
+
+                $switchToMonthlyMembershipAction->setUser(new User(current_user()->getId(), current_user()->getEmail()));
+                $switchToMonthlyMembershipAction->setBrand(config('ecommerce.brand'));
+                $switchToMonthlyMembershipAction->setAction(MembershipAction::ACTION_SWITCH_BILLING_INTERVAL_TO_MONTHLY);
+                $switchToMonthlyMembershipAction->setActionAmount(1);
+                $switchToMonthlyMembershipAction->setSubscription($oldSubscription);
+                $switchToMonthlyMembershipAction->setNote('membership changed to monthly billing');
+
+                $this->ecommerceEntityManager->persist($switchToMonthlyMembershipAction);
+            }
+
+            $priceChangeMembershipAction = new MembershipAction();
+
+            $priceChangeMembershipAction->setUser(new User(current_user()->getId(), current_user()->getEmail()));
+            $priceChangeMembershipAction->setBrand(config('ecommerce.brand'));
+            $priceChangeMembershipAction->setAction(MembershipAction::ACTION_SWITCH_TO_NEW_PRICE);
+            $priceChangeMembershipAction->setActionAmount($discountedRate);
+            $priceChangeMembershipAction->setSubscription($oldSubscription);
+            $priceChangeMembershipAction->setNote('membership price was changed to $' . $discountedRate);
+
+            $this->ecommerceEntityManager->persist($priceChangeMembershipAction);
+
+            $this->ecommerceEntityManager->flush();
+
+        } catch (ORMException | \Throwable $e) {
+            error_log($e);
+            return $this->returnRedirect(false);
+        }
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // use subscription renewal date for success message to user... unless the user-product expiry is a later date
+
+        $renewalDate = Carbon::parse($newSubscription->getPaidUntil());
+
+        $membershipUserProduct = UserAccessService::getMembershipUserProduct();
+        if(!$membershipUserProduct){
+            error_log('membership user product not found for user ' . current_user()->getId() . ' in ' . self::class);
+            return $this->returnRedirect(false);
+        }
+        /** @var UserProduct $membershipUserProduct */
+        $membershipExpirationDate = Carbon::parse($membershipUserProduct->getExpirationDate());
+
+        if ($membershipExpirationDate->gt($renewalDate)) {
+            $renewalDate = $membershipExpirationDate;
+        }
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        return $this->returnRedirect(
+            true,
+            'Your monthly membership discount has been activated. Your next renewal date is: ' .
+            $renewalDate->format('F j, Y')
+        );
+    }
+
+    /**
+     * This extends the users active subscription and access by 30 days.
+     *
+     * @return RedirectResponse
+     */
+    public function acceptExtensionOffer($twoWeeks = false)
+    {
+        $userId = current_user()->getId();
+
+        try{
+            $membershipSubscription = UserAccessService::getMembershipSubscription($userId);
+
+            if($twoWeeks){
+                $subscription = $this->updateSubscriptionPaidUntilDate(
+                    $membershipSubscription,
+                    'addDays',
+                    14
+                );
+            } else {
+                $subscription = $this->updateSubscriptionPaidUntilDate(
+                    $membershipSubscription,
+                    'addMonths',
+                    1
+                );
+            }
+        } catch (\Exception $e) {
+            return redirect()->route('crux.access-details')->with(
+                [
+                    'error-message' => 'Whoops, something went wrong when we tried to extend your membership. ' .
+                        'Please try again or contact our support team.'
+                ]
+            );
+        }
+
+        $oldSubscription = clone $subscription;
+        event(new SubscriptionUpdated($oldSubscription, $subscription));
+
+        // save membership action
+        $membershipAction = new MembershipAction(); /** @var $membershipAction MembershipAction|NotableEntity */
+        $membershipAction->setUser(new User(current_user()->getId(), current_user()->getEmail()));
+        $membershipAction->setBrand($this->brand);
+        $membershipAction->setSubscription($subscription);
+        if ($twoWeeks) {
+            $membershipAction->setAction(MembershipAction::ACTION_EXTEND_FOR_AMOUNT_OF_DAYS);
+            $membershipAction->setActionAmount(14);
+            $membershipAction->setNote('membership was extended by 14 days');
+        } else {
+            $membershipAction->setAction(MembershipAction::ACTION_EXTEND_FOR_AMOUNT_OF_MONTHS);
+            $membershipAction->setActionAmount(1);
+            $membershipAction->setNote('membership was extended by 1 month');
+        }
+
+        try {
+            $this->ecommerceEntityManager->persist($membershipAction);
+            $this->ecommerceEntityManager->flush();
+        } catch (ORMException $e) {
+            error_log($e);
+            return $this->returnRedirect(false);
+        }
+
+        $newRenewalDate = $subscription->getPaidUntil()->format('F j, Y');
+
+        if ($twoWeeks) {
+            $routeParams = [];
+            $msg = 'Your trial has successfully been extended 14 days. Your new renewal date is: ' . $newRenewalDate;
+        }
+
+        return redirect()->route(
+            'crux.access-details',
+            $routeParams ?? ['open-modal-id' => 'modal-how-can-we-make-next-30-days-better']
+        )->with([
+            'success-message' => $msg ?? ('Your access has been extended. Your new renewal date is: ' . $newRenewalDate),
+            'renewal-date' => $newRenewalDate
+        ]);
+    }
+
+    /**
+     * @return bool|RedirectResponse
+     */
+    public function AddStudentPlanAttributeToCurrentUser()
+    {
+        try{
+            $this->AddStudentPlanAttribute();
+            return $this->returnRedirect(
+                true,
+                CancellationController::$generalSuccessMessageToUser
+            );
+        }catch(\Exception $exception){
+            error_log($exception);
+            return $this->returnRedirect(
+                false,
+                CancellationController::$generalErrorMessageToUser
+            );
+        }
+    }
+
+    // -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=-
+    // -=- -=- -=- -=- Private methods -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=-
+    // -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=-
+
+    /**
+     * @param bool $success
+     * @param null $msg
+     * @param string $route
+     * @return RedirectResponse
+     */
+    private function returnRedirect($success = true, $msg = null, $route = 'crux.access-details')
+    {
+        $type = $success ? 'success-message' : 'error-message';
+
+        $msg = $msg ?? ($success ? self::$generalSuccessMessageToUser : self::$generalErrorMessageToUser);
+
+        return redirect()->route($route)->with([$type => $msg]);
+    }
+
+    /**
+     * @param $targetProductIds []
+     * @param string $carbonMethodName
+     * @param string|int $carbonMethodParamValue
+     * @return Subscription|boolean
+     */
+    private function updateSubscriptionPaidUntilDate($subscriptionToUpdate, $carbonMethodName, $carbonMethodParamValue)
+    {
+        // you're getting the carbon object that is set as an attribute on the entity, not a copy of the carbon object
+        $paidUntil = $subscriptionToUpdate->getPaidUntil();
+
+        try {
+            /** @var Carbon $extendedPaidUntil */
+            $extendedPaidUntil = $paidUntil->$carbonMethodName($carbonMethodParamValue);
+        } catch (\Exception $e) {
+            error_log($e);
+            return false;
+        }
+
+        try {
+            $oldSubscriptionToUpdate = clone($subscriptionToUpdate);
+
+            /*
+             * NOTE: "copy()" to get new obj else Doctrine won't detect change in Subscription entity (Doctrine doesn't
+             * parse obj details, only evaluates whether object is same object of whole different instance)
+             */
+            $subscriptionToUpdate->setPaidUntil($extendedPaidUntil->copy());
+
+            $this->ecommerceEntityManager->persist($subscriptionToUpdate);
+            $this->ecommerceEntityManager->flush();
+
+            event(new SubscriptionUpdated($oldSubscriptionToUpdate, $subscriptionToUpdate));
+
+        } catch (\Throwable $e) {
+            error_log($e);
+            return false;
+        }
+
+        try {
+            $this->userProductService->updateSubscriptionProducts($subscriptionToUpdate);
+        } catch (\Throwable $e) {
+            error_log($e);
+            return false;
+        }
+
+        return $subscriptionToUpdate;
+    }
+
+    /**
+     * @return void
+     * @throws \Exception
+     * @throws \Throwable
+     */
+    private function addStudentPlanAttribute()
+    {
+        // customer-io
+        $this->customerIoService->createOrUpdateCustomerByUserId(
+            current_user()->getId(),
+            $this->brand,
+            current_user()->getEmail(),
+            [$this->brand . '_retention_student_plan' => 'true'],
+            current_user()->getCreatedAt()->timestamp
+        );
     }
 
     /**

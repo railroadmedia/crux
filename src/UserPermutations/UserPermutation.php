@@ -250,7 +250,7 @@ class UserPermutation
 
     public function hasClaimedRetentionOfferAlready()
     {
-        return UserAccessService::hasClaimedRetentionOfferWithin(6);
+        return UserAccessService::hasClaimedRetentionOfferWithin($this->brand);
     }
 
     public function subscriptionManagedElsewhere()
