@@ -464,8 +464,23 @@ class ActionController
         }
 
         try {
+            switch($this->brand) {
+                case 'drumeo':
+                    $skuForNew = 'DLM-1-month';
+                    break;
+                case 'pianote':
+                    $skuForNew = 'PIANOTE-MEMBERSHIP-1-MONTH';
+                    break;
+                case 'guitareo':
+                    $skuForNew = 'GUITAREO-1-MONTH-MEMBERSHIP';
+                    break;
+                case 'singeo':
+                    $skuForNew = 'singeo-monthly-recurring-membership';
+                    break;
+            }
+
             /** @var Product $monthlyProduct */
-            $monthlyProduct = $this->productRepository->findOneBy(['sku' => 'PIANOTE-MEMBERSHIP-1-MONTH']);
+            $monthlyProduct = $this->productRepository->findOneBy(['sku' => $skuForNew]);
 
             $discountedRate = \Railroad\Crux\Services\BrandSpecificResourceService::pricesOfferCents($this->brand)['monthly']/100;
 
