@@ -672,13 +672,13 @@ class ActionController
             $this->AddStudentPlanAttribute();
             return $this->returnRedirect(
                 true,
-                CancellationController::$generalSuccessMessageToUser
+                self::$generalSuccessMessageToUser
             );
         }catch(\Exception $exception){
             error_log($exception);
             return $this->returnRedirect(
                 false,
-                CancellationController::$generalErrorMessageToUser
+                self::$generalErrorMessageToUser
             );
         }
     }

@@ -32,7 +32,7 @@
 
     <p class="tw-mt-4">We’re available to help by phone or email between 8AM to 4PM Pacific Time.</p>
 
-    <a href="{{ url()->route('support.render-page') }}"
+    <a href="{{ url()->route('members.support') }}"
        class="tw-uppercase tw-font-bold tw-no-underline bg-{{ $brand }} hover:{{ \Railroad\Crux\Services\BrandSpecificResourceService::styleHoverClass($brand) }} tw-p-2 tw-px-5 md:tw-px-12 tw-text-white tw-rounded-full tw-mt-10">
         Contact {{ ucfirst($brand) }} Support
     </a>
@@ -49,8 +49,10 @@
     <p class="tw-mt-4">Click the button to hear from a {{ ucfirst($brand) }} instructor who will guide and assist you.</p>
 
     <form method="post"
-          action="{{ url()->route('crux.submit.add-intercom-tag') }}"
-          class="tw-uppercase tw-font-bold tw-no-underline bg-{{ $brand }} hover:{{ \Railroad\Crux\Services\BrandSpecificResourceService::styleHoverClass($brand) }} tw-p-2 tw-px-5 md:tw-px-12 tw-text-white tw-rounded-full tw-mt-10 md:tw-mt-auto">
+          action="{{ url()->route('crux.submit.add-student-plan-attribute') }}"
+          class="tw-uppercase tw-font-bold tw-no-underline bg-{{ $brand }} hover:{{
+    \Railroad\Crux\Services\BrandSpecificResourceService::styleHoverClass($brand)
+    }} tw-p-2 tw-px-5 md:tw-px-12 tw-text-white tw-rounded-full tw-mt-10 md:tw-mt-auto">
 
         {{ csrf_field() }}
 

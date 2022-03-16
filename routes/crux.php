@@ -157,5 +157,13 @@ Route::group(
                 'uses' => ActionController::class . '@sendHelpEmail'
             ]
         );
+
+        Route::post(
+            '/cancel/submit/',
+            [
+                'as' => 'crux.submit.add-student-plan-attribute',
+                'uses' => ActionController::class . '@AddStudentPlanAttributeToCurrentUser'
+            ]
+        );
     }
 );
