@@ -23,6 +23,7 @@ use Railroad\Ecommerce\Entities\Traits\NotableEntity;
 use Railroad\Ecommerce\Entities\User;
 use Railroad\Ecommerce\Entities\UserProduct;
 use Railroad\Ecommerce\Events\Subscriptions\SubscriptionUpdated;
+use Railroad\Ecommerce\Events\UserProducts\UserProductUpdated;
 use Railroad\Ecommerce\Managers\EcommerceEntityManager;
 use Railroad\Ecommerce\Repositories\OrderRepository;
 use Railroad\Ecommerce\Repositories\ProductRepository;
@@ -438,11 +439,92 @@ class ActionController
 
     /**
      * @param Request $request
-     * @return void
      */
     public function pause(Request $request)
     {
+        $subscription = UserAccessService::getEdgeSubscription(
+            current_user()->getId()
+        );
 
+        if (empty($subscription)) {
+            return $this->returnRedirect(
+                false,
+                'Whoops, something went wrong when we tried to pause your membership. Please try again or ' .
+                'contact our support team.'
+            );
+        }
+
+        $oldSubscription = clone $subscription;
+
+        $days = $request->get('amount-of-days', 30);
+
+        // extend the subscription first
+        $subscription->setPaidUntil($subscription->getPaidUntil()->copy()->addDays($days));
+
+        try {
+            $this->ecommerceEntityManager->persist($subscription);
+            $this->ecommerceEntityManager->flush();
+        } catch (ORMException $e) {
+            error_log($e);
+            return $this->returnRedirect(false);
+        }
+
+        // update the user product start date which restricts access until that date
+        try {
+            $userProduct = $this->userProductService->getUserProduct(
+                new User(current_user()->getId(), current_user()->getEmail()),
+                $subscription->getProduct()
+            );
+        } catch (\Throwable $e) {
+            error_log($e);
+            return $this->returnRedirect(false);
+        }
+
+        $oldUserProduct = clone $userProduct;
+
+        $userProduct->setStartDate(Carbon::now()->addDays($days));
+        $userProduct->setExpirationDate(
+            $subscription->getPaidUntil()->addDays(
+                config('ecommerce.days_before_access_revoked_after_expiry', 3)
+            )
+        );
+
+        try {
+            $this->ecommerceEntityManager->persist($userProduct);
+            $this->ecommerceEntityManager->flush();
+        } catch (ORMException $e) {
+            error_log($e);
+            return $this->returnRedirect(false);
+        }
+
+        event(new UserProductUpdated($userProduct, $oldUserProduct));
+        event(new SubscriptionUpdated($oldSubscription, $subscription));
+
+        // save membership action
+        /** @var $membershipAction MembershipAction|NotableEntity */
+        $membershipAction = new MembershipAction();
+        $membershipAction->setUser(new User(current_user()->getId(), current_user()->getEmail()));
+        $membershipAction->setBrand(config('ecommerce.brand'));
+        $membershipAction->setAction(MembershipAction::ACTION_PAUSE_FOR_AMOUNT_OF_DAYS);
+        $membershipAction->setActionAmount($days);
+        $membershipAction->setSubscription($subscription);
+        $membershipAction->setNote('membership was paused for ' . $days . ' days');
+
+        try {
+            $this->ecommerceEntityManager->persist($membershipAction);
+            $this->ecommerceEntityManager->flush();
+        } catch (ORMException $e) {
+            error_log($e);
+            return $this->returnRedirect(false);
+        }
+
+        return $this->returnRedirect(
+            true,
+            'Your membership has been paused for ' .
+            $days .
+            ' days. Your access will automatically return on: ' .
+            $userProduct->getStartDate()->format('F j, Y')
+        );
     }
 
     /**
