@@ -219,11 +219,8 @@ class UserPermutation
     {
         $membershipStatus = UserAccessService::getMembershipSubscriptionState($this->user->getId());
 
-        if($membershipStatus){
-            return $membershipStatus;
-        }
-
         $userProduct = UserAccessService::getMembershipUserProduct();
+        $subscription = UserAccessService::getMembershipSubscription(current_user()->getId());
 
         if (empty($subscription) && !empty($userProduct)) {
             $membershipStatus = 'non-recurring';

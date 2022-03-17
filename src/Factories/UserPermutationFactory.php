@@ -81,12 +81,27 @@ class UserPermutationFactory
      */
     public function getPermutation(User $user, string $brand): UserPermutation
     {
-        //$brand = config('railcontent.brand');
         $userId = $user->getId();
         $subscription = UserAccessService::getMembershipSubscription($userId);
+        $isPaused = false;
 
         if (!UserAccessService::isMember($userId)) {
-            return new StudentWithoutMembershipAccess($user, $brand);
+
+            // check that is not a user with a paused subscription
+            $membershipUserProduct = UserAccessService::getMembershipUserProduct();
+            $startDate = Carbon::parse($membershipUserProduct->getStartDate());
+            $startDateIsInFuture = $startDate->gt(Carbon::now());
+            if ($startDateIsInFuture) {
+                $paidUntilDate = Carbon::parse($subscription->getPaidUntil());
+                $paidUntilIsAfterStartDate = $startDate->lt($paidUntilDate);
+                if ($subscription->getIsActive() && $paidUntilIsAfterStartDate) {
+                    $isPaused = true;
+                }
+            }
+
+            if(!$isPaused){
+                return new StudentWithoutMembershipAccess($user, $brand);
+            }
         }
 
         $membershipUserProduct = UserAccessService::getMembershipUserProduct();
