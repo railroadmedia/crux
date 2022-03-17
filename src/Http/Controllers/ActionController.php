@@ -210,9 +210,10 @@ class ActionController
             return $this->returnRedirect(false);
         }
 
-        return redirect()->route('crux.access-details')->with([
-            'success-message' => $successMessage ?? 'Your feedback has been submitted, thank you!'
-        ]);
+        return $this->returnRedirect(
+            true,
+            $successMessage ?? 'Your feedback has been submitted, thank you!'
+        );
     }
 
     /**
@@ -300,11 +301,10 @@ class ActionController
         $oldSubscription = clone $subscription;
 
         if (empty($subscription)) {
-            return redirect()->route('crux.access-details')->with(
-                [
-                    'error-message' => 'Whoops, something went wrong when we tried to cancel your membership. Please ' .
-                        'try again or contact our support team.'
-                ]
+            return $this->returnRedirect(
+                false,
+                'Whoops, something went wrong when we tried to cancel your membership. Please try again or contact ' .
+                'our support team.'
             );
         }
 
@@ -429,12 +429,7 @@ class ActionController
         session()->remove($this->brand . '-cancel-reason-text');
 
         // respond
-        return redirect()->route('crux.access-details')
-            ->with(
-                [
-                    'error-message' => $cancellationSuccessMessage
-                ]
-            );
+        return $this->returnRedirect(false, $cancellationSuccessMessage);
     }
 
     /**
@@ -695,11 +690,10 @@ class ActionController
                 );
             }
         } catch (\Exception $e) {
-            return redirect()->route('crux.access-details')->with(
-                [
-                    'error-message' => 'Whoops, something went wrong when we tried to extend your membership. ' .
-                        'Please try again or contact our support team.'
-                ]
+            return $this->returnRedirect(
+                false,
+                'Whoops, something went wrong when we tried to extend your membership. Please try again or ' .
+                'contact our support team.'
             );
         }
 
