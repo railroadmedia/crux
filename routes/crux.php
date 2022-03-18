@@ -159,7 +159,7 @@ Route::group(
         );
 
         Route::post(
-            '/cancel/submit/',
+            '/cancel/submit/add-student-plan',
             [
                 'as' => 'crux.submit.add-student-plan-attribute',
                 'uses' => ActionController::class . '@AddStudentPlanAttributeToCurrentUser'

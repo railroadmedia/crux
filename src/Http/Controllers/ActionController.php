@@ -748,7 +748,7 @@ class ActionController
             $this->AddStudentPlanAttribute();
             return $this->returnRedirect(
                 true,
-                self::$generalSuccessMessageToUser
+                'An instructor be in touch soon!'
             );
         }catch(\Exception $exception){
             error_log($exception);
