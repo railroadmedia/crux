@@ -5,7 +5,7 @@
     "php": "~7",
     "laravel/framework": "5.*",
     "guzzlehttp/guzzle": "~6.0",
-    "railroad/ecommerce": "^3.0",
+    "railroad/ecommerce": "dev-4.0-cancellation-ux",
     "railroad/usora": "^2.0.83"
   },
   "require-dev": {
