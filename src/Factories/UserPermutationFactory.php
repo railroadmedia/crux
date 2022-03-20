@@ -89,9 +89,13 @@ class UserPermutationFactory
 
             // check that is not a user with a paused subscription
             $membershipUserProduct = UserAccessService::getMembershipUserProduct();
-            $startDate = Carbon::parse($membershipUserProduct->getStartDate());
-            $startDateIsInFuture = $startDate->gt(Carbon::now());
-            if ($startDateIsInFuture) {
+
+            if($membershipUserProduct){
+                $startDate = Carbon::parse($membershipUserProduct->getStartDate());
+                $startDateIsInFuture = $startDate->gt(Carbon::now());
+            }
+
+            if ($startDateIsInFuture ?? false) {
                 $paidUntilDate = Carbon::parse($subscription->getPaidUntil());
                 $paidUntilIsAfterStartDate = $startDate->lt($paidUntilDate);
                 if ($subscription->getIsActive() && $paidUntilIsAfterStartDate) {
