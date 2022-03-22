@@ -178,8 +178,13 @@
                 <p class="tw-font-bold">You’re eligible for a free 7-day trial to get:</p>
 
                 <ul class="tw-mt-3 tw-text-gray-600 tw-space-y-1">
-                    <li>Drumeo Method step-by-step curriculum.</li>
-                    <li>200+ courses from legendary teachers.</li>
+                    @if(in_array($brand, ['drumeo', 'pianote']))
+                        <li>{{ ucfirst($brand) }} Method step-by-step curriculum.</li>
+                        <li>200+ courses from legendary teachers.</li>
+                    @else
+                        <li>{{ ucfirst($brand) }} step-by-step curriculum.</li>
+                        <li>Courses from legendary teachers.</li>
+                    @endif
                     <li>Entertaining shows and documentaries.</li>
                     <li>Song breakdowns & Play-Alongs.</li>
                     <li>Weekly live lessons and personal support.</li>
@@ -253,7 +258,18 @@
             @endif
 
             @if(empty($membershipType) && !$permutation->hasMembershipAccess())
-                <a href="/laravel/public/shopping-cart/api/query?products[DLM-Trial]=1,month,1&locked=true"
+                @php
+                    if ($brand == 'drumeo') {
+                        $trialUrl = '/laravel/public/shopping-cart/api/query?products[DLM-Trial]=1,month,1&locked=true';
+                    } elseif ($brand = 'pianote') {
+                        $trialUrl = '/shopping-cart/api/query?products[PIANOTE-MEMBERSHIP-TRIAL]=1,month,1&locked=true';
+                    } elseif ($brand = 'guitareo') {
+                        $trialUrl = '/shopping-cart/api/query?products[GUITAREO-7-DAY-TRIAL-ONE-TIME]=1,month,1&locked=true';
+                    } else {
+                        $trialUrl = '/shopping-cart/api/query?products[singeo-monthly-recurring-7-day-trial-membership]=1,month,1&locked=true';
+                    }
+                @endphp
+                <a href="{{ $trialUrl }}"
                    class="tw-uppercase tw-font-bold tw-no-underline bg-{{ $brand }} hover:{{ \Railroad\Crux\Services\BrandSpecificResourceService::styleHoverClass($brand) }} tw-p-3 tw-pl-16 tw-pr-16 tw-text-white tw-rounded-full">
                     Start Free Trial
                 </a>
@@ -276,16 +292,19 @@
                     This link will take you to reorder on <a href="/">www.drumeo.com</a>.
                     Any purchased access will be added to your existing
                     time. If you’d prefer, you can <a href="{{ url()->route('members.support') }}">click here</a> to
-                    contact
-                    Drumeo Support to restart your membership.
+                    contact Support to restart your membership.
                 </p>
             @elseif($membershipStatus == 'non-recurring')
                 <p class="tw-text-gray-600 tw-italic">
-                    Extend your membership beyond a trial at <a href="/">www.drumeo.com</a>
+                    Extend your membership beyond a trial at <a href="/">www.{{ $brand }}.com</a>
                 </p>
             @elseif(empty($membershipType))
                 <p class="tw-text-gray-600 tw-italic">
-                    One time offer: 7 days free, no payment plan, starts immediately.
+                    @if($brand == 'drumeo')
+                        One time offer: 7 days free, no payment plan, starts immediately.
+                    @else
+                        Start your journey with a free trial.
+                    @endif
                 </p>
             @endif
         </div>
