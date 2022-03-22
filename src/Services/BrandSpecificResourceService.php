@@ -171,20 +171,4 @@ class BrandSpecificResourceService
 
         return false;
     }
-
-    public static function discountedMonthlyRateByBrand($brand)
-    {
-        switch(strtolower($brand)){
-            case 'drumeo':
-                return 19;
-            case 'pianote':
-                return 19;
-            case 'guitareo':
-                return 19;
-            case 'singeo':
-                return 19;
-        }
-
-        return false;
-    }
 }
