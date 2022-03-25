@@ -1,11 +1,12 @@
 {
   "name": "railroad/crux",
+  "minimum-stability": "dev",
   "prefer-stable": true,
   "require": {
     "php": "~7",
     "laravel/framework": "5.*",
     "guzzlehttp/guzzle": "~6.0",
-    "railroad/ecommerce": "dev-4.0-cancellation-ux",
+    "railroad/ecommerce": "4.0.*",
     "railroad/usora": "^2.0.83"
   },
   "require-dev": {
