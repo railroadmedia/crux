@@ -270,9 +270,9 @@
                 @php
                     if ($brand == 'drumeo') {
                         $trialUrl = '/laravel/public/shopping-cart/api/query?products[DLM-Trial]=1,month,1&locked=true';
-                    } elseif ($brand = 'pianote') {
+                    } elseif ($brand == 'pianote') {
                         $trialUrl = '/shopping-cart/api/query?products[PIANOTE-MEMBERSHIP-TRIAL]=1,month,1&locked=true';
-                    } elseif ($brand = 'guitareo') {
+                    } elseif ($brand == 'guitareo') {
                         $trialUrl = '/shopping-cart/api/query?products[GUITAREO-7-DAY-TRIAL-ONE-TIME]=1,month,1&locked=true';
                     } else {
                         $trialUrl = '/shopping-cart/api/query?products[singeo-monthly-recurring-7-day-trial-membership]=1,month,1&locked=true';
