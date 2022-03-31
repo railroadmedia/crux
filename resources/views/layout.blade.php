@@ -7,12 +7,6 @@
 
 @section('style')
 
-    {{--    @if($brand == 'drumeo')--}}
-    {{--        <link rel="stylesheet" href="/laravel/public/tailwindcss/tailwind.css">--}}
-    {{--    @elseif--}}
-    {{--        <link rel="stylesheet" href="/tailwindcss/tailwind.css">--}}
-    {{--    @endif--}}
-
     <style>
         .renew-link:hover .btn span.bg-success {
             background-color: #13E868;
