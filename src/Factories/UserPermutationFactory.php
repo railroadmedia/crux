@@ -5,6 +5,7 @@ namespace Railroad\Crux\Factories;
 use App\Maps\ProductAccessMap;
 use App\Services\User\UserAccessService;
 use Carbon\Carbon;
+use Exception;
 use Railroad\Crux\UserPermutations\CancelledMemberWithAccessRemaining;
 use Railroad\Crux\UserPermutations\MemberAnnual;
 use Railroad\Crux\UserPermutations\MemberAnnualNew;
@@ -20,7 +21,7 @@ use Railroad\Ecommerce\Entities\Product;
 use Railroad\Ecommerce\Entities\Subscription;
 use Railroad\Ecommerce\Entities\UserProduct;
 use Railroad\Ecommerce\Services\UserProductService;
-use \Railroad\Usora\Entities\User;
+use Railroad\Usora\Entities\User;
 
 class UserPermutationFactory
 {
@@ -56,7 +57,7 @@ class UserPermutationFactory
     private function accessFromTrial($subscription)
     {
         /** @var Subscription $subscription */
-        if($subscription && $subscription->getIsActive()){
+        if ($subscription && $subscription->getIsActive()) {
             return in_array($subscription->getProduct()->getSku(), ProductAccessMap::trialMembershipProductIds());
         }
 
@@ -65,7 +66,7 @@ class UserPermutationFactory
 
     public function subscriptionQualifiesMemberAsNew($subscription)
     {
-        if(!$subscription){
+        if (!$subscription) {
             return false;
         }
 
@@ -86,11 +87,10 @@ class UserPermutationFactory
         $isPaused = false;
 
         if (!UserAccessService::isMember($userId)) {
-
             // check that is not a user with a paused subscription
             $membershipUserProduct = UserAccessService::getMembershipUserProduct();
 
-            if($membershipUserProduct){
+            if ($membershipUserProduct) {
                 $startDate = Carbon::parse($membershipUserProduct->getStartDate());
                 $startDateIsInFuture = $startDate->gt(Carbon::now());
             }
@@ -103,15 +103,15 @@ class UserPermutationFactory
                 }
             }
 
-            if(!$isPaused){
+            if (!$isPaused) {
                 return new StudentWithoutMembershipAccess($user, $brand);
             }
         }
 
         $membershipUserProduct = UserAccessService::getMembershipUserProduct();
 
-        if(!$membershipUserProduct){
-            throw new \Exception('No membershipUserProduct found for user ' . $userId);
+        if (!$membershipUserProduct) {
+            throw new Exception('No membershipUserProduct found for user ' . $userId);
         }
 
         $membershipProduct = $membershipUserProduct->getProduct();
@@ -128,14 +128,12 @@ class UserPermutationFactory
         }
 
         if (!$subscription) {
-
-            if($accessFromTrial){
+            if ($accessFromTrial) {
                 return new MemberTrialWithOutRenewal($user, $brand); // todo: WHICH ONE...?
-            }else{
+            } else {
                 return new MemberWithAnomalousNonRenewingAccess($user, $brand);
             }
         } else {
-
             $subscriptionQualifiesMemberAsNew = $this->subscriptionQualifiesMemberAsNew($subscription);
 
             if ($subscription->getCanceledOn()) {
@@ -143,20 +141,20 @@ class UserPermutationFactory
             }
 
             if ($subscription->getIntervalType() == 'year' || $subscription->getIntervalType() == 'yearly') {
-                if($subscriptionQualifiesMemberAsNew){
+                if ($subscriptionQualifiesMemberAsNew) {
                     return new MemberAnnualNew($user, $brand);
                 }
                 return new MemberAnnual($user, $brand);
             }
 
             if ($subscription->getIntervalType() == 'month' || $subscription->getIntervalType() == 'monthly') {
-                if($subscriptionQualifiesMemberAsNew){
+                if ($subscriptionQualifiesMemberAsNew) {
                     return new MemberMonthlyNew($user, $brand);
                 }
                 return new MemberMonthly($user, $brand);
             }
         }
 
-        throw new \Exception('No UserPermutation fits user ' . $userId);
+        throw new Exception('No UserPermutation fits user ' . $userId);
     }
 }

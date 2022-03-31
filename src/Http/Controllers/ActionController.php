@@ -8,6 +8,7 @@ use App\Maps\ProductAccessMap;
 use App\Services\User\UserAccessService;
 use Carbon\Carbon;
 use Doctrine\ORM\ORMException;
+use Exception;
 use Illuminate\Http\RedirectResponse as RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Mail\Message;
@@ -31,6 +32,7 @@ use Railroad\Ecommerce\Repositories\OrderRepository;
 use Railroad\Ecommerce\Repositories\ProductRepository;
 use Railroad\Ecommerce\Repositories\SubscriptionRepository;
 use Railroad\Ecommerce\Services\UserProductService;
+use Throwable;
 
 class ActionController
 {
@@ -171,7 +173,7 @@ class ActionController
 
             Mail::send($email);
             $success = true;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             error_log($e);
             return $this->returnRedirect(false);
         }
@@ -188,17 +190,18 @@ class ActionController
         $userFeedback = $request->get('user-feedback');
 
         $acceptedMonthExtensionOffer = $request->get('accepted-month-extension-offer') ?? false;
-        if($acceptedMonthExtensionOffer){
+        if ($acceptedMonthExtensionOffer) {
             $view = 'crux::email.feedback-from-cancellation-workflow';
             $subject = 'User feedback to make the next month better, from ' . current_user()->getEmail();
             $renewalDate = $request->get('renewal-date');
             $successMessage = 'Your feedback has been submitted, and your membership has been extended by a month!';
-            if(!empty($renewalDate)){
+            if (!empty($renewalDate)) {
                 $successMessage = $successMessage . ' Your new renewal date is: ' . $renewalDate;
             }
-        }else{
+        } else {
             $view = 'crux::email.feedback-from-cancellation-workflow';
-            $subject = 'User feedback to improve their ' . ucfirst($this->brand) . ' Experience, from ' . current_user()->getEmail();
+            $subject = 'User feedback to improve their ' . ucfirst($this->brand) . ' Experience, from ' . current_user(
+                )->getEmail();
         }
 
         try {
@@ -220,8 +223,7 @@ class ActionController
             ]);
 
             Mail::send($email);
-
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             error_log($e);
             return $this->returnRedirect(false);
         }
@@ -336,7 +338,7 @@ class ActionController
             $this->ecommerceEntityManager->flush();
 
             $this->userProductService->updateSubscriptionProducts($subscription);
-        } catch (\Exception|\Throwable $e) {
+        } catch (Exception|Throwable $e) {
             return $this->returnRedirect(false);
         }
 
@@ -349,7 +351,9 @@ class ActionController
         $noPaymentsMade = count($subscription->getPayments()) == 0;
         $revokeAccessImmediately = $isTrial && $noPaymentsMade;
 
-        if ($revokeAccessImmediately) $paidUntilRoundedUp = Carbon::now();
+        if ($revokeAccessImmediately) {
+            $paidUntilRoundedUp = Carbon::now();
+        }
 
         // ------------------------------------------ PART TWO: send email(s) ------------------------------------------
 
@@ -379,8 +383,7 @@ class ActionController
             ]);
 
             Mail::send($email);
-
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             error_log($e);
             return $this->returnRedirect(false);
         }
@@ -390,7 +393,7 @@ class ActionController
         $cancellationSuccessMessage = 'Your membership has been cancelled. You will no longer be automatically ' .
             'billed and your access will end ' . Carbon::parse($paidUntilRoundedUp)->format('l F jS');
 
-        if($revokeAccessImmediately){
+        if ($revokeAccessImmediately) {
             $cancellationSuccessMessage = 'Your membership has been cancelled. You will no longer be automatically billed.';
         }
 
@@ -417,15 +420,14 @@ class ActionController
             ]);
 
             Mail::send($email);
-
-
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             error_log($e);
             return $this->returnRedirect(false);
         }
 
         // save membership action
-        $membershipAction = new MembershipAction(); /** @var $membershipAction MembershipAction|NotableEntity */
+        $membershipAction = new MembershipAction();
+        /** @var $membershipAction MembershipAction|NotableEntity */
         $membershipAction->setUser(new User(current_user()->getId(), current_user()->getEmail()));
         $membershipAction->setBrand(config('ecommerce.brand'));
         $membershipAction->setAction(MembershipAction::ACTION_CANCELLED);
@@ -486,7 +488,7 @@ class ActionController
                 new User(current_user()->getId(), current_user()->getEmail()),
                 $subscription->getProduct()
             );
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             error_log($e);
             return $this->returnRedirect(false);
         }
@@ -557,7 +559,7 @@ class ActionController
         }
 
         try {
-            switch($this->brand) {
+            switch ($this->brand) {
                 case 'drumeo':
                     $skuForNew = 'DLM-1-month';
                     break;
@@ -575,7 +577,9 @@ class ActionController
             /** @var Product $monthlyProduct */
             $monthlyProduct = $this->productRepository->findOneBy(['sku' => $skuForNew]);
 
-            $discountedRate = \Railroad\Crux\Services\BrandSpecificResourceService::pricesOfferCents($this->brand)['monthly']/100;
+            $discountedRate = BrandSpecificResourceService::pricesOfferCents(
+                    $this->brand
+                )['monthly'] / 100;
 
             // cancel the old sub
             $oldSubscription->setCanceledOn(Carbon::now());
@@ -594,10 +598,10 @@ class ActionController
             $newSubscription->setCanceledOn(null);
             $newSubscription->setTotalPrice($discountedRate);
 
-            if($oldSubscription->getTax()){
+            if ($oldSubscription->getTax()) {
                 $priceBeforeTax = $oldSubscription->getTotalPrice() - $oldSubscription->getTax();
                 $taxRate = ($oldSubscription->getTotalPrice() - $priceBeforeTax) - 1;
-                $newTaxAmount = (($discountedRate/100) * $taxRate) * 100;
+                $newTaxAmount = (($discountedRate / 100) * $taxRate) * 100;
                 $newSubscription->setTax($newTaxAmount);
             } else {
                 $newSubscription->setTax(0);
@@ -626,9 +630,13 @@ class ActionController
             if ($oldSubscription->getIntervalType() != config('ecommerce.interval_type_monthly', 'month')) {
                 $switchToMonthlyMembershipAction = new MembershipAction();
 
-                $switchToMonthlyMembershipAction->setUser(new User(current_user()->getId(), current_user()->getEmail()));
+                $switchToMonthlyMembershipAction->setUser(
+                    new User(current_user()->getId(), current_user()->getEmail())
+                );
                 $switchToMonthlyMembershipAction->setBrand(config('ecommerce.brand'));
-                $switchToMonthlyMembershipAction->setAction(MembershipAction::ACTION_SWITCH_BILLING_INTERVAL_TO_MONTHLY);
+                $switchToMonthlyMembershipAction->setAction(
+                    MembershipAction::ACTION_SWITCH_BILLING_INTERVAL_TO_MONTHLY
+                );
                 $switchToMonthlyMembershipAction->setActionAmount(1);
                 $switchToMonthlyMembershipAction->setSubscription($oldSubscription);
                 $switchToMonthlyMembershipAction->setNote('membership changed to monthly billing');
@@ -648,8 +656,7 @@ class ActionController
             $this->ecommerceEntityManager->persist($priceChangeMembershipAction);
 
             $this->ecommerceEntityManager->flush();
-
-        } catch (ORMException | \Throwable $e) {
+        } catch (ORMException|Throwable $e) {
             error_log($e);
             return $this->returnRedirect(false);
         }
@@ -660,7 +667,7 @@ class ActionController
         $renewalDate = Carbon::parse($newSubscription->getPaidUntil());
 
         $membershipUserProduct = UserAccessService::getMembershipUserProduct();
-        if(!$membershipUserProduct){
+        if (!$membershipUserProduct) {
             error_log('membership user product not found for user ' . current_user()->getId() . ' in ' . self::class);
             return $this->returnRedirect(false);
         }
@@ -689,10 +696,10 @@ class ActionController
     {
         $userId = current_user()->getId();
 
-        try{
+        try {
             $membershipSubscription = UserAccessService::getMembershipSubscription($userId);
 
-            if($twoWeeks){
+            if ($twoWeeks) {
                 $subscription = $this->updateSubscriptionPaidUntilDate(
                     $membershipSubscription,
                     'addDays',
@@ -705,7 +712,7 @@ class ActionController
                     1
                 );
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $this->returnRedirect(
                 false,
                 'Whoops, something went wrong when we tried to extend your membership. Please try again or ' .
@@ -717,7 +724,8 @@ class ActionController
         event(new SubscriptionUpdated($oldSubscription, $subscription));
 
         // save membership action
-        $membershipAction = new MembershipAction(); /** @var $membershipAction MembershipAction|NotableEntity */
+        $membershipAction = new MembershipAction();
+        /** @var $membershipAction MembershipAction|NotableEntity */
         $membershipAction->setUser(new User(current_user()->getId(), current_user()->getEmail()));
         $membershipAction->setBrand($this->brand);
         $membershipAction->setSubscription($subscription);
@@ -760,13 +768,13 @@ class ActionController
      */
     public function AddStudentPlanAttributeToCurrentUser()
     {
-        try{
+        try {
             $this->AddStudentPlanAttribute();
             return $this->returnRedirect(
                 true,
                 'An instructor be in touch soon!'
             );
-        }catch(\Exception $exception){
+        } catch (Exception $exception) {
             error_log($exception);
             return $this->returnRedirect(
                 false,
@@ -775,7 +783,7 @@ class ActionController
         }
     }
 
-    public function resumePaused ()
+    public function resumePaused()
     {
         $user = current_user();
         $userId = current_user()->getId();
@@ -788,7 +796,6 @@ class ActionController
         }
 
         try {
-
             // get the relevant membership-action
             // ----------------------------------
 
@@ -809,7 +816,7 @@ class ActionController
             }
 
             if (!$action) {
-                throw new \Exception ('No MembershipAction of required type found for user ' . $userId);
+                throw new Exception ('No MembershipAction of required type found for user ' . $userId);
             }
 
             // get the subscription and user-product
@@ -822,8 +829,8 @@ class ActionController
             $oldUserProduct = clone($userProduct);
 
             // check that product from subscription from action is same product as membershipUserProduct
-            if ( $subscription->getProduct()->getId() != $userProduct->getProduct()->getId() ) {
-                throw new \Exception (
+            if ($subscription->getProduct()->getId() != $userProduct->getProduct()->getId()) {
+                throw new Exception (
                     'Product in paused subscription does not match membershipUserProduct (user ' . $userId . ')'
                 );
             }
@@ -831,11 +838,11 @@ class ActionController
             // calculate the length of time between start date and paid_until date
             // -------------------------------------------------------------------
 
-            $dateStart = Carbon::parse( $userProduct->getStartDate() );
-            $datePaidUntil = Carbon::parse( $subscription->getPaidUntil() );
+            $dateStart = Carbon::parse($userProduct->getStartDate());
+            $datePaidUntil = Carbon::parse($subscription->getPaidUntil());
 
             if (Carbon::now()->gt($dateStart)) {
-                throw new \Exception(
+                throw new Exception(
                     'startDate for paused userProduct (' . $userProduct->getId() .
                     ')is in past but resume was called on it. This should not be possible.'
                 );
@@ -864,7 +871,8 @@ class ActionController
             event(new UserProductUpdated($userProduct, $oldUserProduct));
 
             // create a MembershipAction
-            $membershipAction = new MembershipAction(); /** @var $membershipAction MembershipAction|NotableEntity */
+            $membershipAction = new MembershipAction();
+            /** @var $membershipAction MembershipAction|NotableEntity */
             $membershipAction->setUser(new User($userId, current_user()->getEmail()));
             $membershipAction->setBrand(config('ecommerce.brand'));
             $membershipAction->setAction(MembershipAction::ACTION_RESUME_PAUSED_MEMBERSHIP);
@@ -872,8 +880,7 @@ class ActionController
             $membershipAction->setSubscription($subscription);
             $this->ecommerceEntityManager->persist($membershipAction);
             $this->ecommerceEntityManager->flush();
-
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             error_log($exception);
             return $this->returnRedirect(false);
         }
@@ -918,7 +925,7 @@ class ActionController
         try {
             /** @var Carbon $extendedPaidUntil */
             $extendedPaidUntil = $paidUntil->$carbonMethodName($carbonMethodParamValue);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             error_log($e);
             return false;
         }
@@ -936,15 +943,14 @@ class ActionController
             $this->ecommerceEntityManager->flush();
 
             event(new SubscriptionUpdated($oldSubscriptionToUpdate, $subscriptionToUpdate));
-
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             error_log($e);
             return false;
         }
 
         try {
             $this->userProductService->updateSubscriptionProducts($subscriptionToUpdate);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             error_log($e);
             return false;
         }
@@ -954,8 +960,8 @@ class ActionController
 
     /**
      * @return void
-     * @throws \Exception
-     * @throws \Throwable
+     * @throws Exception
+     * @throws Throwable
      */
     private function addStudentPlanAttribute()
     {
@@ -975,7 +981,7 @@ class ActionController
      */
     private function detailedUserInfo(Subscription $subscription)
     {
-        try{
+        try {
             $subscriptions = $this->subscriptionRepository->getAllUsersSubscriptions(current_user()->getId());
 
             try {
@@ -985,16 +991,17 @@ class ActionController
             }
 
             $i = 1;
-            foreach($userProducts ?? [] as $userProduct){
+            foreach ($userProducts ?? [] as $userProduct) {
                 $product = $userProduct->getProduct();
                 $key = 'User product ' . $i . ' of ' . count($userProducts ?? []);
 
                 $expirationDate = 'n/a';
-                if($userProduct->getExpirationDate()){
+                if ($userProduct->getExpirationDate()) {
                     $expirationDate = $userProduct->getExpirationDate()->format('M jS Y');
                 }
 
-                $userInfo[$key] = $product->getName() . ' (sku: ' . $product->getSku() . ', expiry-date: ' . $expirationDate . ')';
+                $userInfo[$key] = $product->getName() . ' (sku: ' . $product->getSku(
+                    ) . ', expiry-date: ' . $expirationDate . ')';
                 $i++;
             }
 
@@ -1003,20 +1010,19 @@ class ActionController
 
             $numberOfPaymentsForAllSubscriptionsEver = 0;
             /** @var Subscription $_subscription */
-            foreach($subscriptions as $_subscription){
+            foreach ($subscriptions as $_subscription) {
                 $numberOfPaymentsForAllSubscriptionsEver += count($_subscription->getPayments());
             }
 
             $userInfo['Number of orders'] = count($orders);
             $userInfo['Number of payments for all subscriptions ever'] = $numberOfPaymentsForAllSubscriptionsEver;
-
-        }catch(\Exception $e){
+        } catch (Exception $e) {
             error_log($e);
             $userInfo['error'] = $e->getMessage();
         }
 
-        try{
-            if(empty($subscription)){
+        try {
+            if (empty($subscription)) {
                 error_log('Failed to retrieve subscription for member . ' . current_user()->getId());
             }
 
@@ -1030,19 +1036,20 @@ class ActionController
             /** @var Order $originatingOrder */
             $originatingOrder = $subscription->getOrder();
 
-            if($originatingOrder){
+            if ($originatingOrder) {
                 $subscriptionInfo['Order total due'] = $originatingOrder->getTotalDue();
                 $subscriptionInfo['Order taxes'] = $originatingOrder->getTaxesDue();
                 $subscriptionInfo['Order shipping'] = $originatingOrder->getShippingDue();
                 $subscriptionInfo['Order total paid'] = $originatingOrder->getTotalPaid();
 
                 $subscriptionInfo['Discount applied'] = 'false';
-                foreach($originatingOrder->getOrderItems() as $item){
-                    if($item->getTotalDiscounted() > 0) $subscriptionInfo['Discount applied'] = 'true';
+                foreach ($originatingOrder->getOrderItems() as $item) {
+                    if ($item->getTotalDiscounted() > 0) {
+                        $subscriptionInfo['Discount applied'] = 'true';
+                    }
                 }
             }
-
-        }catch(\Exception $e){
+        } catch (Exception $e) {
             error_log($e);
             $subscriptionInfo['error'] = $e->getMessage();
         }

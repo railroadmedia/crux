@@ -122,7 +122,8 @@
                 @if ($membershipStatus == 'paused' && $membershipType != 'lifetime' && $permutation->ifPausedReturnUserProductStartDate())
                     <p class="tw-text-gray-600 tw-w-full">
                         <strong>Your membership is paused.</strong><br>
-                        Your membership will continue on {{ $permutation->ifPausedReturnUserProductStartDate() }} and your
+                        Your membership will continue on {{ $permutation->ifPausedReturnUserProductStartDate() }} and
+                        your
                         next renewal date has been extended to {{ $subscription->getPaidUntil()->format('F j, Y') }}.
                     </p>
                 @elseif ($membershipStatus == 'active' && $membershipType != 'lifetime')
@@ -159,7 +160,8 @@
 
                 @if($membershipStatus == 'active' || $membershipType == 'lifetime')
                     <a href="#" class="tw-mt-3 tw-no-underline">
-                        <p class="mu-modal-open text-{{ $brand }}" id="modal-how-can-we-help">Click here if you’d like help getting the
+                        <p class="mu-modal-open text-{{ $brand }}" id="modal-how-can-we-help">Click here if you’d like
+                            help getting the
                             most out of your account.</p>
                     </a>
                 @endif
@@ -168,29 +170,29 @@
 
     @else {{-- does NOT have membership access--}}
 
-        <div class="tw-flex tw-flex-wrap tw-border-0 tw-border-t tw-border-b tw-border-gray-300 tw-border-solid">
-            <div class="tw-flex tw-flex-col tw-w-full md:tw-w-1/2 tw-p-8 body tw-items-center tw-justify-center tw-border-0 tw-border-r tw-border-gray-300 tw-border-solid">
-                <img src="{{ imgix(\Railroad\Crux\Services\BrandSpecificResourceService::logoUrl($brand), ["auto" => "format"]) }}"
-                     alt="Drumeo logo"
-                     class="tw-w-80">
-            </div>
-            <div class="tw-flex tw-flex-col tw-w-full md:tw-w-1/2 body tw-p-8">
-                <p class="tw-font-bold">You’re eligible for a free 7-day trial to get:</p>
-
-                <ul class="tw-mt-3 tw-text-gray-600 tw-space-y-1">
-                    @if(in_array($brand, ['drumeo', 'pianote']))
-                        <li>{{ ucfirst($brand) }} Method step-by-step curriculum.</li>
-                        <li>200+ courses from legendary teachers.</li>
-                    @else
-                        <li>{{ ucfirst($brand) }} step-by-step curriculum.</li>
-                        <li>Courses from legendary teachers.</li>
-                    @endif
-                    <li>Entertaining shows and documentaries.</li>
-                    <li>Song breakdowns & Play-Alongs.</li>
-                    <li>Weekly live lessons and personal support.</li>
-                </ul>
-            </div>
+    <div class="tw-flex tw-flex-wrap tw-border-0 tw-border-t tw-border-b tw-border-gray-300 tw-border-solid">
+        <div class="tw-flex tw-flex-col tw-w-full md:tw-w-1/2 tw-p-8 body tw-items-center tw-justify-center tw-border-0 tw-border-r tw-border-gray-300 tw-border-solid">
+            <img src="{{ imgix(\Railroad\Crux\Services\BrandSpecificResourceService::logoUrl($brand), ["auto" => "format"]) }}"
+                 alt="Drumeo logo"
+                 class="tw-w-80">
         </div>
+        <div class="tw-flex tw-flex-col tw-w-full md:tw-w-1/2 body tw-p-8">
+            <p class="tw-font-bold">You’re eligible for a free 7-day trial to get:</p>
+
+            <ul class="tw-mt-3 tw-text-gray-600 tw-space-y-1">
+                @if(in_array($brand, ['drumeo', 'pianote']))
+                    <li>{{ ucfirst($brand) }} Method step-by-step curriculum.</li>
+                    <li>200+ courses from legendary teachers.</li>
+                @else
+                    <li>{{ ucfirst($brand) }} step-by-step curriculum.</li>
+                    <li>Courses from legendary teachers.</li>
+                @endif
+                <li>Entertaining shows and documentaries.</li>
+                <li>Song breakdowns & Play-Alongs.</li>
+                <li>Weekly live lessons and personal support.</li>
+            </ul>
+        </div>
+    </div>
 
     @endif
 
@@ -327,35 +329,35 @@
 @section('body-top')
     {{-- Buttons for testing purposes only. --}}
 
-{{--            <button class="mu-modal-open tw-bg-transparent tw-border tw-border-gray-500 hover:tw-border-indigo-500 tw-text-gray-500 hover:tw-text-indigo-500 tw-font-bold tw-py-2 tw-px-4 tw-rounded-full"--}}
-{{--                    id="modal-extend-trial-14-days">--}}
-{{--                Open Trial 14 Days--}}
-{{--            </button>--}}
+    {{--            <button class="mu-modal-open tw-bg-transparent tw-border tw-border-gray-500 hover:tw-border-indigo-500 tw-text-gray-500 hover:tw-text-indigo-500 tw-font-bold tw-py-2 tw-px-4 tw-rounded-full"--}}
+    {{--                    id="modal-extend-trial-14-days">--}}
+    {{--                Open Trial 14 Days--}}
+    {{--            </button>--}}
 
-{{--            <button class="mu-modal-open tw-bg-transparent tw-border tw-border-gray-500 hover:tw-border-indigo-500 tw-text-gray-500 hover:tw-text-indigo-500 tw-font-bold tw-py-2 tw-px-4 tw-rounded-full"--}}
-{{--                    id="modal-free-month">--}}
-{{--                Open Free 30 Days--}}
-{{--            </button>--}}
+    {{--            <button class="mu-modal-open tw-bg-transparent tw-border tw-border-gray-500 hover:tw-border-indigo-500 tw-text-gray-500 hover:tw-text-indigo-500 tw-font-bold tw-py-2 tw-px-4 tw-rounded-full"--}}
+    {{--                    id="modal-free-month">--}}
+    {{--                Open Free 30 Days--}}
+    {{--            </button>--}}
 
-{{--            <button class="mu-modal-open tw-bg-transparent tw-border tw-border-gray-500 hover:tw-border-indigo-500 tw-text-gray-500 hover:tw-text-indigo-500 tw-font-bold tw-py-2 tw-px-4 tw-rounded-full"--}}
-{{--                    id="modal-how-can-we-help">--}}
-{{--                Open How Can We Help--}}
-{{--            </button>--}}
+    {{--            <button class="mu-modal-open tw-bg-transparent tw-border tw-border-gray-500 hover:tw-border-indigo-500 tw-text-gray-500 hover:tw-text-indigo-500 tw-font-bold tw-py-2 tw-px-4 tw-rounded-full"--}}
+    {{--                    id="modal-how-can-we-help">--}}
+    {{--                Open How Can We Help--}}
+    {{--            </button>--}}
 
-{{--            <button class="mu-modal-open tw-bg-transparent tw-border tw-border-gray-500 hover:tw-border-indigo-500 tw-text-gray-500 hover:tw-text-indigo-500 tw-font-bold tw-py-2 tw-px-4 tw-rounded-full"--}}
-{{--                    id="modal-how-can-we-make-next-month-better">--}}
-{{--                Open How Can We Make The Next 30 Days Better--}}
-{{--            </button>--}}
+    {{--            <button class="mu-modal-open tw-bg-transparent tw-border tw-border-gray-500 hover:tw-border-indigo-500 tw-text-gray-500 hover:tw-text-indigo-500 tw-font-bold tw-py-2 tw-px-4 tw-rounded-full"--}}
+    {{--                    id="modal-how-can-we-make-next-month-better">--}}
+    {{--                Open How Can We Make The Next 30 Days Better--}}
+    {{--            </button>--}}
 
-{{--            <button class="mu-modal-open tw-bg-transparent tw-border tw-border-gray-500 hover:tw-border-indigo-500 tw-text-gray-500 hover:tw-text-indigo-500 tw-font-bold tw-py-2 tw-px-4 tw-rounded-full"--}}
-{{--                    id="modal-upgrade-to-annual">--}}
-{{--                Open Upgrade To Annual--}}
-{{--            </button>--}}
+    {{--            <button class="mu-modal-open tw-bg-transparent tw-border tw-border-gray-500 hover:tw-border-indigo-500 tw-text-gray-500 hover:tw-text-indigo-500 tw-font-bold tw-py-2 tw-px-4 tw-rounded-full"--}}
+    {{--                    id="modal-upgrade-to-annual">--}}
+    {{--                Open Upgrade To Annual--}}
+    {{--            </button>--}}
 
-{{--            <button class="mu-modal-open tw-bg-transparent tw-border tw-border-gray-500 hover:tw-border-indigo-500 tw-text-gray-500 hover:tw-text-indigo-500 tw-font-bold tw-py-2 tw-px-4 tw-rounded-full"--}}
-{{--                    id="modal-post-90-day-cancel-letter">--}}
-{{--                Open 90 Day Cancel Letter--}}
-{{--            </button>--}}
+    {{--            <button class="mu-modal-open tw-bg-transparent tw-border tw-border-gray-500 hover:tw-border-indigo-500 tw-text-gray-500 hover:tw-text-indigo-500 tw-font-bold tw-py-2 tw-px-4 tw-rounded-full"--}}
+    {{--                    id="modal-post-90-day-cancel-letter">--}}
+    {{--                Open 90 Day Cancel Letter--}}
+    {{--            </button>--}}
 
     {{-- Modals --}}
     {{-- Extend Trial 14 Days  --}}
@@ -407,13 +409,13 @@
 
             {{-- would this be better maybe though? --}}
 
-{{--            <p class="body tw-text-center tw-mt-6">--}}
-{{--                That’s not okay—we’d like another chance! Click “FREE MONTH” below for one month, totally free.--}}
-{{--            </p>--}}
+            {{--            <p class="body tw-text-center tw-mt-6">--}}
+            {{--                That’s not okay—we’d like another chance! Click “FREE MONTH” below for one month, totally free.--}}
+            {{--            </p>--}}
 
-{{--            <p class="body tw-text-center tw-mt-6">--}}
-{{--                One catch—tell us what we can do better.--}}
-{{--            </p>--}}
+            {{--            <p class="body tw-text-center tw-mt-6">--}}
+            {{--                One catch—tell us what we can do better.--}}
+            {{--            </p>--}}
 
             {{-- todo: this should immediately extend their renewal date 30 days and access and go back to the account details page with a message --}}
 
@@ -536,7 +538,8 @@
     @component('crux::partials._modal', ['modalId' => 'modal-how-can-we-make-next-month-better'])
         @slot('contentSlot')
 
-            <form method="post" action="{{ url()->route('crux.submit.feedback') }}" class="tw-flex tw-flex-col tw-items-center tw-justify-center tw-relative">
+            <form method="post" action="{{ url()->route('crux.submit.feedback') }}"
+                  class="tw-flex tw-flex-col tw-items-center tw-justify-center tw-relative">
 
                 {{ csrf_field() }}
 
@@ -643,7 +646,8 @@
 
             <div class="tw-text-left tw-leading-6">
                 <p class="mt-4">
-                    When you joined {{ ucfirst($brand) }}, you made a decision to improve your skills. You were likely excited and
+                    When you joined {{ ucfirst($brand) }}, you made a decision to improve your skills. You were likely
+                    excited and
                     gained a new sense of energy and inspiration. Take a moment to reflect on what happened since then.
                 </p>
 
@@ -662,7 +666,8 @@
                         My advice: Don’t give up.</p>
 
                     <p class="mt-2">
-                        The biggest difference between successful and unsuccessful drummers is the quality and quantity of
+                        The biggest difference between successful and unsuccessful drummers is the quality and quantity
+                        of
                         action they take. By asking us for help, we’ll do our best to get you back on track towards your
                         biggest and smallest drumming goals. Just click the button to reach out.
                     </p>
@@ -682,7 +687,8 @@
                         My advice: Don’t give up.</p>
 
                     <p class="mt-2">
-                        The biggest difference between successful and unsuccessful musicians is the quality and quantity of
+                        The biggest difference between successful and unsuccessful musicians is the quality and quantity
+                        of
                         action they take. By asking us for help, we’ll do our best to get you back on track towards your
                         biggest and smallest musical goals. Just click the button to reach out.
                     </p>

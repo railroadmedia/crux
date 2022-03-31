@@ -18,7 +18,8 @@
 
     <h2 class="tw-text-lg tw-mt-14">Thanks for your feedback.</h2>
 
-    <p class="tw-mt-4 tw-leading-7">We want to make sure {{ ucfirst($brand) }} works for you. And we’re here to help:</p>
+    <p class="tw-mt-4 tw-leading-7">We want to make sure {{ ucfirst($brand) }} works for you. And we’re here to
+        help:</p>
 @endsection
 
 @section('leftBoxTopGraySection')
@@ -46,7 +47,8 @@
 @section('rightBoxBottomWhiteSection')
     <p class="">Do you need to find the perfect lesson or get personal feedback on your playing?</p>
 
-    <p class="tw-mt-4">Click the button to hear from a {{ ucfirst($brand) }} instructor who will guide and assist you.</p>
+    <p class="tw-mt-4">Click the button to hear from a {{ ucfirst($brand) }} instructor who will guide and assist
+        you.</p>
 
     <form method="post"
           action="{{ url()->route('crux.submit.add-student-plan-attribute') }}"

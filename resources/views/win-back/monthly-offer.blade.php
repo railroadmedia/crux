@@ -18,7 +18,8 @@
 
     <h2 class="tw-text-lg tw-mt-14">Thanks for your feedback.</h2>
 
-    <p class="tw-mt-4 tw-leading-7">We want to make sure {{ ucfirst($brand) }} works for you. And we’re here to help:</p>
+    <p class="tw-mt-4 tw-leading-7">We want to make sure {{ ucfirst($brand) }} works for you. And we’re here to
+        help:</p>
 @endsection
 
 @section('leftBoxTopGraySection')
@@ -29,8 +30,10 @@
 @section('leftBoxBottomWhiteSection')
 
     <?php
-    $priceOfferCents = \Railroad\Crux\Services\BrandSpecificResourceService::pricesOfferCents($brand)['monthly'];
-    $priceStandardCents = \Railroad\Crux\Services\BrandSpecificResourceService::pricesStandardCents($brand)['monthly'];
+    use Railroad\Crux\Services\BrandSpecificResourceService;$priceOfferCents = BrandSpecificResourceService::pricesOfferCents(
+        $brand
+    )['monthly'];
+    $priceStandardCents = BrandSpecificResourceService::pricesStandardCents($brand)['monthly'];
     ?>
 
     <p class="">We love our students and REALLY want to keep you around! So we’re offering you a

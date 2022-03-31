@@ -21,7 +21,9 @@
         <h2 style="font-size:1.2em">General information about user:</h2>
         <ul>
             <li><span style="font-weight:bold">email:</span> {{ $user->getEmail() }}</li>
-            <li><span style="font-weight:bold">MusoraCenter page:</span> <a href="https://musora.com/admin#/users/{{ $user->getId() }}">https://musora.com/admin#/users/{{ $user->getId() }}</a></li>
+            <li><span style="font-weight:bold">MusoraCenter page:</span> <a
+                        href="https://musora.com/admin#/users/{{ $user->getId() }}">https://musora.com/admin#/users/{{ $user->getId() }}</a>
+            </li>
 
             @foreach($detailedUserInfo['userInfo'] as $key => $value)
                 <li><span style="font-weight:bold">{{ $key }}:</span> {{$value ?? '[MISSING]'}}</li>

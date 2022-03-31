@@ -9,11 +9,11 @@
 @endsection
 
 @section('scripts')
-{{--    @if($brand == 'drumeo')--}}
-{{--        <script src="{{ mix('assets/members/js/profile.js') }}"></script>--}}
-{{--    @elseif--}}
-{{--        <script src="{{ mix('assets/members/js/profile.js') }}"></script>--}}
-{{--    @endif--}}
+    {{--    @if($brand == 'drumeo')--}}
+    {{--        <script src="{{ mix('assets/members/js/profile.js') }}"></script>--}}
+    {{--    @elseif--}}
+    {{--        <script src="{{ mix('assets/members/js/profile.js') }}"></script>--}}
+    {{--    @endif--}}
 @endsection
 
 @section('content')

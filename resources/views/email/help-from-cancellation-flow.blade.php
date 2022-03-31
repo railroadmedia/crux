@@ -10,7 +10,9 @@
 
         <h1 style="font-size:1.2em">"How can we help?"</h1>
 
-        <p><span style="font-style:italic">{{ $userDisplayName }}</span> (<a href="https://musora.com/admin#/users/{{ $userId }}">{{ $userEmail }}</a>) has submitted this request for help to get the most from their account:</p>
+        <p><span style="font-style:italic">{{ $userDisplayName }}</span> (<a
+                    href="https://musora.com/admin#/users/{{ $userId }}">{{ $userEmail }}</a>) has submitted this
+            request for help to get the most from their account:</p>
 
         <pre style="background:#eeeeee; padding: 10px;">{{ $textInput }}</pre>
 

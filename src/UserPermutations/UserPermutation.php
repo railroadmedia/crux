@@ -21,8 +21,7 @@ class UserPermutation
     public function __construct(
         User $user,
         string $brand
-    )
-    {
+    ) {
         $this->user = $user;
         $this->brand = $brand;
     }
@@ -177,7 +176,7 @@ class UserPermutation
 
     public function membershipType()
     {
-        if(UserAccessService::isLifetime($this->user->getId())) {
+        if (UserAccessService::isLifetime($this->user->getId())) {
             $membershipType = 'lifetime';
         }
 
@@ -235,8 +234,7 @@ class UserPermutation
 
     public function ifPausedReturnUserProductStartDate()
     {
-        if($this->membershipStatus() == 'paused' && $this->membershipType() != 'lifetime'){
-
+        if ($this->membershipStatus() == 'paused' && $this->membershipType() != 'lifetime') {
             $membershipProduct = UserAccessService::getMembershipUserProduct();
 
             return $membershipProduct->getStartDate()->format('F j, Y');

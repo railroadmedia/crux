@@ -2,6 +2,8 @@
 
 namespace Railroad\Crux\Services;
 
+use Railroad\Ecommerce\Repositories\ProductRepository;
+
 class BrandSpecificResourceService
 {
     /**
@@ -40,7 +42,7 @@ class BrandSpecificResourceService
          *      singeo.svg
          */
 
-        switch(strtolower($brand)){
+        switch (strtolower($brand)) {
             case 'drumeo':
                 return 'https://musora-ui.s3.amazonaws.com/logos/drumeo.svg';
             case 'pianote':
@@ -62,7 +64,7 @@ class BrandSpecificResourceService
             'Live lessons and personal support.',
         ];
 
-        switch(strtolower($brand)){
+        switch (strtolower($brand)) {
             case 'drumeo':
                 return [
                     ucfirst($brand) . ' Method step-by-step curriculum.',
@@ -84,7 +86,7 @@ class BrandSpecificResourceService
 
     public static function brandColour($brand)
     {
-        switch(strtolower($brand)){
+        switch (strtolower($brand)) {
             case 'drumeo':
                 return '0b76db';
             case 'pianote':
@@ -100,7 +102,7 @@ class BrandSpecificResourceService
 
     public static function styleHoverClass($brand)
     {
-        switch(strtolower($brand)){
+        switch (strtolower($brand)) {
             case 'drumeo':
                 return 'tw-bg-blue-600';
             case 'pianote':
@@ -116,7 +118,7 @@ class BrandSpecificResourceService
 
     public static function styleBorderClass($brand)
     {
-        switch(strtolower($brand)){
+        switch (strtolower($brand)) {
             case 'drumeo':
                 return 'tw-border-blue-500';
             case 'pianote':
@@ -132,24 +134,32 @@ class BrandSpecificResourceService
 
     public static function pricesStandardCents($brand)
     {
-        $repo = app(\Railroad\Ecommerce\Repositories\ProductRepository::class);
+        $repo = app(ProductRepository::class);
 
-        switch($brand){
+        switch ($brand) {
             case 'drumeo':
-                $priceStandardCentsAnnual = ((int) $repo->findProduct(125)->getPrice()) * 100; // 125, DLM-1-year // 240 as of 220301
-                $priceStandardCentsMonthly = ((int) $repo->findProduct(124)->getPrice()) * 100; // 124, DLM-1-month // 29 as of 220301
+                $priceStandardCentsAnnual = ((int)$repo->findProduct(125)->getPrice(
+                    )) * 100; // 125, DLM-1-year // 240 as of 220301
+                $priceStandardCentsMonthly = ((int)$repo->findProduct(124)->getPrice(
+                    )) * 100; // 124, DLM-1-month // 29 as of 220301
                 break;
             case 'pianote':
-                $priceStandardCentsAnnual = ((int) $repo->findProduct(6)->getPrice()) * 100; // 6, PIANOTE-MEMBERSHIP-1-YEAR // 197 as of 220301
-                $priceStandardCentsMonthly = ((int) $repo->findProduct(5)->getPrice()) * 100; // 5, PIANOTE-MEMBERSHIP-1-MONTH // 29 as of 220301
+                $priceStandardCentsAnnual = ((int)$repo->findProduct(6)->getPrice(
+                    )) * 100; // 6, PIANOTE-MEMBERSHIP-1-YEAR // 197 as of 220301
+                $priceStandardCentsMonthly = ((int)$repo->findProduct(5)->getPrice(
+                    )) * 100; // 5, PIANOTE-MEMBERSHIP-1-MONTH // 29 as of 220301
                 break;
             case 'guitareo':
-                $priceStandardCentsAnnual = ((int) $repo->findProduct(18)->getPrice()) * 100; // 18, GUITAREO-1-YEAR-MEMBERSHIP // 127 as of 220301
-                $priceStandardCentsMonthly = ((int) $repo->findProduct(17)->getPrice()) * 100; // 17, GUITAREO-1-MONTH-MEMBERSHIP // 15 as of 220301
+                $priceStandardCentsAnnual = ((int)$repo->findProduct(18)->getPrice(
+                    )) * 100; // 18, GUITAREO-1-YEAR-MEMBERSHIP // 127 as of 220301
+                $priceStandardCentsMonthly = ((int)$repo->findProduct(17)->getPrice(
+                    )) * 100; // 17, GUITAREO-1-MONTH-MEMBERSHIP // 15 as of 220301
                 break;
             case 'singeo':
-                $priceStandardCentsAnnual = ((int) $repo->findProduct(125)->getPrice()) * 100; // 125, singeo-annual-recurring-membership // 127 as of 220301
-                $priceStandardCentsMonthly = ((int) $repo->findProduct(409)->getPrice()) * 100; // 409, singeo-monthly-recurring-membership // 15 as of 220301
+                $priceStandardCentsAnnual = ((int)$repo->findProduct(125)->getPrice(
+                    )) * 100; // 125, singeo-annual-recurring-membership // 127 as of 220301
+                $priceStandardCentsMonthly = ((int)$repo->findProduct(409)->getPrice(
+                    )) * 100; // 409, singeo-monthly-recurring-membership // 15 as of 220301
                 break;
         }
 
@@ -158,7 +168,7 @@ class BrandSpecificResourceService
 
     public static function pricesOfferCents($brand)
     {
-        switch($brand){
+        switch ($brand) {
             case 'drumeo':
                 return ['annual' => 19700, 'monthly' => 1900];
             case 'pianote':

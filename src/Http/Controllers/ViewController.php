@@ -5,10 +5,14 @@ namespace Railroad\Crux\Http\Controllers;
 // todo: make this brand agnostic
 //use App\Http\Controllers\Profiles\UserSettingsController;
 use App\Maps\ProductAccessMap;
+
 // todo: make this brand agnostic
 //use App\Services\User\UserAccessService;
 use App\Services\User\UserAccessService;
+use Exception;
+use Illuminate\Contracts\View\Factory;
 use Illuminate\Routing\Controller;
+use Illuminate\View\View;
 use Railroad\Crux\Factories\UserPermutationFactory;
 use Railroad\Crux\Services\BrandSpecificResourceService;
 use Railroad\Ecommerce\Entities\Product;
@@ -31,7 +35,12 @@ class ViewController extends Controller
      *  '7 days' => ['id' => 126,'sku' => 'DLM-Trial-1-month']
      * '30 days' => ['id' => 283,'sku' => 'DLM-Trial-30-Day']
      */
-    public static $trialSKUs = ['DLM-Trial-1-month', 'DLM-Trial-30-Day', 'DLM-Trial-Annual-30-Day', 'DLM-Trial-Annual-7-Day'];
+    public static $trialSKUs = [
+        'DLM-Trial-1-month',
+        'DLM-Trial-30-Day',
+        'DLM-Trial-Annual-30-Day',
+        'DLM-Trial-Annual-7-Day'
+    ];
 
     // todo: make this brand agnostic
 //    /**
@@ -90,8 +99,7 @@ class ViewController extends Controller
         // todo: make this brand agnostic
         //UserSettingsController $userSettingsController
         UserPermutationFactory $permutationFactory
-    )
-    {
+    ) {
         // todo: make this brand agnostic
         //$this->userSettingsController = $userSettingsController;
         $this->permutationFactory = $permutationFactory;
@@ -103,24 +111,26 @@ class ViewController extends Controller
         $user = current_user();
         $brand = config('railcontent.brand');
 
-        try{
+        try {
             $permutation = $this->permutationFactory->getPermutation($user, $brand);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             error_log($e);
-            if(app('env') == 'development'){
+            if (app('env') == 'development') {
                 dd($e->getMessage());
             }
             return redirect()
                 ->back()
-                ->with(['error-message' => 'We\'re sorry but there\'s been an error, please try again. If the problem ' .
-                    'persists please let us know!']);
+                ->with([
+                    'error-message' => 'We\'re sorry but there\'s been an error, please try again. If the problem ' .
+                        'persists please let us know!'
+                ]);
         }
 
         $pricesStandardCents = BrandSpecificResourceService::pricesStandardCents($brand);
 
         // todo: move to "helper" static class
         $savings = round(100 - (100 * ($pricesStandardCents['annual'] / ($pricesStandardCents['monthly'] * 12))));
-        if($savings < 0){
+        if ($savings < 0) {
             $savings = $savings * -1;
         }
 
@@ -162,7 +172,7 @@ class ViewController extends Controller
     }
 
     /**
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return Factory|View
      */
     public function viewAnnualOffer()
     {
@@ -171,14 +181,14 @@ class ViewController extends Controller
         return view(
             'crux::win-back.annual-offer',
             [
-                'subscription' => UserAccessService::getMembershipSubscription( current_user()->getId() ),
+                'subscription' => UserAccessService::getMembershipSubscription(current_user()->getId()),
                 'brand' => config('railcontent.brand'),
             ]
         );
     }
 
     /**
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return Factory|View
      */
     public function viewMonthlyOffer()
     {
@@ -187,21 +197,21 @@ class ViewController extends Controller
         return view(
             'crux::win-back.monthly-offer',
             [
-                'subscription' => UserAccessService::getMembershipSubscription( current_user()->getId() ),
+                'subscription' => UserAccessService::getMembershipSubscription(current_user()->getId()),
                 'brand' => config('railcontent.brand'),
             ]
         );
     }
 
     /**
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return Factory|View
      */
     public function viewStudentCare()
     {
         return view(
             'crux::win-back.student-care',
             [
-                'subscription' => UserAccessService::getMembershipSubscription( current_user()->getId() ),
+                'subscription' => UserAccessService::getMembershipSubscription(current_user()->getId()),
                 'brand' => config('railcontent.brand'),
             ]
         );

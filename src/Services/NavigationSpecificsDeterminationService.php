@@ -3,6 +3,7 @@
 namespace Railroad\Crux\Services;
 
 use App\Services\User\UserAccessService;
+use Exception;
 use Illuminate\Support\Facades\Route;
 
 class NavigationSpecificsDeterminationService
@@ -18,7 +19,7 @@ class NavigationSpecificsDeterminationService
                     "icon" => "fas fa-edit",
                     "title" => "Profile",
                     "active" => (
-                        NavigationSpecificsDeterminationService::getRouteNameForSection('profile') ==  $name
+                        NavigationSpecificsDeterminationService::getRouteNameForSection('profile') == $name
                     )
                 ],
                 [
@@ -26,7 +27,7 @@ class NavigationSpecificsDeterminationService
                     "icon" => "fas fa-lock",
                     "title" => "Login Credentials",
                     "active" => (
-                        NavigationSpecificsDeterminationService::getRouteNameForSection('login-credentials') ==  $name
+                        NavigationSpecificsDeterminationService::getRouteNameForSection('login-credentials') == $name
                     )
                 ],
                 [
@@ -34,7 +35,7 @@ class NavigationSpecificsDeterminationService
                     "icon" => "far fa-credit-card",
                     "title" => "Payments",
                     "active" => (
-                        NavigationSpecificsDeterminationService::getRouteNameForSection('payments') ==  $name
+                        NavigationSpecificsDeterminationService::getRouteNameForSection('payments') == $name
                     )
                 ],
                 [
@@ -42,7 +43,7 @@ class NavigationSpecificsDeterminationService
                     "icon" => "fas fa-bell",
                     "title" => "Technology",
                     "active" => (
-                        NavigationSpecificsDeterminationService::getRouteNameForSection('technology') ==  $name
+                        NavigationSpecificsDeterminationService::getRouteNameForSection('technology') == $name
                     )
                 ],
                 [
@@ -50,11 +51,11 @@ class NavigationSpecificsDeterminationService
                     "icon" => "fas fa-calendar-alt",
                     "title" => "Access",
                     "active" => (
-                        NavigationSpecificsDeterminationService::getRouteNameForSection('access') ==  $name
+                        NavigationSpecificsDeterminationService::getRouteNameForSection('access') == $name
                     )
                 ],
             ];
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             error_log($exception);
             return [];
         }
@@ -70,7 +71,7 @@ class NavigationSpecificsDeterminationService
     /**
      * @param $section
      * @return string
-     * @throws \Exception
+     * @throws Exception
      */
     public static function getUrlForSection($section)
     {
@@ -87,13 +88,13 @@ class NavigationSpecificsDeterminationService
                 return url()->route(self::getRouteNameForSection('access'));
         }
 
-        throw new \Exception('unexpected $section value "' . $section . '" not found.');
+        throw new Exception('unexpected $section value "' . $section . '" not found.');
     }
 
     /**
      * @param $section
      * @return string
-     * @throws \Exception
+     * @throws Exception
      */
     public static function getRouteNameForSection($section)
     {
@@ -110,6 +111,6 @@ class NavigationSpecificsDeterminationService
                 return 'crux.access-details';
         }
 
-        throw new \Exception('unexpected $section value "' . $section . '" not found.');
+        throw new Exception('unexpected $section value "' . $section . '" not found.');
     }
 }

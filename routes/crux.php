@@ -10,7 +10,6 @@ Route::group(
         'prefix' => '/members/settings/access'
     ],
     function () {
-
         Route::get(
             '/',
             [
@@ -18,7 +17,7 @@ Route::group(
                 'uses' => ViewController::class . '@accessDetails'
             ]
         );
-        
+
 //        // cancellation pages
         Route::get(
             '/annual-offer',

@@ -1,17 +1,17 @@
 @php
     $bodyClass = ($bodyClass ?? '') . ' sidebar';
-    $leftSidebar = true;
+    $leftSidebar = true
 @endphp
 
 @extends('members.layout')
 
 @section('style')
 
-{{--    @if($brand == 'drumeo')--}}
-{{--        <link rel="stylesheet" href="/laravel/public/tailwindcss/tailwind.css">--}}
-{{--    @elseif--}}
-{{--        <link rel="stylesheet" href="/tailwindcss/tailwind.css">--}}
-{{--    @endif--}}
+    {{--    @if($brand == 'drumeo')--}}
+    {{--        <link rel="stylesheet" href="/laravel/public/tailwindcss/tailwind.css">--}}
+    {{--    @elseif--}}
+    {{--        <link rel="stylesheet" href="/tailwindcss/tailwind.css">--}}
+    {{--    @endif--}}
 
     <style>
         .renew-link:hover .btn span.bg-success {
@@ -27,7 +27,7 @@
             overflow-y: visible !important;
         }
 
-        .text-drumeo{
+        .text-drumeo {
             color: #0b76db;
         }
 

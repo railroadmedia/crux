@@ -24,7 +24,8 @@
 
     <h2 class="tw-text-lg tw-mt-14">Thanks for your feedback.</h2>
 
-    <p class="tw-mt-4 tw-leading-7">We want to make sure {{ ucfirst($brand) }} works for you. And we’re here to help:</p>
+    <p class="tw-mt-4 tw-leading-7">We want to make sure {{ ucfirst($brand) }} works for you. And we’re here to
+        help:</p>
 @endsection
 
 @section('leftBoxTopGraySection')
@@ -35,19 +36,24 @@
 @section('leftBoxBottomWhiteSection')
 
     <?php
-        $priceOfferCents = \Railroad\Crux\Services\BrandSpecificResourceService::pricesOfferCents($brand)['monthly'];
-        $priceStandardCents = \Railroad\Crux\Services\BrandSpecificResourceService::pricesStandardCents($brand)['monthly'];
+    use Railroad\Crux\Services\BrandSpecificResourceService;$priceOfferCents = BrandSpecificResourceService::pricesOfferCents(
+        $brand
+    )['monthly'];
+    $priceStandardCents = BrandSpecificResourceService::pricesStandardCents($brand)['monthly'];
     ?>
 
     <p class="">
         Prefer not paying all at once? To thank you for being a member, we’re offering you a discounted
-        monthly rate of just ${{ $priceOfferCents/100 }}/month (Save {{ 100 - round(($priceOfferCents / $priceStandardCents) * 100) }}%
+        monthly rate of just ${{ $priceOfferCents/100 }}/month
+        (Save {{ 100 - round(($priceOfferCents / $priceStandardCents) * 100) }}%
         compared to the normal rate of ${{ $priceStandardCents/100 }}).
     </p>
 
     <p class="tw-mt-4">Your new monthly plan would begin on your next renewal
         date ({{ $subscription->getPaidUntil()->format('F j, Y') }})
-        -- billed at ${{ \Railroad\Crux\Services\BrandSpecificResourceService::pricesOfferCents($brand)['monthly']/100 }} per month -- and you’ll have this discount for as long as you remain a member. </p>
+        -- billed at
+        ${{ \Railroad\Crux\Services\BrandSpecificResourceService::pricesOfferCents($brand)['monthly']/100 }} per month
+        -- and you’ll have this discount for as long as you remain a member. </p>
 
     <form method="post"
           action="{{ url()->route('crux.submit.accept-downgrade-to-monthly-billing-offer') }}">

@@ -2,7 +2,9 @@
 
 namespace Railroad\Crux\Providers;
 
-class CruxServiceProvider extends \Illuminate\Support\ServiceProvider
+use Illuminate\Support\ServiceProvider;
+
+class CruxServiceProvider extends ServiceProvider
 {
     public function boot()
     {
@@ -10,6 +12,6 @@ class CruxServiceProvider extends \Illuminate\Support\ServiceProvider
 
         $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'crux');
 
-        $this->mergeConfigFrom(__DIR__.'/../../config/crux.php', 'crux');
+        $this->mergeConfigFrom(__DIR__ . '/../../config/crux.php', 'crux');
     }
 }
