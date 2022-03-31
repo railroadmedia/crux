@@ -298,7 +298,7 @@
                 </p>
             @elseif($membershipStatus == 'canceled' || $membershipStatus == 'expired')
                 <p class="tw-text-gray-600 tw-italic">
-                    This link will take you to reorder on <a href="/">www.drumeo.com</a>.
+                    This link will take you to reorder on <a href="/">www.{{ $brand }}.com</a>.
                     Any purchased access will be added to your existing
                     time. If you’d prefer, you can <a href="{{ url()->route('members.support') }}">click here</a> to
                     contact Support to restart your membership.
