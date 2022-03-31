@@ -50,7 +50,7 @@
         "backgroundImage" => 'https://dmmior4id2ysr.cloudfront.net/assets/images/drumeo-members-header-background-image.jpg',
         "userAvatar" => current_user()->getProfilePictureUrl(),
         "userName" => current_user()->getDisplayName(),
-        "appName" => 'Drumeo',
+        "appName" => ucfirst($brand),
         "memberSince" => current_user()->getCreatedAt()
     ])
 
