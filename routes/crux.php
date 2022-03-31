@@ -116,6 +116,14 @@ Route::group(
             ]
         );
 
+        Route::post(
+            '/submit/resume-paused',
+            [
+                'as' => 'crux.submit.resume-paused',
+                'uses' => ActionController::class . '@resumePaused'
+            ]
+        );
+
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         Route::post(

@@ -12,6 +12,7 @@ use Illuminate\Http\RedirectResponse as RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Mail\Message;
 use Illuminate\Support\Facades\Mail;
+use Railroad\Crux\Factories\UserPermutationFactory;
 use Railroad\Crux\Mail\Agnostic;
 use Railroad\Crux\Services\BrandSpecificResourceService;
 use Railroad\CustomerIo\Services\CustomerIoService;
@@ -25,6 +26,7 @@ use Railroad\Ecommerce\Entities\UserProduct;
 use Railroad\Ecommerce\Events\Subscriptions\SubscriptionUpdated;
 use Railroad\Ecommerce\Events\UserProducts\UserProductUpdated;
 use Railroad\Ecommerce\Managers\EcommerceEntityManager;
+use Railroad\Ecommerce\Repositories\MembershipActionRepository;
 use Railroad\Ecommerce\Repositories\OrderRepository;
 use Railroad\Ecommerce\Repositories\ProductRepository;
 use Railroad\Ecommerce\Repositories\SubscriptionRepository;
@@ -64,6 +66,16 @@ class ActionController
      */
     private $customerIoService;
 
+    /**
+     * @var UserPermutationFactory
+     */
+    private $permutationFactory;
+
+    /**
+     * @var MembershipActionRepository
+     */
+    private $membershipActionRepository;
+
     public static $internalEmailRecipientsByBrand = [
         'drumeo' => ['support@drumeo.com'],
         'pianote' => ['support@pianote.com'],
@@ -91,13 +103,17 @@ class ActionController
         UserProductService $userProductService,
         ProductRepository $productRepository,
         OrderRepository $orderRepository,
-        CustomerIoService $customerIoService
+        CustomerIoService $customerIoService,
+        UserPermutationFactory $permutationFactory,
+        MembershipActionRepository $membershipActionRepository
     ) {
         $this->ecommerceEntityManager = $ecommerceEntityManager;
         $this->subscriptionRepository = $subscriptionRepository;
         $this->userProductService = $userProductService;
         $this->productRepository = $productRepository;
         $this->orderRepository = $orderRepository;
+        $this->permutationFactory = $permutationFactory;
+        $this->membershipActionRepository = $membershipActionRepository;
 
         $this->brand = config('railcontent.brand');
         $this->customerIoService = $customerIoService;
@@ -437,7 +453,7 @@ class ActionController
      */
     public function pause(Request $request)
     {
-        $subscription = UserAccessService::getEdgeSubscription(
+        $subscription = UserAccessService::getMembershipSubscription(
             current_user()->getId()
         );
 
@@ -757,6 +773,116 @@ class ActionController
                 self::$generalErrorMessageToUser
             );
         }
+    }
+
+    public function resumePaused ()
+    {
+        $user = current_user();
+        $userId = current_user()->getId();
+        $brand = config('railcontent.brand');
+
+        $permutation = $this->permutationFactory->getPermutation($user, $brand);
+
+        if ($permutation->membershipStatus() != 'paused') {
+            return $this->returnRedirect(false);
+        }
+
+        try {
+
+            // get the relevant membership-action
+            // ----------------------------------
+
+            // note that by default the results we're searching through are ordered by created_at desc thus we're
+            // getting the most recent of type MembershipAction::ACTION_PAUSE_FOR_AMOUNT_OF_DAYS
+
+            $membershipActions = $this->membershipActionRepository->getAllUsersMembershipActions(
+                current_user()->getId()
+            );
+
+            $action = false;
+
+            foreach ($membershipActions as $actionCandidate) {
+                if ($actionCandidate->getAction() == MembershipAction::ACTION_PAUSE_FOR_AMOUNT_OF_DAYS) {
+                    $action = $actionCandidate;
+                    break;
+                }
+            }
+
+            if (!$action) {
+                throw new \Exception ('No MembershipAction of required type found for user ' . $userId);
+            }
+
+            // get the subscription and user-product
+            // -------------------------------------
+
+            $subscription = $action->getSubscription();
+            $subscriptionBeforeChanges = clone($subscription);
+
+            $userProduct = UserAccessService::getMembershipUserProduct();
+            $oldUserProduct = clone($userProduct);
+
+            // check that product from subscription from action is same product as membershipUserProduct
+            if ( $subscription->getProduct()->getId() != $userProduct->getProduct()->getId() ) {
+                throw new \Exception (
+                    'Product in paused subscription does not match membershipUserProduct (user ' . $userId . ')'
+                );
+            }
+
+            // calculate the length of time between start date and paid_until date
+            // -------------------------------------------------------------------
+
+            $dateStart = Carbon::parse( $userProduct->getStartDate() );
+            $datePaidUntil = Carbon::parse( $subscription->getPaidUntil() );
+
+            if (Carbon::now()->gt($dateStart)) {
+                throw new \Exception(
+                    'startDate for paused userProduct (' . $userProduct->getId() .
+                    ')is in past but resume was called on it. This should not be possible.'
+                );
+            }
+
+            $hoursToAdd = $dateStart->diffInHours($datePaidUntil) + 1; // adding an extra hour as a kind of rounding-up
+
+            // update subscription and user-product
+            // ------------------------------------
+
+            $dateNewPaidUntil = Carbon::now()->addHours($hoursToAdd);
+            $subscription->setPaidUntil($dateNewPaidUntil);
+
+            $this->ecommerceEntityManager->persist($subscription);
+            $this->ecommerceEntityManager->flush();
+
+            event(new SubscriptionUpdated($subscriptionBeforeChanges, $subscription));
+            $this->userProductService->updateSubscriptionProducts($subscription);
+
+            #$userProduct->setStartDate(Carbon::now());
+            $userProduct->setStartDate(null);
+
+            $this->ecommerceEntityManager->persist($userProduct);
+            $this->ecommerceEntityManager->flush();
+
+            event(new UserProductUpdated($userProduct, $oldUserProduct));
+
+            // create a MembershipAction
+            $membershipAction = new MembershipAction(); /** @var $membershipAction MembershipAction|NotableEntity */
+            $membershipAction->setUser(new User($userId, current_user()->getEmail()));
+            $membershipAction->setBrand(config('ecommerce.brand'));
+            $membershipAction->setAction(MembershipAction::ACTION_RESUME_PAUSED_MEMBERSHIP);
+            $membershipAction->setActionReason('user action on access-details page');
+            $membershipAction->setSubscription($subscription);
+            $this->ecommerceEntityManager->persist($membershipAction);
+            $this->ecommerceEntityManager->flush();
+
+        } catch (\Exception $exception) {
+            error_log($exception);
+            return $this->returnRedirect(false);
+        }
+
+        return $this->returnRedirect(
+            true,
+            'You should now have full access again. If you have any issues please let us know right away so we ' .
+            'can help you get back to playing!'
+        );
     }
 
     // -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=- -=-

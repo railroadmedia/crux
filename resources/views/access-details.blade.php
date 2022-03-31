@@ -225,10 +225,17 @@
                 </a>
             @endif
             @if($membershipStatus == 'paused')
-                <a href="/"
-                   class="tw-uppercase tw-font-bold tw-no-underline bg-{{ $brand }} hover:{{ \Railroad\Crux\Services\BrandSpecificResourceService::styleHoverClass($brand) }} tw-p-3 tw-pl-16 tw-pr-16 tw-text-white tw-rounded-full">
-                    Continue Your Membership
-                </a>
+                <form method="post"
+                      action="{{ url()->route('crux.submit.resume-paused') }}">
+
+                    {{ csrf_field() }}
+
+                    <a href="#"
+                       onclick="this.parentNode.submit(); return false;"
+                       class="tw-uppercase tw-font-bold tw-no-underline bg-{{ $brand }} hover:{{ \Railroad\Crux\Services\BrandSpecificResourceService::styleHoverClass($brand) }} tw-p-3 tw-pl-16 tw-pr-16 tw-text-white tw-rounded-full">
+                        Continue Your Membership
+                    </a>
+                </form>
             @endif
 
             @if($membershipStatus == 'active' && ($membershipType != 'lifetime') && !$permutation->hasClaimedRetentionOfferAlready())
@@ -287,12 +294,17 @@
                 <p class="tw-text-gray-600 tw-italic">
                     Save {{ $savings }}% with an annual plan.
                 </p>
-            @elseif($membershipStatus == 'canceled' || $membershipStatus == 'expired' || $membershipStatus == 'paused')
+            @elseif($membershipStatus == 'canceled' || $membershipStatus == 'expired')
                 <p class="tw-text-gray-600 tw-italic">
                     This link will take you to reorder on <a href="/">www.drumeo.com</a>.
                     Any purchased access will be added to your existing
                     time. If you’d prefer, you can <a href="{{ url()->route('members.support') }}">click here</a> to
                     contact Support to restart your membership.
+                </p>
+            @elseif($membershipStatus == 'paused')
+                <p class="tw-text-gray-600 tw-italic">
+                    The above button will restart your access right away. You can also
+                    <a href="{{ url()->route('members.support') }}">contact us</a> for help.
                 </p>
             @elseif($membershipStatus == 'non-recurring')
                 <p class="tw-text-gray-600 tw-italic">
