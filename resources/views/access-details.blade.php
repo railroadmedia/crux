@@ -365,11 +365,24 @@
         @slot('contentSlot')
             <h1 class="heading tw-text-center">Need more time?</h1>
 
+            @php
+                $instrument = 'music';
+
+                if ($brand == 'drumeo') {
+                    $instrument = 'drum';
+                } elseif ($brand == 'pianote') {
+                    $instrument = 'piano';
+                } elseif ($brand == 'guitareo') {
+                    $instrument = 'guitar';
+                } elseif ($brand == 'singeo') {
+                    $instrument = 'vocal';
+                }
+            @endphp
+
             <p class="body tw-text-center tw-mt-6">
                 Everyone gets busy and you may not have had enough time to watch lessons and practice.
-                <strong>Extend your trial an additional 14 days</strong> on us to keep access to the best drum lessons
-                in the
-                world.
+                <strong>Extend your trial an additional 14 days</strong> on us to keep access to the best
+                {{ $instrument }} lessons in the world.
             </p>
 
             <form method="post"
