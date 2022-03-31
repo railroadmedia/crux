@@ -1,7 +1,7 @@
 @extends('members.layout', ['hideBreadcrumbs' => true, 'hideNav' => true, 'hideFooter' => true])
 
 @section('meta')
-    <title>Cancel | Drumeo</title>
+    <title>Cancel | {{ ucfirst($brand) }}</title>
 @endsection
 
 @section('scripts')

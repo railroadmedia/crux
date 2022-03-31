@@ -173,7 +173,7 @@
     <div class="tw-flex tw-flex-wrap tw-border-0 tw-border-t tw-border-b tw-border-gray-300 tw-border-solid">
         <div class="tw-flex tw-flex-col tw-w-full md:tw-w-1/2 tw-p-8 body tw-items-center tw-justify-center tw-border-0 tw-border-r tw-border-gray-300 tw-border-solid">
             <img src="{{ imgix(\Railroad\Crux\Services\BrandSpecificResourceService::logoUrl($brand), ["auto" => "format"]) }}"
-                 alt="Drumeo logo"
+                 alt="{{ $brand }} logo"
                  class="tw-w-80">
         </div>
         <div class="tw-flex tw-flex-col tw-w-full md:tw-w-1/2 body tw-p-8">
@@ -575,7 +575,7 @@
 
                 {{ csrf_field() }}
 
-                <h1 class="heading tw-text-center tw-mt-4">How can we make your Drumeo experience better?</h1>
+                <h1 class="heading tw-text-center tw-mt-4">How can we make your {{ ucfirst($brand) }} experience better?</h1>
 
                 <textarea placeholder="Type your feedback here..."
                           name="user-feedback"
