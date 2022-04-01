@@ -661,8 +661,6 @@
         @endslot
     @endcomponent
 
-
-
     @php
         $monthlyLink = '/';
         if ($brand == 'drumeo') {
@@ -681,18 +679,36 @@
         @slot('contentSlot')
             <h1 class="heading tw-text-center">Choose your plan</h1>
             <div class="tw-flex md:tw-flex-row tw-flex-col tw-mt-10 tw-w-full">
-                <div class="tw-flex tw-flex-col md:tw-w-1/2 tw-w-full tw-ml-3 tw-items-center tw-text-center tw-rounded-lg {{ \Railroad\Crux\Services\BrandSpecificResourceService::styleBorderClass($brand) }} tw-border-2 tw-border-solid tw-p-3 tw-py-8">
-                    <h1 class="tw-uppercase">Monthly</h1>
+
+                {{-- ============ Monthly ============ --}}
+
+                <div class="tw-flex tw-flex-col md:tw-w-1/2 tw-w-full tw-ml-3 tw-items-center tw-text-center tw-rounded-lg tw-bg-white tw-border-2 tw-border-solid tw-border-gray-400 tw-p-3 tw-py-8">
+                    <h1 class="tw-uppercase tw-font-bold">Monthly</h1>
                     <p class="tw-mt-4 tw-leading-6">
                         Our lowest price
                         <br>to start
                     </p>
                     <a href="{{ $monthlyLink }}"
-                       target="_blank"
-                       class="tw-uppercase tw-font-bold tw-no-underline bg-{{ $brand }} hover:{{ \Railroad\Crux\Services\BrandSpecificResourceService::styleHoverClass($brand) }} tw-p-3 tw-pl-16 tw-pr-16 tw-text-white tw-rounded-full tw-mt-8 tw-text-sm">
+                       class="tw-uppercase tw-font-bold tw-no-underline tw-bg-gray-400 hover:tw-bg-gray-900 tw-p-3 tw-pl-8 tw-pr-8 tw-text-white tw-rounded-full tw-mt-8 tw-text-sm mu-modal-close">
                         Start Here
                     </a>
                 </div>
+
+{{--                <div class="tw-flex tw-flex-col md:tw-w-1/2 tw-w-full tw-ml-3 tw-items-center tw-text-center tw-rounded-lg {{ \Railroad\Crux\Services\BrandSpecificResourceService::styleBorderClass($brand) }} tw-border-2 tw-border-solid tw-p-3 tw-py-8">--}}
+{{--                    <h1 class="tw-uppercase">Monthly</h1>--}}
+{{--                    <p class="tw-mt-4 tw-leading-6">--}}
+{{--                        Our lowest price--}}
+{{--                        <br>to start--}}
+{{--                    </p>--}}
+{{--                    <a href="{{ $monthlyLink }}"--}}
+{{--                       target="_blank"--}}
+{{--                       class="tw-uppercase tw-font-bold tw-no-underline bg-{{ $brand }} hover:{{ \Railroad\Crux\Services\BrandSpecificResourceService::styleHoverClass($brand) }} tw-p-3 tw-pl-16 tw-pr-16 tw-text-white tw-rounded-full tw-mt-8 tw-text-sm">--}}
+{{--                        Start Here--}}
+{{--                    </a>--}}
+{{--                </div>--}}
+
+                {{-- ============ Annual ============ --}}
+
                 <div class="tw-flex tw-flex-col md:tw-w-1/2 tw-w-full tw-ml-3 tw-items-center tw-text-center tw-rounded-lg {{ \Railroad\Crux\Services\BrandSpecificResourceService::styleBorderClass($brand) }} tw-border-2 tw-border-solid tw-p-3 tw-py-8">
                     <h1 class="tw-uppercase">Annual</h1>
                     <p class="tw-mt-4 tw-leading-6">Save {{ $savings }}% vs monthly
