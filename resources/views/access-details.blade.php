@@ -210,12 +210,18 @@
                 </a>
             </div>
         @else
-            @if(($membershipStatus == 'active' && $membershipType != 'lifetime' && $membershipType != '1-year') ||
-                ($membershipStatus == 'non-recurring' && $membershipType != 'lifetime'))
+            @if(($membershipStatus == 'active' && $membershipType != 'lifetime' && $membershipType != '1-year'))
                 <a href="#"
                    class="mu-modal-open tw-uppercase tw-font-bold tw-no-underline bg-{{ $brand }} hover:{{ \Railroad\Crux\Services\BrandSpecificResourceService::styleHoverClass($brand) }} tw-p-3 tw-pl-16 tw-pr-16 tw-text-white tw-rounded-full"
                    id="modal-upgrade-to-annual">
                     Upgrade Membership
+                </a>
+            @endif
+            @if($membershipStatus == 'non-recurring' && $membershipType != 'lifetime')
+                <a href="#"
+                   class="mu-modal-open tw-uppercase tw-font-bold tw-no-underline bg-{{ $brand }} hover:{{ \Railroad\Crux\Services\BrandSpecificResourceService::styleHoverClass($brand) }} tw-p-3 tw-pl-16 tw-pr-16 tw-text-white tw-rounded-full"
+                   id="modal-upgrade-to-renewing">
+                    Continue Your Access
                 </a>
             @endif
             @if($membershipStatus == 'canceled' || $membershipStatus == 'expired')
@@ -351,6 +357,11 @@
     {{--                    id="modal-upgrade-to-annual">--}}
     {{--                Open Upgrade To Annual--}}
     {{--            </button>--}}
+    
+    {{--                <button class="mu-modal-open tw-bg-transparent tw-border tw-border-gray-500 hover:tw-border-indigo-500 tw-text-gray-500 hover:tw-text-indigo-500 tw-font-bold tw-py-2 tw-px-4 tw-rounded-full"--}}
+    {{--                        id="modal-upgrade-to-renewing">--}}
+    {{--                    Open Upgrade To Renewing--}}
+    {{--                </button>--}}
 
     {{--            <button class="mu-modal-open tw-bg-transparent tw-border tw-border-gray-500 hover:tw-border-indigo-500 tw-text-gray-500 hover:tw-text-indigo-500 tw-font-bold tw-py-2 tw-px-4 tw-rounded-full"--}}
     {{--                    id="modal-post-90-day-cancel-letter">--}}
@@ -646,6 +657,60 @@
             <p class="body tw-text-center tw-mt-10">
                 By completing the checkout process on the next page, your monthly billing will be stopped and replaced
                 by an annual billing plan at the posted rate.
+            </p>
+        @endslot
+    @endcomponent
+
+
+
+    @php
+        $monthlyLink = '/';
+        if ($brand == 'drumeo') {
+            $monthlyLink = 'https://www.drumeo.com/laravel/public/shopping-cart/api/query?products[DLM-1-month]=1&redirect=%2Forder&locked=true';
+        } elseif ($brand == 'pianote') {
+            $monthlyLink = 'https://www.pianote.com/ecommerce/add-to-cart?products[PIANOTE-MEMBERSHIP-1-MONTH]=1&redirect=%2Forder&locked=true';
+        } elseif ($brand == 'guitareo') {
+            $monthlyLink = 'https://www.guitareo.com/ecommerce/add-to-cart?products[GUITAREO-1-MONTH-MEMBERSHIP]=1&redirect=%2Forder&locked=true';
+        } elseif ($brand == 'singeo') {
+            $monthlyLink = 'https://www.singeo.com/ecommerce/add-to-cart?products[singeo-monthly-recurring-membership]=1&redirect=%2Forder&locked=true';
+        }
+    @endphp
+
+    {{-- start a membership  --}}
+    @component('crux::partials._modal', ['modalId' => 'modal-upgrade-to-renewing'])
+        @slot('contentSlot')
+            <h1 class="heading tw-text-center">Choose your plan</h1>
+            <div class="tw-flex md:tw-flex-row tw-flex-col tw-mt-10 tw-w-full">
+                <div class="tw-flex tw-flex-col md:tw-w-1/2 tw-w-full tw-ml-3 tw-items-center tw-text-center tw-rounded-lg {{ \Railroad\Crux\Services\BrandSpecificResourceService::styleBorderClass($brand) }} tw-border-2 tw-border-solid tw-p-3 tw-py-8">
+                    <h1 class="tw-uppercase">Monthly</h1>
+                    <p class="tw-mt-4 tw-leading-6">
+                        Our lowest price
+                        <br>to start
+                    </p>
+                    <a href="{{ $monthlyLink }}"
+                       target="_blank"
+                       class="tw-uppercase tw-font-bold tw-no-underline bg-{{ $brand }} hover:{{ \Railroad\Crux\Services\BrandSpecificResourceService::styleHoverClass($brand) }} tw-p-3 tw-pl-16 tw-pr-16 tw-text-white tw-rounded-full tw-mt-8 tw-text-sm">
+                        Start Here
+                    </a>
+                </div>
+                <div class="tw-flex tw-flex-col md:tw-w-1/2 tw-w-full tw-ml-3 tw-items-center tw-text-center tw-rounded-lg {{ \Railroad\Crux\Services\BrandSpecificResourceService::styleBorderClass($brand) }} tw-border-2 tw-border-solid tw-p-3 tw-py-8">
+                    <h1 class="tw-uppercase">Annual</h1>
+                    <p class="tw-mt-4 tw-leading-6">Save {{ $savings }}% vs monthly
+                        <br>+ limited time bonuses
+                    </p>
+                    <a href="/"
+                       target="_blank"
+                       class="tw-uppercase tw-font-bold tw-no-underline bg-{{ $brand }} hover:{{ \Railroad\Crux\Services\BrandSpecificResourceService::styleHoverClass($brand) }} tw-p-3 tw-pl-16 tw-pr-16 tw-text-white tw-rounded-full tw-mt-8 tw-text-sm">
+                        See Offer
+                    </a>
+                </div>
+            </div>
+
+            <p class="body tw-text-center tw-mt-10">
+                By completing the checkout process on the next page,
+{{--                <br>you can continue your musical education without interuption.--}}
+{{--                <br>you can continue your musical education with us without interuption.--}}
+                <br>you can continue your access without interruption.
             </p>
         @endslot
     @endcomponent
