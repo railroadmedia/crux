@@ -25,9 +25,7 @@
 
 @section('scripts')
 
-    @if($brand == 'drumeo')
-        <script src="{{ _mix('js/profile.js') }}"></script>
-    @elseif($brand == 'pianote')
+    @if($brand == 'pianote')
         <script src="{{ mix('assets/members/js/profile.js') }}"></script>
     @elseif($brand == 'guitareo')
         <script src="{{ mix('assets/members/js/profile.js') }}"></script>
