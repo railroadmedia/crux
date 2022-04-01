@@ -756,7 +756,7 @@ class ActionController
 
         return redirect()->route(
             'crux.access-details',
-            $routeParams ?? ['open-modal-id' => 'modal-how-can-we-make-next-30-days-better']
+            $routeParams ?? ['open-modal-id' => 'modal-how-can-we-make-next-month-better']
         )->with([
             'success-message' => $msg ?? ('Your access has been extended. Your new renewal date is: ' . $newRenewalDate),
             'renewal-date' => $newRenewalDate
