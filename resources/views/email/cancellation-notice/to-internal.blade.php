@@ -1,4 +1,4 @@
-@extends('emails.layout')
+@extends('crux::email.layout')
 
 @section('page-body')
 
