@@ -207,7 +207,7 @@ class ActionController
         try {
             $email = new Agnostic();
 
-            $email->from('system@drumeo.com', 'Drumeo System');
+            $email->from('system@' . $this->brand . '.com', ucfirst($this->brand) . ' System');
             $email->to(self::$internalEmailRecipientsByBrand[$this->brand]);
             $email->replyTo(current_user()->getEmail());
 
