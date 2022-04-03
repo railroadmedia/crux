@@ -39,11 +39,11 @@ class NavigationSpecificsDeterminationService
                     )
                 ],
                 [
-                    "url" => NavigationSpecificsDeterminationService::getUrlForSection('technology'),
+                    "url" => NavigationSpecificsDeterminationService::getUrlForSection('settings'),
                     "icon" => "fas fa-bell",
-                    "title" => "Technology",
+                    "title" => "Settings",
                     "active" => (
-                        NavigationSpecificsDeterminationService::getRouteNameForSection('technology') == $name
+                        NavigationSpecificsDeterminationService::getRouteNameForSection('settings') == $name
                     )
                 ],
                 [
@@ -82,8 +82,8 @@ class NavigationSpecificsDeterminationService
                 return url()->route(self::getRouteNameForSection('login-credentials'));
             case 'payments':
                 return url()->route(self::getRouteNameForSection('payments'));
-            case 'technology':
-                return url()->route(self::getRouteNameForSection('technology'));
+            case 'settings':
+                return url()->route(self::getRouteNameForSection('settings'));
             case 'access':
                 return url()->route(self::getRouteNameForSection('access'));
         }
@@ -105,8 +105,8 @@ class NavigationSpecificsDeterminationService
                 return 'members.settings.login-credentials';
             case 'payments':
                 return 'members.settings.payments';
-            case 'technology':
-                return 'members.settings.technology';
+            case 'settings':
+                return 'members.settings.settings';
             case 'access':
                 return 'crux.access-details';
         }
