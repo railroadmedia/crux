@@ -157,7 +157,7 @@ class ActionController
             $email = new Agnostic();
 
             $email->to(self::$internalEmailRecipientsByBrand[$this->brand] ?? 'support@musora.com');
-            $email->from('system@drumeo.com', 'Drumeo System');
+            $email->from('system@' . $this->brand . '.com', ucfirst($this->brand) . ' System');
             $email->replyTo(current_user()->getEmail());
 
             $email->subject('Request for help making most of membership: ' . current_user()->getEmail());
