@@ -793,43 +793,20 @@
 
                 <div class="tw-flex tw-flex-row tw-mt-6">
 
-                    @if($brand == 'pianote')
-                        <img
-                                src="{{ imgix("https://d1923uyy6spedc.cloudfront.net/jared.png", ["q" => 80, "w" => 100, "h" => 100, "fit" => "fill", "auto" => "format"]) }}"
-                                alt="Lisa Witt portrait">
-                        <img
-                                src="{{ imgix("https://d1923uyy6spedc.cloudfront.net/jared-sig.jpg", ["q" => 80, "w" => 100, "h" => 80, "fit" => "fill", "auto" => "format"]) }}"
-                                alt="Lisa Witt signature"
-                                class="tw-ml-6 tw-mt-4 tw-h-16">
-                        <p class="tw-mt-10 tw-ml-6"> - Lisa Witt</p>
-                    @elseif($brand == 'guitareo')
-                        <img
-                                src="{{ imgix("https://d1923uyy6spedc.cloudfront.net/jared.png", ["q" => 80, "w" => 100, "h" => 100, "fit" => "fill", "auto" => "format"]) }}"
-                                alt="Ayla Tesler-Mabe portrait">
-                        <img
-                                src="{{ imgix("https://d1923uyy6spedc.cloudfront.net/jared-sig.jpg", ["q" => 80, "w" => 100, "h" => 80, "fit" => "fill", "auto" => "format"]) }}"
-                                alt="Ayla Tesler-Mabe signature"
-                                class="tw-ml-6 tw-mt-4 tw-h-16">
-                        <p class="tw-mt-10 tw-ml-6"> - Ayla Tesler-Mabe</p>
-                    @elseif($brand == 'singeo')
-                        <img
-                                src="{{ imgix("https://d1923uyy6spedc.cloudfront.net/jared.png", ["q" => 80, "w" => 100, "h" => 100, "fit" => "fill", "auto" => "format"]) }}"
-                                alt="Lisa Witt portrait">
-                        <img
-                                src="{{ imgix("https://d1923uyy6spedc.cloudfront.net/jared-sig.jpg", ["q" => 80, "w" => 100, "h" => 80, "fit" => "fill", "auto" => "format"]) }}"
-                                alt="Lisa Witt signature"
-                                class="tw-ml-6 tw-mt-4 tw-h-16">
-                        <p class="tw-mt-10 tw-ml-6"> - Lisa Witt</p>
-                    @else
-                        <img
-                                src="{{ imgix("https://d1923uyy6spedc.cloudfront.net/jared.png", ["q" => 80, "w" => 100, "h" => 100, "fit" => "fill", "auto" => "format"]) }}"
-                                alt="Jared Falk portrait">
-                        <img
-                                src="{{ imgix("https://d1923uyy6spedc.cloudfront.net/jared-sig.jpg", ["q" => 80, "w" => 100, "h" => 80, "fit" => "fill", "auto" => "format"]) }}"
-                                alt="Jared Falk signature"
-                                class="tw-ml-6 tw-mt-4 tw-h-16">
-                        <p class="tw-mt-10 tw-ml-6"> - Jared Falk</p>
-                    @endif
+                    @php
+                        $portrait = \Railroad\Crux\Services\BrandSpecificResourceService::leadInstructorDetails($brand)['portrait'];
+                        $signature = \Railroad\Crux\Services\BrandSpecificResourceService::leadInstructorDetails($brand)['signature'];
+                        $name = \Railroad\Crux\Services\BrandSpecificResourceService::leadInstructorDetails($brand)['name'];
+                    @endphp
+
+                    <img
+                            src="{{ imgix($portrait, ["q" => 80, "w" => 100, "h" => 100, "fit" => "fill", "auto" => "format"]) }}"
+                            alt="{{ $name }} portrait">
+                    <img
+                            src="{{ imgix($signature, ["q" => 80, "w" => 100, "h" => 80, "fit" => "fill", "auto" => "format"]) }}"
+                            alt="{{ $name }} signature"
+                            class="tw-ml-6 tw-mt-4 tw-h-16">
+                    <p class="tw-mt-10 tw-ml-6"> - {{ $name }}</p>
 
                 </div>
             </div>

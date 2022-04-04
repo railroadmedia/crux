@@ -181,4 +181,37 @@ class BrandSpecificResourceService
 
         return false;
     }
+
+    /**
+     * @param $brand
+     * @return array
+     */
+    public static function leadInstructorDetails($brand)
+    {
+        if ($brand == 'pianote') {
+            return [
+                'portrait' => 'https://d1923uyy6spedc.cloudfront.net/headshot-circle-300-lisa.png',
+                'signature' => 'https://d1923uyy6spedc.cloudfront.net/jared-sig.jpg', // todo: update with proper signature
+                'name' => 'Lisa Witt'
+            ];
+        } else if($brand == 'guitareo') {
+            return [
+                'portrait' => 'https://d1923uyy6spedc.cloudfront.net/headshot-circle-300-ayla.png',
+                'signature' => 'https://d1923uyy6spedc.cloudfront.net/jared-sig.jpg', // todo: update with proper signature
+                'name' => 'Ayla Tesler-Mabe'
+            ];
+        } else if($brand == 'singeo') {
+            return [
+                'portrait' => 'https://d1923uyy6spedc.cloudfront.net/headshot-circle-300-lisa.png',
+                'signature' => 'https://d1923uyy6spedc.cloudfront.net/jared-sig.jpg', // todo: update with proper signature
+                'name' => 'Lisa Witt'
+            ];
+        }
+
+        return [
+            'portrait' => 'https://d1923uyy6spedc.cloudfront.net/jared.png',
+            'signature' => 'https://d1923uyy6spedc.cloudfront.net/jared-sig.jpg',
+            'name' => 'Jared Falk'
+        ];
+    }
 }
