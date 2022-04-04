@@ -214,4 +214,17 @@ class BrandSpecificResourceService
             'name' => 'Jared Falk'
         ];
     }
+
+    public static function headerBackground($brand)
+    {
+        if ($brand == 'pianote') {
+            return 'https://d2vyvo0tyx8ig5.cloudfront.net/backgrounds/default-3840.jpg';
+        } else if($brand == 'guitareo') {
+            return 'https://dmmior4id2ysr.cloudfront.net/assets/images/guitareo-header.jpg';
+        } else if($brand == 'singeo') {
+            return 'https://singeo.s3.amazonaws.com/singeo-header-image.jpg';
+        }
+
+        return 'https://dmmior4id2ysr.cloudfront.net/assets/images/drumeo-members-header-background-image.jpg';
+    }
 }
