@@ -79,10 +79,10 @@ class ActionController
     private $membershipActionRepository;
 
     public static $internalEmailRecipientsByBrand = [
-        'drumeo' => ['support@drumeo.com'],
-        'pianote' => ['support@pianote.com'],
-        'guitareo' => ['support@guitareo.com'],
-        'singeo' => ['support@singeo.com'],
+        'drumeo' => ['support+cancellations@drumeo.com'],
+        'pianote' => ['support+cancellations@pianote.com'],
+        'guitareo' => ['support+cancellations@guitareo.com'],
+        'singeo' => ['support+cancellations@singeo.com'],
     ];
 
     public static $generalSuccessMessageToUser = 'Your account has been updated.';
@@ -208,7 +208,7 @@ class ActionController
             $email = new Agnostic();
 
             $email->from('system@' . $this->brand . '.com', ucfirst($this->brand) . ' System');
-            $email->to(self::$internalEmailRecipientsByBrand[$this->brand]);
+            $email->to(self::$internalEmailRecipientsByBrand[$this->brand] ?? 'support@musora.com');
             $email->replyTo(current_user()->getEmail());
 
             $email->subject($subject);
@@ -366,7 +366,7 @@ class ActionController
         try {
             $email = new Agnostic();
 
-            $email->to(self::$internalEmailRecipientsByBrand[$this->brand]);
+            $email->to(self::$internalEmailRecipientsByBrand[$this->brand] ?? 'support@musora.com');
             $email->from('system@' . $this->brand . '.com', ucfirst($this->brand) . ' System');
             $email->replyTo(current_user()->getEmail());
 
