@@ -12,7 +12,7 @@ return [
             'lesson-quality' => 'lesson-quality',
             'dont-like-website' => 'dont-like-website',
             'technical-problems' => 'technical-problems',
-            'other-drum-lessons' => 'other-drum-lessons',
+            'other-lessons' => 'other-lessons',
             'other-reason' => 'other-reason',
         ],
         'pianote' => [
@@ -25,7 +25,7 @@ return [
             'lesson-quality' => 'lesson-quality',
             'dont-like-website' => 'dont-like-website',
             'technical-problems' => 'technical-problems',
-            'other-piano-lessons' => 'other-piano-lessons',
+            'other-lessons' => 'other-lessons',
             'other-reason' => 'other-reason',
         ],
         'guitareo' => [
@@ -38,7 +38,7 @@ return [
             'lesson-quality' => 'lesson-quality',
             'dont-like-website' => 'dont-like-website',
             'technical-problems' => 'technical-problems',
-            'other-piano-lessons' => 'other-piano-lessons',
+            'other-lessons' => 'other-lessons',
             'other-reason' => 'other-reason',
         ],
         'singeo' => [
@@ -51,7 +51,7 @@ return [
             'lesson-quality' => 'lesson-quality',
             'dont-like-website' => 'dont-like-website',
             'technical-problems' => 'technical-problems',
-            'other-piano-lessons' => 'other-piano-lessons',
+            'other-lessons' => 'other-lessons',
             'other-reason' => 'other-reason',
         ],
     ],
@@ -66,7 +66,7 @@ return [
             'lesson-quality' => 'I want feedback on my drumming which I can’t get with Drumeo',
             'dont-like-website' => 'I’m not making any progress with your website',
             'technical-problems' => 'I’m having technical problems',
-            'other-drum-lessons' => 'I’m using other drum lessons',
+            'other-lessons' => 'I’m using other drum lessons',
             'other-reason' => 'Other reason',
         ],
         'pianote' => [
@@ -79,7 +79,7 @@ return [
             'lesson-quality' => 'I don’t like the lesson quality',
             'dont-like-website' => 'I don’t like the website or app',
             'technical-problems' => 'I’m having technical problems',
-            'other-piano-lessons' => 'I’m using other piano lessons',
+            'other-lessons' => 'I’m using other piano lessons',
             'other-reason' => 'Other reason',
         ],
         'guitareo' => [
@@ -92,7 +92,7 @@ return [
             'lesson-quality' => 'I don’t like the lesson quality',
             'dont-like-website' => 'I don’t like the website or app',
             'technical-problems' => 'I’m having technical problems',
-            'other-piano-lessons' => 'I’m using other lessons',
+            'other-lessons' => 'I’m using other lessons',
             'other-reason' => 'Other reason',
         ],
         'singeo' => [
@@ -105,7 +105,7 @@ return [
             'lesson-quality' => 'I don’t like the lesson quality',
             'dont-like-website' => 'I don’t like the website or app',
             'technical-problems' => 'I’m having technical problems',
-            'other-piano-lessons' => 'I’m using other lessons',
+            'other-lessons' => 'I’m using other lessons',
             'other-reason' => 'Other reason',
         ],
     ],

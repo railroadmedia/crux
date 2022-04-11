@@ -276,7 +276,7 @@ class ActionController
             $reasons['no-time'] ?? null,
             $reasons['too-expensive'] ?? null,
             $reasons['dont-use-enough'] ?? null,
-            $reasons['other-drum-lessons'] ?? null,
+            $reasons['other-lessons'] ?? null,
         ];
 
         $match = in_array($reason, $criteria);
