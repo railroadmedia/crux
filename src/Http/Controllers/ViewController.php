@@ -126,13 +126,7 @@ class ViewController extends Controller
                 ]);
         }
 
-        $pricesStandardCents = BrandSpecificResourceService::pricesStandardCents($brand);
-
-        // todo: move to "helper" static class
-        $savings = round(100 - (100 * ($pricesStandardCents['annual'] / ($pricesStandardCents['monthly'] * 12))));
-        if ($savings < 0) {
-            $savings = $savings * -1;
-        }
+        $subscription = UserAccessService::getMembershipSubscription($user->getId());
 
         $params = [
             'brand' => $brand,
@@ -140,14 +134,14 @@ class ViewController extends Controller
             'permutation' => $permutation,
             'accessExpiryDate' => UserAccessService::membershipExpiryDateRegardlessOfCurrentUserState($user->getId()),
             'user' => $user,
-            'subscription' => UserAccessService::getMembershipSubscription($user->getId()),
+            'subscription' => $subscription,
 
             'ownedNonMembershipProducts' => $permutation->ownedNonMembershipProducts(),
             'membershipType' => $permutation->membershipType(),
             'membershipStatus' => $permutation->membershipStatus(),
 
             // todo: move these to "helper" static class
-            'savings' => $savings,
+            'savingsOfAnnualOverMonthly' => $this->determineSavingsOfAnnualOverMonthly($brand, $subscription),
             'featuresList' => BrandSpecificResourceService::featureList($brand),
         ];
 
@@ -215,5 +209,39 @@ class ViewController extends Controller
                 'brand' => config('railcontent.brand'),
             ]
         );
+    }
+
+    /**
+     * @param $brand
+     * @param Subscription|null $subscription
+     * @return float|int
+     *
+     * todo: move somewhere better
+     */
+    private function determineSavingsOfAnnualOverMonthly($brand, ?Subscription $subscription)
+    {
+        $pricesStandardCents = BrandSpecificResourceService::pricesStandardCents($brand);
+
+        $monthlyPriceTimesTwelveForSavingsValue = $pricesStandardCents['monthly']  * 12;
+
+        if ($subscription) {
+            $isMonthlySubscription = ($subscription->getIntervalType() == 'month') && ($subscription->getIntervalCount() == 1);
+
+            if ($isMonthlySubscription) {
+                $monthlyPriceInCents = ((int) $subscription->getTotalPrice()) * 100;
+                $monthlyPriceTimesTwelveForSavingsValue = $monthlyPriceInCents * 12;
+            }
+        }
+
+        $ratioRaw = $pricesStandardCents['annual'] / $monthlyPriceTimesTwelveForSavingsValue;
+        $ratioAdjusted = $ratioRaw * 100;
+        $percentageRaw = 100 - $ratioAdjusted;
+        $savings = round($percentageRaw);
+
+        if ($savings < 0) {
+            $savings = $savings * -1;
+        }
+
+        return $savings;
     }
 }

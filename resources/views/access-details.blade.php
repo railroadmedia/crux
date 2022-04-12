@@ -298,7 +298,7 @@
         <div class="body tw-p-8 tw-pt-2">
             @if($membershipStatus == 'active' && $membershipType != 'lifetime' && $membershipType != '1-year')
                 <p class="tw-text-gray-600 tw-italic">
-                    Save {{ $savings }}% with an annual plan.
+                    Save {{ $savingsOfAnnualOverMonthly }}% with an annual plan.
                 </p>
             @elseif($membershipStatus == 'canceled' || $membershipStatus == 'expired')
                 <p class="tw-text-gray-600 tw-italic">
@@ -615,7 +615,7 @@
     {{-- Upgrade To Annual  --}}
     @component('crux::partials._modal', ['modalId' => 'modal-upgrade-to-annual'])
         @slot('contentSlot')
-            <h1 class="heading tw-text-center">Save {{ $savings }}% with an annual plan.</h1>
+            <h1 class="heading tw-text-center">Save {{ $savingsOfAnnualOverMonthly }}% with an annual plan.</h1>
 
             <div class="tw-flex md:tw-flex-row tw-flex-col tw-mt-10 tw-w-full">
                 <div class="tw-flex tw-flex-col md:tw-w-1/2 tw-w-full tw-mr-3 tw-items-center tw-text-center tw-rounded-lg tw-bg-gray-200 tw-p-0 tw-py-8">
@@ -644,7 +644,7 @@
                 </div>
                 <div class="tw-flex tw-flex-col md:tw-w-1/2 tw-w-full tw-ml-3 tw-items-center tw-text-center tw-rounded-lg {{ \Railroad\Crux\Services\BrandSpecificResourceService::styleBorderClass($brand) }} tw-border-2 tw-border-solid tw-p-3 tw-py-8">
                     <h1 class="tw-uppercase">Annual <br>Plan</h1>
-                    <p class="tw-mt-4 tw-leading-6">Save {{ $savings }}%<br>+ get limited time
+                    <p class="tw-mt-4 tw-leading-6">Save {{ $savingsOfAnnualOverMonthly }}%<br>+ get limited time
                         bonuses.
                     </p>
                     <a href="/#customize-anchor"
@@ -680,8 +680,6 @@
             <h1 class="heading tw-text-center">Choose your plan</h1>
             <div class="tw-flex md:tw-flex-row tw-flex-col tw-mt-10 tw-w-full">
 
-                {{-- ============ Monthly ============ --}}
-
                 <div class="tw-flex tw-flex-col md:tw-w-1/2 tw-w-full tw-ml-3 tw-items-center tw-text-center tw-rounded-lg tw-bg-white tw-border-2 tw-border-solid tw-border-gray-400 tw-p-3 tw-py-8">
                     <h1 class="tw-uppercase tw-font-bold">Monthly</h1>
                     <p class="tw-mt-4 tw-leading-6">
@@ -694,24 +692,9 @@
                     </a>
                 </div>
 
-{{--                <div class="tw-flex tw-flex-col md:tw-w-1/2 tw-w-full tw-ml-3 tw-items-center tw-text-center tw-rounded-lg {{ \Railroad\Crux\Services\BrandSpecificResourceService::styleBorderClass($brand) }} tw-border-2 tw-border-solid tw-p-3 tw-py-8">--}}
-{{--                    <h1 class="tw-uppercase">Monthly</h1>--}}
-{{--                    <p class="tw-mt-4 tw-leading-6">--}}
-{{--                        Our lowest price--}}
-{{--                        <br>to start--}}
-{{--                    </p>--}}
-{{--                    <a href="{{ $monthlyLink }}"--}}
-{{--                       target="_blank"--}}
-{{--                       class="tw-uppercase tw-font-bold tw-no-underline bg-{{ $brand }} hover:{{ \Railroad\Crux\Services\BrandSpecificResourceService::styleHoverClass($brand) }} tw-p-3 tw-pl-16 tw-pr-16 tw-text-white tw-rounded-full tw-mt-8 tw-text-sm">--}}
-{{--                        Start Here--}}
-{{--                    </a>--}}
-{{--                </div>--}}
-
-                {{-- ============ Annual ============ --}}
-
                 <div class="tw-flex tw-flex-col md:tw-w-1/2 tw-w-full tw-ml-3 tw-items-center tw-text-center tw-rounded-lg {{ \Railroad\Crux\Services\BrandSpecificResourceService::styleBorderClass($brand) }} tw-border-2 tw-border-solid tw-p-3 tw-py-8">
                     <h1 class="tw-uppercase">Annual</h1>
-                    <p class="tw-mt-4 tw-leading-6">Save {{ $savings }}% vs monthly
+                    <p class="tw-mt-4 tw-leading-6">Save {{ $savingsOfAnnualOverMonthly }}% vs monthly
                         <br>+ limited time bonuses
                     </p>
                     <a href="/"
