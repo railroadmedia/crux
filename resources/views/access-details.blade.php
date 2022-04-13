@@ -210,12 +210,14 @@
                 </a>
             </div>
         @else
-            @if(($membershipStatus == 'active' && $membershipType != 'lifetime' && $membershipType != '1-year'))
-                <a href="#"
-                   class="mu-modal-open tw-uppercase tw-font-bold tw-no-underline bg-{{ $brand }} hover:{{ \Railroad\Crux\Services\BrandSpecificResourceService::styleHoverClass($brand) }} tw-p-3 tw-pl-16 tw-pr-16 tw-text-white tw-rounded-full"
-                   id="modal-upgrade-to-annual">
-                    Upgrade Membership
-                </a>
+            @if($membershipStatus == 'active' && $membershipType != 'lifetime' && $membershipType != '1-year')
+                @if(!$savingsOverAnnualAreAmazing)
+                    <a href="#"
+                       class="mu-modal-open tw-uppercase tw-font-bold tw-no-underline bg-{{ $brand }} hover:{{ \Railroad\Crux\Services\BrandSpecificResourceService::styleHoverClass($brand) }} tw-p-3 tw-pl-16 tw-pr-16 tw-text-white tw-rounded-full"
+                       id="modal-upgrade-to-annual">
+                        Upgrade Membership
+                    </a>
+                @endif
             @endif
             @if($membershipStatus == 'non-recurring' && $membershipType != 'lifetime')
                 <a href="#"
@@ -297,9 +299,24 @@
     @if(!$permutation->subscriptionManagedElsewhere() && $membershipType != 'lifetime')
         <div class="body tw-p-8 tw-pt-2">
             @if($membershipStatus == 'active' && $membershipType != 'lifetime' && $membershipType != '1-year')
-                <p class="tw-text-gray-600 tw-italic">
-                    Save {{ $savingsOfAnnualOverMonthly }}% with an annual plan.
-                </p>
+
+                @if($insufficientSavingsToJustifyAnnualOffer)
+                    @if($savingsOverAnnualAreAmazing)
+                        <p class="tw-text-gray-600 tw-italic">
+                            You've snagged an amazingly good monthly rate, saving {{ $savingsVsStandardMonthly }}%
+                            compared the standard monthly rate and {{ $savingsOverAnnual }}% compared to an annual
+                            membership!
+                        </p>
+                    @else
+                        <p class="tw-text-gray-600 tw-italic">
+                            Make a commitment to your learning and get great bonuses. Click above to see about upgrading to an annual membership.
+                        </p>
+                    @endif
+                @else
+                    <p class="tw-text-gray-600 tw-italic">
+                        Save {{ $savingsOfAnnualOverMonthly }}% with an annual plan.
+                    </p>
+                @endif
             @elseif($membershipStatus == 'canceled' || $membershipStatus == 'expired')
                 <p class="tw-text-gray-600 tw-italic">
                     This link will take you to reorder on <a href="/">www.{{ $brand }}.com</a>.
@@ -644,9 +661,13 @@
                 </div>
                 <div class="tw-flex tw-flex-col md:tw-w-1/2 tw-w-full tw-ml-3 tw-items-center tw-text-center tw-rounded-lg {{ \Railroad\Crux\Services\BrandSpecificResourceService::styleBorderClass($brand) }} tw-border-2 tw-border-solid tw-p-3 tw-py-8">
                     <h1 class="tw-uppercase">Annual <br>Plan</h1>
-                    <p class="tw-mt-4 tw-leading-6">Save {{ $savingsOfAnnualOverMonthly }}%<br>+ get limited time
-                        bonuses.
-                    </p>
+                    @if($insufficientSavingsToJustifyAnnualOffer)
+                        <p class="tw-mt-4 tw-leading-6">Get limited time bonuses.</p>
+                    @else
+                        <p class="tw-mt-4 tw-leading-6">Save {{ $savingsOfAnnualOverMonthly }}%<br>+ get limited time
+                            bonuses.
+                        </p>
+                    @endif
                     <a href="/#customize-anchor"
                        class="tw-uppercase tw-font-bold tw-no-underline bg-{{ $brand }} hover:{{ \Railroad\Crux\Services\BrandSpecificResourceService::styleHoverClass($brand) }} tw-p-3 tw-pl-16 tw-pr-16 tw-text-white tw-rounded-full tw-mt-8 tw-text-sm">
                         See Offer
