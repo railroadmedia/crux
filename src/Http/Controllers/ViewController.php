@@ -128,20 +128,6 @@ class ViewController extends Controller
 
         $subscription = UserAccessService::getMembershipSubscription($user->getId());
 
-        $savingsOfAnnualOverMonthly = $this->determineSavingsOfAnnualOverMonthly($brand, $subscription);
-
-        $pointThatSavingsGoFromAdvantageousToInsufficient = 10;
-
-        if ($savingsOfAnnualOverMonthly < $pointThatSavingsGoFromAdvantageousToInsufficient) {
-            $savingsOfAnnualOverMonthly = $savingsOfAnnualOverMonthly * -1;
-            $savingsOverAnnual = round((1 - (100 / ($savingsOfAnnualOverMonthly + 100))) * 100);
-            $pointThatSavingsGoFromAdvantageousToAmazing = 20;
-            $insufficientSavingsToJustifyAnnualOffer = true;
-            $savingsOverAnnualAreGood = ($savingsOverAnnual >= $pointThatSavingsGoFromAdvantageousToInsufficient) && ($savingsOverAnnual < $pointThatSavingsGoFromAdvantageousToAmazing);
-            $savingsOverAnnualAreAmazing = $savingsOverAnnual >= $pointThatSavingsGoFromAdvantageousToAmazing;
-            $savingsVsStandardMonthly = $this->determineSavingsOfMonthlyVsStandardMonthly($brand, $subscription);
-        }
-
         $params = [
             'brand' => $brand,
             'sections' => NavHelper::settingSections('account.details'),
@@ -155,15 +141,12 @@ class ViewController extends Controller
             'membershipStatus' => $permutation->membershipStatus(),
 
             // todo: move these to "helper" static class
-            'savingsOfAnnualOverMonthly' => $savingsOfAnnualOverMonthly,
-            'insufficientSavingsToJustifyAnnualOffer' => $insufficientSavingsToJustifyAnnualOffer ?? false,
             'featuresList' => BrandSpecificResourceService::featureList($brand),
-
-            'savingsOverAnnual' => $savingsOverAnnual ?? null,
-            'savingsOverAnnualAreGood' => $savingsOverAnnualAreGood ?? null,
-            'savingsOverAnnualAreAmazing' => $savingsOverAnnualAreAmazing ?? null,
-            'savingsVsStandardMonthly' => $savingsVsStandardMonthly ?? null,
         ];
+
+        $savingsParams = BrandSpecificResourceService::savingsInfo($brand, $subscription);
+
+        $params = array_merge($params, $savingsParams);
 
         return view(
             'crux::access-details',
@@ -190,8 +173,6 @@ class ViewController extends Controller
      */
     public function viewAnnualOffer()
     {
-        // todo: if offer is insufficiently advantageous compared to current price then don't display this page
-
         return view(
             'crux::win-back.annual-offer',
             [
@@ -206,13 +187,26 @@ class ViewController extends Controller
      */
     public function viewMonthlyOffer()
     {
-        // todo: if offer is insufficiently advantageous compared to current price then don't display this page
+        $user = current_user();
+        $brand = config('railcontent.brand');
+        $subscription = UserAccessService::getMembershipSubscription($user->getId());
+        $savingsParams = BrandSpecificResourceService::savingsInfo($brand, $subscription);
+
+        if ($subscription) {
+            $isMonthlySubscription = ($subscription->getIntervalType() == 'month') && ($subscription->getIntervalCount() == 1);
+
+            if ($isMonthlySubscription) {
+                $monthlyPrice = ((int) $subscription->getTotalPrice());
+            }
+        }
 
         return view(
             'crux::win-back.monthly-offer',
             [
                 'subscription' => UserAccessService::getMembershipSubscription(current_user()->getId()),
-                'brand' => config('railcontent.brand'),
+                'brand' => $brand,
+                'savingsOfOfferComparedToCurrent' => $savingsParams['savingsOfOfferComparedToCurrent'] ?? null,
+                'priceCurrent' => $monthlyPrice ?? null
             ]
         );
     }
@@ -229,59 +223,5 @@ class ViewController extends Controller
                 'brand' => config('railcontent.brand'),
             ]
         );
-    }
-
-    /**
-     * @param $brand
-     * @param Subscription|null $subscription
-     * @return float|int
-     *
-     * todo: move somewhere better
-     */
-    private function determineSavingsOfAnnualOverMonthly($brand, ?Subscription $subscription)
-    {
-        $pricesStandardCents = BrandSpecificResourceService::pricesStandardCents($brand);
-
-        $monthlyPriceTimesTwelveForSavingsValue = $pricesStandardCents['monthly']  * 12;
-
-        if ($subscription) {
-            $isMonthlySubscription = ($subscription->getIntervalType() == 'month') && ($subscription->getIntervalCount() == 1);
-
-            if ($isMonthlySubscription) {
-                $monthlyPriceInCents = ((int) $subscription->getTotalPrice()) * 100;
-                $monthlyPriceTimesTwelveForSavingsValue = $monthlyPriceInCents * 12;
-            }
-        }
-
-        $ratioRaw = $pricesStandardCents['annual'] / $monthlyPriceTimesTwelveForSavingsValue;
-        $ratioAdjusted = $ratioRaw * 100;
-        $percentageRaw = 100 - $ratioAdjusted;
-
-        return round($percentageRaw);
-    }
-
-    /**
-     * @param $brand
-     * @param Subscription|null $subscription
-     * @return float|int
-     *
-     * todo: move somewhere better
-     */
-    private function determineSavingsOfMonthlyVsStandardMonthly($brand, ?Subscription $subscription)
-    {
-        $pricesStandardCents = BrandSpecificResourceService::pricesStandardCents($brand);
-
-        $standardPriceInCents = $pricesStandardCents['monthly'];
-
-        if ($subscription) {
-            $isMonthlySubscription = ($subscription->getIntervalType() == 'month') && ($subscription->getIntervalCount() == 1);
-
-            if ($isMonthlySubscription) {
-                $monthlyPriceInCents = $subscription->getTotalPrice() * 100;
-                $savings = (int) round((1 - ($monthlyPriceInCents / $standardPriceInCents)) * 100);
-            }
-        }
-
-        return $savings ?? null;
     }
 }

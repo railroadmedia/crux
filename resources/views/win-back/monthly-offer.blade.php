@@ -38,8 +38,10 @@
 
     <p class="">We love our students and REALLY want to keep you around! So we’re offering you a
         discounted monthly rate of just ${{ $priceOfferCents / 100 }}/month.
-        (Save {{ 100 - round(($priceOfferCents / $priceStandardCents) * 100) }}% compared to the normal rate of
-        ${{ $priceStandardCents/100 }}).</p>
+{{--        (Save {{ 100 - round(($priceOfferCents / $priceStandardCents) * 100) }}% compared to the normal rate of--}}
+{{--        ${{ $priceStandardCents/100 }}).--}}
+        (Save {{ $savingsOfOfferComparedToCurrent }}% compared to your current rate of ${{ $priceCurrent }}).
+    </p>
 
     <p class="tw-mt-4">Your renewal date will not change and you’ll have access to
         this discount for as long as you remain a member.</p>

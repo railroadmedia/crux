@@ -2,6 +2,7 @@
 
 namespace Railroad\Crux\Services;
 
+use Railroad\Ecommerce\Entities\Subscription;
 use Railroad\Ecommerce\Repositories\ProductRepository;
 
 class BrandSpecificResourceService
@@ -226,5 +227,119 @@ class BrandSpecificResourceService
         }
 
         return 'https://dmmior4id2ysr.cloudfront.net/assets/images/drumeo-members-header-background-image.jpg';
+    }
+
+    // =================================================================================================================
+
+    /**
+     * @param $brand
+     * @param $subscription
+     * @return array
+     */
+    public static function savingsInfo($brand, $subscription)
+    {
+        // ----------------------------------------------------------------------------------------------------------
+        // $presentWinbackAnnualOffer ------------------------------------------------------------------------------
+        // ----------------------------------------------------------------------------------------------------------
+
+//        $isAnnualSubscription = $subscription->getIntervalType() == 'year';
+//        if ($isAnnualSubscription) {
+//            $monthlyPriceInCents = $subscription->getTotalPrice() * 100;
+//            $pricesOfferCentsAnnual = self::pricesOfferCents($brand)['annual'];
+//            $savingsOfCurrentOverOffer = (int) round((1 - ($monthlyPriceInCents / $pricesOfferCentsAnnual)) * 100);
+//            $doNotPresentWinbackAnnualOffer = $savingsOfCurrentOverOffer > 0;
+//        }
+
+        // ----------------------------------------------------------------------------------------------------------
+        // $presentWinbackMonthlyOffer ------------------------------------------------------------------------------
+        // ----------------------------------------------------------------------------------------------------------
+
+        $isMonthlySubscription = ($subscription->getIntervalType() == 'month') && ($subscription->getIntervalCount() == 1);
+        if ($isMonthlySubscription) {
+
+            $savingsOfAnnualOverMonthly = self::determineSavingsOfAnnualOverMonthly($brand, $subscription);
+
+            $pointThatSavingsGoFromAdvantageousToInsufficient = 10;
+
+            if ($savingsOfAnnualOverMonthly < $pointThatSavingsGoFromAdvantageousToInsufficient) {
+                $savingsOfAnnualOverMonthly = $savingsOfAnnualOverMonthly * -1;
+                $savingsOverAnnual = round((1 - (100 / ($savingsOfAnnualOverMonthly + 100))) * 100);
+                $pointThatSavingsGoFromAdvantageousToAmazing = 20;
+                $insufficientSavingsToJustifyAnnualOffer = true;
+                $savingsOverAnnualAreGood =
+                    ($savingsOverAnnual >= $pointThatSavingsGoFromAdvantageousToInsufficient)
+                    &&
+                    ($savingsOverAnnual < $pointThatSavingsGoFromAdvantageousToAmazing);
+                $savingsOverAnnualAreAmazing = $savingsOverAnnual >= $pointThatSavingsGoFromAdvantageousToAmazing;
+                $savingsVsStandardMonthly = self::determineSavingsOfMonthlyVsStandardMonthly($brand, $subscription);
+            }
+
+            $monthlyPriceInCents = $subscription->getTotalPrice() * 100;
+            $pricesOfferCentsMonthly = self::pricesOfferCents($brand)['monthly'];
+            $savingsOfOfferComparedToCurrent = (int) round((1 - $pricesOfferCentsMonthly / $monthlyPriceInCents) * 100);
+            $savingsOfCurrentComparedToOffer = (int) round((1 - $monthlyPriceInCents / $pricesOfferCentsMonthly) * 100);
+            $winbackMonthlyOfferIsInsufficient = $savingsOfCurrentComparedToOffer >= 0;
+        }
+
+        return [
+            'savingsOfAnnualOverMonthly' => $savingsOfAnnualOverMonthly ?? null,
+            'insufficientSavingsToJustifyAnnualOffer' => $insufficientSavingsToJustifyAnnualOffer ?? false,
+            'savingsOverAnnual' => $savingsOverAnnual ?? null,
+            'savingsOverAnnualAreGood' => $savingsOverAnnualAreGood ?? null,
+            'savingsOverAnnualAreAmazing' => $savingsOverAnnualAreAmazing ?? null,
+            'savingsVsStandardMonthly' => $savingsVsStandardMonthly ?? null,
+            'winbackMonthlyOfferIsInsufficient' => $winbackMonthlyOfferIsInsufficient ?? false,
+            'savingsOfOfferComparedToCurrent' => $savingsOfOfferComparedToCurrent ?? null
+        ];
+    }
+
+    /**
+     * @param $brand
+     * @param Subscription|null $subscription
+     * @return float|int
+     */
+    private static function determineSavingsOfAnnualOverMonthly($brand, ?Subscription $subscription)
+    {
+        $pricesStandardCents = BrandSpecificResourceService::pricesStandardCents($brand);
+
+        $monthlyPriceTimesTwelveForSavingsValue = $pricesStandardCents['monthly']  * 12;
+
+        if ($subscription) {
+            $isMonthlySubscription = ($subscription->getIntervalType() == 'month') && ($subscription->getIntervalCount() == 1);
+
+            if ($isMonthlySubscription) {
+                $monthlyPriceInCents = ((int) $subscription->getTotalPrice()) * 100;
+                $monthlyPriceTimesTwelveForSavingsValue = $monthlyPriceInCents * 12;
+            }
+        }
+
+        $ratioRaw = $pricesStandardCents['annual'] / $monthlyPriceTimesTwelveForSavingsValue;
+        $ratioAdjusted = $ratioRaw * 100;
+        $percentageRaw = 100 - $ratioAdjusted;
+
+        return round($percentageRaw);
+    }
+
+    /**
+     * @param $brand
+     * @param Subscription|null $subscription
+     * @return float|int
+     */
+    private static function determineSavingsOfMonthlyVsStandardMonthly($brand, ?Subscription $subscription)
+    {
+        $pricesStandardCents = BrandSpecificResourceService::pricesStandardCents($brand);
+
+        $standardPriceInCents = $pricesStandardCents['monthly'];
+
+        if ($subscription) {
+            $isMonthlySubscription = ($subscription->getIntervalType() == 'month') && ($subscription->getIntervalCount() == 1);
+
+            if ($isMonthlySubscription) {
+                $monthlyPriceInCents = $subscription->getTotalPrice() * 100;
+                $savings = (int) round((1 - ($monthlyPriceInCents / $standardPriceInCents)) * 100);
+            }
+        }
+
+        return $savings ?? null;
     }
 }

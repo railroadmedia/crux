@@ -313,9 +313,11 @@
                         </p>
                     @endif
                 @else
-                    <p class="tw-text-gray-600 tw-italic">
-                        Save {{ $savingsOfAnnualOverMonthly }}% with an annual plan.
-                    </p>
+                    @if(!empty($savingsOfAnnualOverMonthly))
+                        <p class="tw-text-gray-600 tw-italic">
+                            Save {{ $savingsOfAnnualOverMonthly }}% with an annual plan.
+                        </p>
+                    @endif
                 @endif
             @elseif($membershipStatus == 'canceled' || $membershipStatus == 'expired')
                 <p class="tw-text-gray-600 tw-italic">
@@ -632,8 +634,11 @@
     {{-- Upgrade To Annual  --}}
     @component('crux::partials._modal', ['modalId' => 'modal-upgrade-to-annual'])
         @slot('contentSlot')
-            <h1 class="heading tw-text-center">Save {{ $savingsOfAnnualOverMonthly }}% with an annual plan.</h1>
-
+            @if(!empty($savingsOfAnnualOverMonthly))
+                <h1 class="heading tw-text-center">Save {{ $savingsOfAnnualOverMonthly }}% with an annual plan.</h1>
+            @else
+                <h1 class="heading tw-text-center">Save with an annual plan.</h1>
+            @endif
             <div class="tw-flex md:tw-flex-row tw-flex-col tw-mt-10 tw-w-full">
                 <div class="tw-flex tw-flex-col md:tw-w-1/2 tw-w-full tw-mr-3 tw-items-center tw-text-center tw-rounded-lg tw-bg-gray-200 tw-p-0 tw-py-8">
                     <h1 class="tw-uppercase tw-font-bold">Your <br>Plan</h1>
@@ -661,12 +666,14 @@
                 </div>
                 <div class="tw-flex tw-flex-col md:tw-w-1/2 tw-w-full tw-ml-3 tw-items-center tw-text-center tw-rounded-lg {{ \Railroad\Crux\Services\BrandSpecificResourceService::styleBorderClass($brand) }} tw-border-2 tw-border-solid tw-p-3 tw-py-8">
                     <h1 class="tw-uppercase">Annual <br>Plan</h1>
-                    @if($insufficientSavingsToJustifyAnnualOffer)
+                    @if($insufficientSavingsToJustifyAnnualOffer || empty($savingsOfAnnualOverMonthly))
                         <p class="tw-mt-4 tw-leading-6">Get limited time bonuses.</p>
                     @else
-                        <p class="tw-mt-4 tw-leading-6">Save {{ $savingsOfAnnualOverMonthly }}%<br>+ get limited time
-                            bonuses.
-                        </p>
+                        @if(!empty($savingsOfAnnualOverMonthly))
+                            <p class="tw-mt-4 tw-leading-6">Save {{ $savingsOfAnnualOverMonthly }}%<br>+ get limited time
+                                bonuses.
+                            </p>
+                        @endif
                     @endif
                     <a href="/#customize-anchor"
                        class="tw-uppercase tw-font-bold tw-no-underline bg-{{ $brand }} hover:{{ \Railroad\Crux\Services\BrandSpecificResourceService::styleHoverClass($brand) }} tw-p-3 tw-pl-16 tw-pr-16 tw-text-white tw-rounded-full tw-mt-8 tw-text-sm">
@@ -715,9 +722,17 @@
 
                 <div class="tw-flex tw-flex-col md:tw-w-1/2 tw-w-full tw-ml-3 tw-items-center tw-text-center tw-rounded-lg {{ \Railroad\Crux\Services\BrandSpecificResourceService::styleBorderClass($brand) }} tw-border-2 tw-border-solid tw-p-3 tw-py-8">
                     <h1 class="tw-uppercase">Annual</h1>
-                    <p class="tw-mt-4 tw-leading-6">Save {{ $savingsOfAnnualOverMonthly }}% vs monthly
-                        <br>+ limited time bonuses
-                    </p>
+
+                    @if(!empty($savingsOfAnnualOverMonthly))
+                        <p class="tw-mt-4 tw-leading-6">Save {{ $savingsOfAnnualOverMonthly }}% vs monthly
+                            <br>+ limited time bonuses
+                        </p>
+                    @else
+                        <p class="tw-mt-4 tw-leading-6">Save compared to monthly
+                            <br>+ limited time bonuses
+                        </p>
+                    @endif
+
                     <a href="/"
                        target="_blank"
                        class="tw-uppercase tw-font-bold tw-no-underline bg-{{ $brand }} hover:{{ \Railroad\Crux\Services\BrandSpecificResourceService::styleHoverClass($brand) }} tw-p-3 tw-pl-16 tw-pr-16 tw-text-white tw-rounded-full tw-mt-8 tw-text-sm">

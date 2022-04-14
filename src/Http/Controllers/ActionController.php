@@ -282,9 +282,21 @@ class ActionController
         $match = in_array($reason, $criteria);
 
         // send to final offer screen depending on use case
+
+        $winbackMonthlyOfferIsInsufficient = false;
+
         if ($match) {
             if ($subscription->getIntervalType() == config('ecommerce.interval_type_monthly')) {
-                return redirect()->route('crux.win-back.monthly-offer');
+
+                // if offer is insufficiently advantageous compared to current price then don't display monthly-offer
+                // but rather display the student-plan
+                $savingsParams = BrandSpecificResourceService::savingsInfo(config('railcontent.brand'), $subscription);
+                $winbackMonthlyOfferIsInsufficient = $savingsParams['winbackMonthlyOfferIsInsufficient'];
+                $winbackMonthlyOfferIsSufficient = !$winbackMonthlyOfferIsInsufficient;
+
+                if ($winbackMonthlyOfferIsSufficient) {
+                    return redirect()->route('crux.win-back.monthly-offer');
+                }
             } else {
                 return redirect()->route('crux.win-back.annual-offer');
             }
@@ -301,7 +313,7 @@ class ActionController
 
         $match = in_array($reason, $criteria);
 
-        if ($match) {
+        if ($match || $winbackMonthlyOfferIsInsufficient) {
             return redirect()->route('crux.win-back.student-care');
         }
 
