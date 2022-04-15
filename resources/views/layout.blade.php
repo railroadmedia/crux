@@ -89,7 +89,7 @@
     @endif
 
     <div class="container mv-3">
-        <div class="flex flex-row mt-4">
+        <div class="flex flex-row">
             <div class="flex flex-column grow">
                 <div class="flex flex-row bb-grey-1-1">
                     @foreach($sections as $index => $section)
