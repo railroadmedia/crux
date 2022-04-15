@@ -144,9 +144,10 @@ class ViewController extends Controller
             'featuresList' => BrandSpecificResourceService::featureList($brand),
         ];
 
-        $savingsParams = BrandSpecificResourceService::savingsInfo($brand, $subscription);
-
-        $params = array_merge($params, $savingsParams);
+        if(!empty($subscription)){
+            $savingsParams = BrandSpecificResourceService::savingsInfo($brand, $subscription);
+            $params = array_merge($params, $savingsParams);
+        }
 
         return view(
             'crux::access-details',
