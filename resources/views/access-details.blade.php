@@ -300,7 +300,7 @@
         <div class="body tw-p-8 tw-pt-2">
             @if($membershipStatus == 'active' && $membershipType != 'lifetime' && $membershipType != '1-year')
 
-                @if($insufficientSavingsToJustifyAnnualOffer)
+                @if(!empty($insufficientSavingsToJustifyAnnualOffer))
                     @if($savingsOverAnnualAreAmazing)
                         <p class="tw-text-gray-600 tw-italic">
                             You've snagged an amazingly good monthly rate, saving {{ $savingsVsStandardMonthly }}%
@@ -666,7 +666,7 @@
                 </div>
                 <div class="tw-flex tw-flex-col md:tw-w-1/2 tw-w-full tw-ml-3 tw-items-center tw-text-center tw-rounded-lg {{ \Railroad\Crux\Services\BrandSpecificResourceService::styleBorderClass($brand) }} tw-border-2 tw-border-solid tw-p-3 tw-py-8">
                     <h1 class="tw-uppercase">Annual <br>Plan</h1>
-                    @if($insufficientSavingsToJustifyAnnualOffer || empty($savingsOfAnnualOverMonthly))
+                    @if(!empty($insufficientSavingsToJustifyAnnualOffer) || empty($savingsOfAnnualOverMonthly))
                         <p class="tw-mt-4 tw-leading-6">Get limited time bonuses.</p>
                     @else
                         @if(!empty($savingsOfAnnualOverMonthly))
