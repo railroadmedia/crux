@@ -51,7 +51,10 @@
 
             <p class="tw-mt-3">Your {{ ucfirst($brand) }} Account includes:</p>
             <ul class="tw-mt-3 tw-space-y-1">
-                @if($permutation->hasMembershipAccess())
+
+                @if($permutation->membershipType() == 'lifetime')
+                    <li>Lifetime Membership</li>
+                @elseif($permutation->hasMembershipAccess())
                     <li>Membership</li>
                 @endif
 
