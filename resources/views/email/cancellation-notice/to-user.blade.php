@@ -1,3 +1,5 @@
+@extends('crux::email.layout')
+
 @section('page-body')
 
 <p>We are sorry to see you go! Your {{ ucfirst($brand) }} membership has been deactivated, and your account will not
