@@ -142,7 +142,7 @@
 
                 @if ($membershipStatus !== null && $membershipStatus != 'paused')
                     <p class="tw-text-gray-600 tw-w-full">
-                        Thank you for being a member since {{ current_user()->getCreatedAt()->format('F j, Y') }}.
+                        Thank you for being a student since {{ current_user()->getCreatedAt()->format('F j, Y') }}.
                     </p>
                 @endif
 
