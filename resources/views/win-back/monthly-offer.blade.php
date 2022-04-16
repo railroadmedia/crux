@@ -106,7 +106,7 @@
 
         <a href="#"
            class="text-{{ $brand }} text-{{ $brand }}-hover-darken tw-uppercase tw-font-bold tw-no-underline tw-border-2 tw-border-solid tw-border-{{ $brand }} tw-p-4 tw-px-12 tw-rounded-full tw-mt-2 tw-w-full md:tw-w-1"
-           onclick="this.parentNode.submit(); return false;">
+           onclick="this.parentNode.submit(); return false;" style="cursor:pointer">
             Finish Cancelling
         </a>
     </form>

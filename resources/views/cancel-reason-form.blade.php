@@ -83,7 +83,8 @@
                         </p>
                         <button
                                 type="submit"
-                                class="tw-uppercase tw-font-bold tw-no-underline tw-border-0 tw-text-white tw-bg-{{ $brand }} tw-p-4 tw-px-12 tw-rounded-full tw-mt-2 tw-w-full md:tw-w-1/2 tw-text-center">
+                                class="tw-uppercase tw-font-bold tw-no-underline tw-border-0 tw-text-white tw-bg-{{ $brand }} tw-p-4 tw-px-12 tw-rounded-full tw-mt-2 tw-w-full md:tw-w-1/2 tw-text-center"
+                                style="cursor: pointer">
                             Cancel Membership
                         </button>
 
