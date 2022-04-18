@@ -189,22 +189,24 @@ class BrandSpecificResourceService
      */
     public static function leadInstructorDetails($brand)
     {
+        $lisaSignature = 'https://d1923uyy6spedc.cloudfront.net/signature-lisa.png';
+
         if ($brand == 'pianote') {
             return [
                 'portrait' => 'https://d1923uyy6spedc.cloudfront.net/headshot-circle-300-lisa.png',
-                'signature' => 'https://d1923uyy6spedc.cloudfront.net/jared-sig.jpg', // todo: update with proper signature
+                'signature' => $lisaSignature,
                 'name' => 'Lisa Witt'
             ];
         } else if($brand == 'guitareo') {
             return [
                 'portrait' => 'https://d1923uyy6spedc.cloudfront.net/headshot-circle-300-ayla.png',
-                'signature' => 'https://d1923uyy6spedc.cloudfront.net/jared-sig.jpg', // todo: update with proper signature
+                'signature' => 'https://d1923uyy6spedc.cloudfront.net/signature-ayla.png',
                 'name' => 'Ayla Tesler-Mabe'
             ];
         } else if($brand == 'singeo') {
             return [
                 'portrait' => 'https://d1923uyy6spedc.cloudfront.net/headshot-circle-300-lisa.png',
-                'signature' => 'https://d1923uyy6spedc.cloudfront.net/jared-sig.jpg', // todo: update with proper signature
+                'signature' => $lisaSignature,
                 'name' => 'Lisa Witt'
             ];
         }
