@@ -54,7 +54,8 @@
           action="{{ url()->route('crux.submit.add-student-plan-attribute') }}"
           class="tw-uppercase tw-font-bold tw-no-underline bg-{{ $brand }} hover:{{
     \Railroad\Crux\Services\BrandSpecificResourceService::styleHoverClass($brand)
-    }} tw-p-2 tw-px-5 md:tw-px-12 tw-text-white tw-rounded-full tw-mt-10 md:tw-mt-auto">
+    }} tw-p-2 tw-px-5 md:tw-px-12 tw-text-white tw-rounded-full tw-mt-10 md:tw-mt-auto"
+        style="cursor:pointer">
 
         {{ csrf_field() }}
 
