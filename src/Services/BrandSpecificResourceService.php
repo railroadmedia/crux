@@ -157,8 +157,8 @@ class BrandSpecificResourceService
                     )) * 100; // 17, GUITAREO-1-MONTH-MEMBERSHIP // 15 as of 220301
                 break;
             case 'singeo':
-                $priceStandardCentsAnnual = ((int)$repo->findProduct(125)->getPrice(
-                    )) * 100; // 125, singeo-annual-recurring-membership // 127 as of 220301
+                $priceStandardCentsAnnual = ((int)$repo->findProduct(410)->getPrice(
+                    )) * 100; // 410, singeo-annual-recurring-membership
                 $priceStandardCentsMonthly = ((int)$repo->findProduct(409)->getPrice(
                     )) * 100; // 409, singeo-monthly-recurring-membership // 15 as of 220301
                 break;
