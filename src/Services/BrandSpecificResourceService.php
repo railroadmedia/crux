@@ -137,30 +137,44 @@ class BrandSpecificResourceService
     {
         $repo = app(ProductRepository::class);
 
+        /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+        ### ez query to double-check ###
+        select id, sku from musora_laravel.ecommerce_products where id in (
+            125, # DLM-1-year
+            124, # DLM-1-month
+            6, # PIANOTE-MEMBERSHIP-1-YEAR
+            5, # PIANOTE-MEMBERSHIP-1-MONTH
+            18, # GUITAREO-1-YEAR-MEMBERSHIP
+            17, # GUITAREO-1-MONTH-MEMBERSHIP
+            410, # singeo-annual-recurring-membership
+            409 # singeo-monthly-recurring-membership
+        )
+         * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+
         switch ($brand) {
             case 'drumeo':
                 $priceStandardCentsAnnual = ((int)$repo->findProduct(125)->getPrice(
-                    )) * 100; // 125, DLM-1-year // 240 as of 220301
+                    )) * 100; // 125, DLM-1-year
                 $priceStandardCentsMonthly = ((int)$repo->findProduct(124)->getPrice(
-                    )) * 100; // 124, DLM-1-month // 29 as of 220301
+                    )) * 100; // 124, DLM-1-month
                 break;
             case 'pianote':
                 $priceStandardCentsAnnual = ((int)$repo->findProduct(6)->getPrice(
-                    )) * 100; // 6, PIANOTE-MEMBERSHIP-1-YEAR // 197 as of 220301
+                    )) * 100; // 6, PIANOTE-MEMBERSHIP-1-YEAR
                 $priceStandardCentsMonthly = ((int)$repo->findProduct(5)->getPrice(
-                    )) * 100; // 5, PIANOTE-MEMBERSHIP-1-MONTH // 29 as of 220301
+                    )) * 100; // 5, PIANOTE-MEMBERSHIP-1-MONTH
                 break;
             case 'guitareo':
                 $priceStandardCentsAnnual = ((int)$repo->findProduct(18)->getPrice(
-                    )) * 100; // 18, GUITAREO-1-YEAR-MEMBERSHIP // 127 as of 220301
+                    )) * 100; // 18, GUITAREO-1-YEAR-MEMBERSHIP
                 $priceStandardCentsMonthly = ((int)$repo->findProduct(17)->getPrice(
-                    )) * 100; // 17, GUITAREO-1-MONTH-MEMBERSHIP // 15 as of 220301
+                    )) * 100; // 17, GUITAREO-1-MONTH-MEMBERSHIP
                 break;
             case 'singeo':
                 $priceStandardCentsAnnual = ((int)$repo->findProduct(410)->getPrice(
                     )) * 100; // 410, singeo-annual-recurring-membership
                 $priceStandardCentsMonthly = ((int)$repo->findProduct(409)->getPrice(
-                    )) * 100; // 409, singeo-monthly-recurring-membership // 15 as of 220301
+                    )) * 100; // 409, singeo-monthly-recurring-membership
                 break;
         }
 
